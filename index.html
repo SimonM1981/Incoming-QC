@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QC Portal - Editable</title>
+    <title>QC Portal - Manual & Bulk Save</title>
     
     <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
@@ -16,12 +16,14 @@
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .input-group label { display: block; font-size: 11px; font-weight: bold; color: #666; margin-bottom: 4px; }
         input { padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 100%; box-sizing: border-box; }
-        .btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .btn-save { background: #007bff; color: white; }
-        .btn-bulk { background: #28a745; color: white; width: 100%; margin-top: 10px; display: none; }
+        
+        .btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; color: white; }
+        .btn-save { background: #007bff; }
+        .btn-bulk { background: #28a745; width: 100%; margin-top: 10px; display: none; }
+        .btn-update { background: #ffc107; color: #212529; display: none; margin-bottom: 10px; }
+        
         #paste-zone { border: 2px dashed #007bff; padding: 20px; text-align: center; background: #f0f7ff; color: #007bff; border-radius: 8px; margin-top: 15px; cursor: pointer; }
         #search-box { margin-bottom: 15px; padding: 12px; width: 100%; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; }
-        .hint { font-size: 12px; color: #666; margin-bottom: 10px; display: block; }
     </style>
 </head>
 <body>
@@ -37,7 +39,7 @@
             <div class="input-group"><label>Q'TY</label><input type="number" id="m-qty"></div>
             <div class="input-group"><label>Issued By</label><input type="text" id="m-issued"></div>
         </div>
-        <button class="btn btn-save" onclick="saveManual()">Save New Row</button>
+        <button class="btn btn-save" onclick="saveManual()">Save New Entry</button>
         
         <div id="paste-zone">Click here & <b>Ctrl + V</b> to Paste from Excel</div>
         <button id="bulk-save-btn" class="btn btn-bulk" onclick="sendToSheets(bulkData)"></button>
@@ -45,7 +47,7 @@
 
     <div class="card">
         <h2>Incoming Database</h2>
-        <span class="hint">💡 <b>Double-click</b> on any Qty cell below to amend the value and press Enter.</span>
+        <button id="update-btn" class="btn btn-update" onclick="commitUpdate()">⚠️ SAVE QUANTITY CHANGES</button>
         <input type="text" id="search-box" placeholder="🔍 Search Part Number...">
         <div id="main-table"></div>
     </div>
@@ -54,6 +56,7 @@
 <script>
     const APP_URL = "https://script.google.com/macros/s/AKfycbxI9ULlAc5od8QU1Og3B6BdiYutO7Tx0ZkQYtcYBx1h_s93VVqCSbc4kzrr8cnTSRAX/exec";
     let bulkData = [];
+    let pendingUpdate = null;
 
     const table = new Tabulator("#main-table", {
         height: "500px",
@@ -67,12 +70,19 @@
             {
                 title: "Qty", 
                 field: "5", 
-                width: 90, 
+                width: 100, 
                 editor: "number", 
-                hozAlign: "center",
                 cellEdited: function(cell) {
                     const row = cell.getRow().getData();
-                    updateQty(row[0], cell.getValue());
+                    // Store the change locally first
+                    pendingUpdate = {
+                        action: "updateQty",
+                        timestamp: row[0],
+                        newQty: cell.getValue()
+                    };
+                    // Show the yellow Save button
+                    document.getElementById('update-btn').style.display = "inline-block";
+                    document.getElementById('update-btn').innerText = "⚠️ SAVE CHANGES FOR PART: " + row[4];
                 }
             },
             {title: "Issued By", field: "6"},
@@ -87,18 +97,21 @@
         }
     }
 
-    // UPDATE QTY FUNCTION
-    async function updateQty(timestamp, newQty) {
-        const payload = {
-            action: "updateQty",
-            timestamp: timestamp,
-            newQty: newQty
-        };
+    // FUNCTION TO SAVE THE AMENDED QTY
+    async function commitUpdate() {
+        if (!pendingUpdate) return;
+        const btn = document.getElementById('update-btn');
+        btn.innerText = "Saving Changes...";
+        btn.disabled = true;
+
         try {
-            await fetch(APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-            console.log("Qty updated for row: " + timestamp);
+            await fetch(APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(pendingUpdate) });
+            alert("Quantity Updated Successfully!");
+            pendingUpdate = null;
+            location.reload();
         } catch (e) {
-            alert("Error updating quantity in Sheet.");
+            alert("Error updating database.");
+            btn.disabled = false;
         }
     }
 
@@ -115,7 +128,7 @@
             qty: document.getElementById('m-qty').value,
             issuedBy: document.getElementById('m-issued').value
         };
-        if(!data.partNo || !data.receivedDate) return alert("Please fill in Date and Part Number.");
+        if(!data.partNo || !data.receivedDate) return alert("Please enter Date and Part Number.");
         sendToSheets(data);
     }
 
