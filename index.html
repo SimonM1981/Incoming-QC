@@ -4,32 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QC Incoming Portal</title>
-    
+   
     <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
-
     <style>
         body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f4f7f9; color: #333; }
         .container { max-width: 1100px; margin: auto; }
         .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; border-top: 5px solid #007bff; }
         h2 { color: #007bff; margin-top: 0; font-size: 1.5rem; padding-bottom: 10px; border-bottom: 1px solid #eee; }
-        
+       
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .input-group label { display: block; font-size: 11px; font-weight: bold; color: #666; margin-bottom: 4px; text-transform: uppercase; }
         input { padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 100%; box-sizing: border-box; font-size: 14px; }
-        
+       
         .btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-save { background: #007bff; color: white; }
         .btn-save:hover { background: #0056b3; }
         .btn-bulk { background: #28a745; color: white; width: 100%; margin-top: 10px; display: none; }
-        
+       
         #paste-zone { border: 2px dashed #007bff; padding: 20px; text-align: center; background: #f0f7ff; color: #007bff; border-radius: 8px; margin-top: 20px; cursor: pointer; }
         #search-box { margin-bottom: 15px; padding: 12px; width: 100%; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         #search-box:focus { border-color: #007bff; outline: none; }
     </style>
 </head>
 <body>
-
 <div class="container">
     <div class="card">
         <h2>Data Entry</h2>
@@ -42,11 +40,11 @@
             <div class="input-group"><label>Issued By</label><input type="text" id="m-issued" placeholder="..."></div>
         </div>
         <button class="btn btn-save" onclick="saveManual()">Save Single Entry</button>
-        
+       
         <div id="paste-zone">Click here & Press <b>Ctrl + V</b> to paste from Excel</div>
         <button id="bulk-save-btn" class="btn btn-bulk" onclick="sendToSheets(bulkData)"></button>
     </div>
-
+    
     <div class="card">
         <h2>Incoming Database</h2>
         <input type="text" id="search-box" placeholder="🔍 Search by Part Number...">
@@ -57,6 +55,7 @@
 <script>
     // YOUR GOOGLE SCRIPT URL
     const URL = "https://script.google.com/macros/s/AKfycbxI9ULlAc5od8QU1Og3B6BdiYutO7Tx0ZkQYtcYBx1h_s93VVqCSbc4kzrr8cnTSRAX/exec";
+
     let bulkData = [];
 
     // Initialize Table
@@ -70,7 +69,20 @@
             {title: "Customer", field: "2"},
             {title: "P/I No.", field: "3"},
             {title: "Part No.", field: "4"},
-            {title: "Qty", field: "5", width: 80},
+            {title: "Qty", field: "5", width: 100, 
+                editor: "number", 
+                editorParams: { min: 0 },
+                cellEdited: function(cell) {
+                    const rowData = cell.getRow().getData();
+                    const newQty = parseInt(cell.getValue()) || 0;
+
+                    updateQtyInSheets({
+                        receivedDate: rowData[1],   // Date
+                        partNo: rowData[4],         // Part Number
+                        qty: newQty
+                    });
+                }
+            },
             {title: "Issued By", field: "6"},
         ],
     });
@@ -80,6 +92,7 @@
         try {
             const response = await fetch(URL);
             const data = await response.json();
+            
             if (data.length > 1) {
                 table.setData(data.slice(1).reverse());
             } else {
@@ -113,7 +126,7 @@
     document.addEventListener('paste', (e) => {
         const text = e.clipboardData.getData('text');
         const rows = text.split('\n').filter(r => r.trim() !== "");
-        
+
         bulkData = rows.map(r => {
             const c = r.split('\t');
             return { receivedDate: c[0], customer: c[1], piNo: c[2], partNo: c[3], qty: c[4], issuedBy: c[5] };
@@ -127,22 +140,50 @@
         }
     });
 
-    // 5. Send Data to Sheets
+    // 5. Send New Data (Single or Bulk)
     async function sendToSheets(payload) {
-        const btn = event.target;
-        btn.innerText = "Saving...";
-        btn.disabled = true;
+        const btn = event ? event.target : null;
+        if (btn) {
+            btn.innerText = "Saving...";
+            btn.disabled = true;
+        }
 
         try {
-            await fetch(URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+            await fetch(URL, { 
+                method: "POST", 
+                mode: "no-cors", 
+                body: JSON.stringify(payload) 
+            });
             alert("Saved Successfully!");
             location.reload();
         } catch (e) {
             alert("Error saving data.");
-            btn.disabled = false;
+            if (btn) btn.disabled = false;
         }
     }
 
+    // 6. Update Only QTY
+    async function updateQtyInSheets(updateData) {
+        try {
+            await fetch(URL, { 
+                method: "POST", 
+                mode: "no-cors", 
+                body: JSON.stringify({ 
+                    action: "updateQty", 
+                    receivedDate: updateData.receivedDate,
+                    partNo: updateData.partNo,
+                    qty: updateData.qty
+                }) 
+            });
+            console.log(`Qty updated to ${updateData.qty} for Part ${updateData.partNo}`);
+        } catch (e) {
+            console.error("Error updating Qty:", e);
+            alert("Error updating quantity. Please try again.");
+            loadData(); // reload to revert change if failed
+        }
+    }
+
+    // Initial load
     loadData();
 </script>
 </body>
