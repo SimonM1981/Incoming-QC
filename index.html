@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QC Incoming Data Portal</title>
+    <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
+    
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f8f9fa; }
+        .container { max-width: 1200px; margin: auto; }
+        .header { background: #007bff; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        input[type="text"] { padding: 10px; border: 1px solid #ddd; border-radius: 4px; flex-grow: 1; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold; }
+        .btn-save { background-color: #28a745; }
+        .btn-load { background-color: #6c757d; }
+        #paste-area { width: 100%; height: 60px; border: 2px dashed #007bff; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #007bff; background: #e7f1ff; margin-bottom: 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Incoming From QC - Database</h1>
+    </div>
+
+    <div class="controls">
+        <input type="text" id="search-input" placeholder="Search by Part Number...">
+        <button class="btn btn-load" onclick="loadData()">Refresh Data</button>
+    </div>
+
+    <div id="paste-area">
+        Click here and press <strong>Ctrl + V</strong> to paste from Excel
+    </div>
+
+    <div id="data-table"></div>
+
+    <div style="margin-top: 20px;">
+        <button class="btn btn-save" id="save-btn" style="display:none;" onclick="saveToSheets()">Save New Data to Google Sheets</button>
+    </div>
+</div>
+
+<script>
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxI9ULlAc5od8QU1Og3B6BdiYutO7Tx0ZkQYtcYBx1h_s93VVqCSbc4kzrr8cnTSRAX/exec";
+    let tableData = [];
+    let newRows = [];
+
+    // Initialize Table
+    var table = new Tabulator("#data-table", {
+        data: tableData,
+        layout: "fitColumns",
+        placeholder: "No Data Available",
+        columns: [
+            {title: "Timestamp", field: "0", width: 150},
+            {title: "Received Date", field: "1", editor: "input"},
+            {title: "Customer Name", field: "2", editor: "input"},
+            {title: "P/I No.", field: "3", editor: "input"},
+            {title: "PARTS No.", field: "4", editor: "input"},
+            {title: "Q'TY", field: "5", editor: "input"},
+            {title: "Issued By", field: "6", editor: "input"},
+        ],
+    });
+
+    // Handle Search
+    document.getElementById("search-input").addEventListener("keyup", function(e){
+        table.setFilter("4", "like", e.target.value);
+    });
+
+    // Handle Paste from Excel
+    document.addEventListener('paste', function (e) {
+        let paste = (e.clipboardData || window.clipboardData).getData('text');
+        let rows = paste.split('\n').filter(row => row.trim() !== "");
+        
+        newRows = rows.map(row => {
+            let cols = row.split('\t');
+            return {
+                receivedDate: cols[0] || "",
+                customer: cols[1] || "",
+                piNo: cols[2] || "",
+                partNo: cols[3] || "",
+                qty: cols[4] || "",
+                issuedBy: cols[5] || ""
+            };
+        });
+
+        // Show a preview in the table (Note: Indexing for preview matches the Sheet columns)
+        let previewData = newRows.map(r => ({ "1": r.receivedDate, "2": r.customer, "3": r.piNo, "4": r.partNo, "5": r.qty, "6": r.issuedBy }));
+        table.setData(previewData);
+        document.getElementById("save-btn").style.display = "block";
+        document.getElementById("save-btn").innerText = `Save ${newRows.length} Rows to Google Sheets`;
+    });
+
+    // Load existing data from Google Sheets
+    async function loadData() {
+        document.getElementById("save-btn").style.display = "none";
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL);
+            const data = await response.json();
+            // Remove the header row from Google Sheets
+            data.shift(); 
+            table.setData(data);
+        } catch (error) {
+            alert("Error loading data. Make sure you deployed the Google Script correctly.");
+        }
+    }
+
+    // Save pasted data to Google Sheets
+    async function saveToSheets() {
+        const btn = document.getElementById("save-btn");
+        btn.innerText = "Saving...";
+        btn.disabled = true;
+
+        try {
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors", // Required for Google Scripts
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newRows)
+            });
+            alert("Data sent successfully! (Refresh in 5 seconds to see updates)");
+            location.reload();
+        } catch (error) {
+            alert("Error saving data.");
+            btn.disabled = false;
+        }
+    }
+
+    // Initial Load
+    loadData();
+</script>
+
+</body>
+</html>
