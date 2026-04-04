@@ -44,19 +44,19 @@
         height: "500px",
         layout: "fitColumns",
         columns: [
-            {title: "ID", field: "0", visible: false}, 
-            {title: "Timestamp", field: "1", width: 130},
-            {title: "Date", field: "2", width: 100},
-            {title: "Customer", field: "3"},
-            {title: "P/I No.", field: "4"},
-            {title: "Part No.", field: "5"},
+            {title: "ID", field: "0", visible: false}, // Column A
+            {title: "Timestamp", field: "1", width: 130}, // Column B
+            {title: "Date", field: "2", width: 100}, // Column C
+            {title: "Customer", field: "3"}, // Column D
+            {title: "P/I No.", field: "4"}, // Column E
+            {title: "Part No.", field: "5"}, // Column F
             {title: "Qty", field: "6", width: 100, editor: "number", cellEdited: function(cell){
                 const row = cell.getRow().getData();
                 pendingUpdate = { action: "updateQty", id: row[0], newQty: cell.getValue() };
                 document.getElementById('update-btn').style.display = "block";
                 document.getElementById('update-btn').innerText = "⚠️ SAVE: Change Part " + row[5] + " to Qty " + cell.getValue();
             }},
-            {title: "Issued By", field: "7"},
+            {title: "Issued By", field: "7"}, // Column H
         ],
     });
 
@@ -86,7 +86,7 @@
     }
 
     document.getElementById("search-box").addEventListener("keyup", (e) => {
-        table.setFilter("5", "like", e.target.value);
+        table.setFilter("5", "like", e.target.value); // Searches Part Number column
     });
 
     loadData();
