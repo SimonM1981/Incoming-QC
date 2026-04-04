@@ -3,75 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QC Portal</title>
+    <title>QC Incoming Portal</title>
+    
     <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
+
     <style>
-        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f4f7f9; }
-        .container { max-width: 1150px; margin: auto; }
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f4f7f9; color: #333; }
+        .container { max-width: 1100px; margin: auto; }
         .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; border-top: 5px solid #007bff; }
-        .btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; }
-        .btn-update { background: #ffc107; color: #212529; display: none; width: 100%; margin-bottom: 10px; }
-        input { padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+        h2 { color: #007bff; margin-top: 0; font-size: 1.5rem; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 11px; font-weight: bold; color: #666; margin-bottom: 4px; text-transform: uppercase; }
+        input { padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 100%; box-sizing: border-box; font-size: 14px; }
+        
+        .btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-save { background: #007bff; color: white; }
+        .btn-save:hover { background: #0056b3; }
+        .btn-bulk { background: #28a745; color: white; width: 100%; margin-top: 10px; display: none; }
+        
+        #paste-zone { border: 2px dashed #007bff; padding: 20px; text-align: center; background: #f0f7ff; color: #007bff; border-radius: 8px; margin-top: 20px; cursor: pointer; }
+        #search-box { margin-bottom: 15px; padding: 12px; width: 100%; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        #search-box:focus { border-color: #007bff; outline: none; }
     </style>
 </head>
 <body>
+
 <div class="container">
     <div class="card">
         <h2>Data Entry</h2>
-        <input type="date" id="m-date">
-        <input type="text" id="m-customer" placeholder="Customer">
-        <input type="text" id="m-pi" placeholder="P/I No.">
-        <input type="text" id="m-part" placeholder="Part No.">
-        <input type="number" id="m-qty" placeholder="Qty">
-        <input type="text" id="m-issued" placeholder="Issued By">
-        <button class="btn" style="background:#007bff" onclick="saveManual()">Save Entry</button>
+        <div class="form-grid">
+            <div class="input-group"><label>Received Date</label><input type="date" id="m-date"></div>
+            <div class="input-group"><label>Customer Name</label><input type="text" id="m-customer" placeholder="..."></div>
+            <div class="input-group"><label>P/I No.</label><input type="text" id="m-pi" placeholder="..."></div>
+            <div class="input-group"><label>PARTS No.</label><input type="text" id="m-part" placeholder="..."></div>
+            <div class="input-group"><label>Q'TY</label><input type="number" id="m-qty" placeholder="0"></div>
+            <div class="input-group"><label>Issued By</label><input type="text" id="m-issued" placeholder="..."></div>
+        </div>
+        <button class="btn btn-save" onclick="saveManual()">Save Single Entry</button>
+        
+        <div id="paste-zone">Click here & Press <b>Ctrl + V</b> to paste from Excel</div>
+        <button id="bulk-save-btn" class="btn btn-bulk" onclick="sendToSheets(bulkData)"></button>
     </div>
 
     <div class="card">
         <h2>Incoming Database</h2>
-        <button id="update-btn" class="btn btn-update" onclick="commitUpdate()"></button>
-        <input type="text" id="search-box" placeholder="🔍 Search Part Number...">
+        <input type="text" id="search-box" placeholder="🔍 Search by Part Number...">
         <div id="main-table"></div>
     </div>
 </div>
 
 <script>
-    const APP_URL = "YOUR_NEW_DEPLOYMENT_URL_HERE";
-    let pendingUpdate = null;
+    // YOUR GOOGLE SCRIPT URL
+    const URL = "https://script.google.com/macros/s/AKfycbxI9ULlAc5od8QU1Og3B6BdiYutO7Tx0ZkQYtcYBx1h_s93VVqCSbc4kzrr8cnTSRAX/exec";
+    let bulkData = [];
 
+    // Initialize Table
     const table = new Tabulator("#main-table", {
         height: "500px",
         layout: "fitColumns",
+        placeholder: "Loading data...",
         columns: [
-            {title: "ID", field: "0", visible: false}, // Column A
-            {title: "Timestamp", field: "1", width: 130}, // Column B
-            {title: "Date", field: "2", width: 100}, // Column C
-            {title: "Customer", field: "3"}, // Column D
-            {title: "P/I No.", field: "4"}, // Column E
-            {title: "Part No.", field: "5"}, // Column F
-            {title: "Qty", field: "6", width: 100, editor: "number", cellEdited: function(cell){
-                const row = cell.getRow().getData();
-                pendingUpdate = { action: "updateQty", id: row[0], newQty: cell.getValue() };
-                document.getElementById('update-btn').style.display = "block";
-                document.getElementById('update-btn').innerText = "⚠️ SAVE: Change Part " + row[5] + " to Qty " + cell.getValue();
-            }},
-            {title: "Issued By", field: "7"}, // Column H
+            {title: "Timestamp", field: "0", width: 120},
+            {title: "Date", field: "1", width: 120},
+            {title: "Customer", field: "2"},
+            {title: "P/I No.", field: "3"},
+            {title: "Part No.", field: "4"},
+            {title: "Qty", field: "5", width: 80},
+            {title: "Issued By", field: "6"},
         ],
     });
 
+    // 1. Fetch Data
     async function loadData() {
-        const res = await fetch(APP_URL);
-        const data = await res.json();
-        if (data.length > 1) table.setData(data.slice(1).reverse());
+        try {
+            const response = await fetch(URL);
+            const data = await response.json();
+            if (data.length > 1) {
+                table.setData(data.slice(1).reverse());
+            } else {
+                table.setPlaceholder("No data found.");
+            }
+        } catch (e) {
+            table.setPlaceholder("Error connecting to Google Sheets.");
+        }
     }
 
-    async function commitUpdate() {
-        await fetch(APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(pendingUpdate) });
-        alert("Updated!");
-        location.reload();
-    }
+    // 2. Search
+    document.getElementById("search-box").addEventListener("keyup", (e) => {
+        table.setFilter("4", "like", e.target.value);
+    });
 
+    // 3. Manual Save
     function saveManual() {
         const data = {
             receivedDate: document.getElementById('m-date').value,
@@ -81,13 +105,43 @@
             qty: document.getElementById('m-qty').value,
             issuedBy: document.getElementById('m-issued').value
         };
-        fetch(APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) })
-        .then(() => { alert("Saved!"); location.reload(); });
+        if(!data.partNo || !data.receivedDate) return alert("Please enter Date and Part Number.");
+        sendToSheets(data);
     }
 
-    document.getElementById("search-box").addEventListener("keyup", (e) => {
-        table.setFilter("5", "like", e.target.value); // Searches Part Number column
+    // 4. Paste Handling
+    document.addEventListener('paste', (e) => {
+        const text = e.clipboardData.getData('text');
+        const rows = text.split('\n').filter(r => r.trim() !== "");
+        
+        bulkData = rows.map(r => {
+            const c = r.split('\t');
+            return { receivedDate: c[0], customer: c[1], piNo: c[2], partNo: c[3], qty: c[4], issuedBy: c[5] };
+        });
+
+        if(bulkData.length > 0) {
+            const btn = document.getElementById('bulk-save-btn');
+            btn.style.display = "block";
+            btn.innerText = `Save ${bulkData.length} Rows from Excel`;
+            document.getElementById('paste-zone').innerText = "Data captured! Click the green button below.";
+        }
     });
+
+    // 5. Send Data to Sheets
+    async function sendToSheets(payload) {
+        const btn = event.target;
+        btn.innerText = "Saving...";
+        btn.disabled = true;
+
+        try {
+            await fetch(URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+            alert("Saved Successfully!");
+            location.reload();
+        } catch (e) {
+            alert("Error saving data.");
+            btn.disabled = false;
+        }
+    }
 
     loadData();
 </script>
