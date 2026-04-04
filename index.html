@@ -4,82 +4,130 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QC Incoming Portal</title>
+    
     <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
+
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f7f6; color: #333; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h3 { margin-top: 0; color: #007bff; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px; }
-        input { padding: 10px; border: 1px solid #ddd; border-radius: 4px; width: 100%; box-sizing: border-box; }
-        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background: #f0f2f5; color: #1c1e21; }
+        .container { max-width: 1100px; margin: auto; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 25px; }
+        h2 { margin-top: 0; color: #007bff; border-bottom: 2px solid #e7f1ff; padding-bottom: 10px; }
+        
+        /* Form Styling */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #666; }
+        input { padding: 12px; border: 1px solid #ddd; border-radius: 6px; width: 100%; box-sizing: border-box; font-size: 14px; }
+        input:focus { border-color: #007bff; outline: none; box-shadow: 0 0 0 2px rgba(0,123,255,0.25); }
+
+        /* Buttons */
+        .btn { padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .btn-primary { background: #007bff; color: white; }
-        .btn-success { background: #28a745; color: white; }
-        #paste-zone { border: 2px dashed #007bff; padding: 15px; text-align: center; background: #eef6ff; color: #007bff; margin-bottom: 15px; border-radius: 8px; }
-        .search-container { margin-bottom: 15px; }
+        .btn-primary:hover { background: #0056b3; }
+        .btn-success { background: #28a745; color: white; width: 100%; margin-top: 10px; }
+        .btn-success:hover { background: #218838; }
+
+        /* Paste Zone */
+        #paste-zone { border: 2px dashed #007bff; padding: 20px; text-align: center; background: #f8fbff; color: #007bff; border-radius: 8px; cursor: pointer; margin-bottom: 10px; }
+        #paste-zone:hover { background: #eef6ff; }
+
+        /* Search */
+        .search-bar { margin-bottom: 15px; position: relative; }
+        #search-box { padding-left: 40px; background: white url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="grey" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>') no-repeat 12px center; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h3>Manual Data Entry</h3>
-    <div class="form-grid">
-        <input type="date" id="m-date" placeholder="Received Date">
-        <input type="text" id="m-customer" placeholder="Customer Name">
-        <input type="text" id="m-pi" placeholder="P/I No.">
-        <input type="text" id="m-part" placeholder="PARTS No.">
-        <input type="number" id="m-qty" placeholder="Q'TY">
-        <input type="text" id="m-issued" placeholder="Issued By">
+<div class="container">
+    <div class="card">
+        <h2>New Entry</h2>
+        <div class="form-grid">
+            <div class="input-group">
+                <label>Received Date</label>
+                <input type="date" id="m-date">
+            </div>
+            <div class="input-group">
+                <label>Customer Name</label>
+                <input type="text" id="m-customer" placeholder="Company Name">
+            </div>
+            <div class="input-group">
+                <label>P/I No.</label>
+                <input type="text" id="m-pi" placeholder="PI-123">
+            </div>
+            <div class="input-group">
+                <label>PARTS No.</label>
+                <input type="text" id="m-part" placeholder="PN-999">
+            </div>
+            <div class="input-group">
+                <label>Q'TY</label>
+                <input type="number" id="m-qty" placeholder="0">
+            </div>
+            <div class="input-group">
+                <label>Issued By</label>
+                <input type="text" id="m-issued" placeholder="Staff Name">
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveManual()">Save Single Entry</button>
+        
+        <hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;">
+        
+        <div id="paste-zone">Click here & Press <b>Ctrl+V</b> to Paste multiple rows from Excel</div>
+        <button id="bulk-save-btn" class="btn btn-success" style="display:none;" onclick="sendToSheets(bulkData)">Confirm & Save Pasted Rows</button>
     </div>
-    <button class="btn btn-primary" onclick="saveManual()">Save Single Entry</button>
-</div>
 
-<div class="card">
-    <h3>Bulk Upload</h3>
-    <div id="paste-zone">Click here & Press <b>Ctrl+V</b> to paste Excel data</div>
-    <button id="bulk-save-btn" class="btn btn-success" style="display:none;" onclick="sendToSheets(bulkData)">Save Pasted Rows</button>
-</div>
-
-<div class="card">
-    <h3>Database View</h3>
-    <div class="search-container">
-        <input type="text" id="search-box" placeholder="🔍 Search Part Number...">
+    <div class="card">
+        <h2>Incoming Database</h2>
+        <div class="search-bar">
+            <input type="text" id="search-box" placeholder="Search by Part Number...">
+        </div>
+        <div id="main-table"></div>
     </div>
-    <div id="main-table"></div>
 </div>
 
 <script>
-    const URL = "https://script.google.com/macros/s/AKfycbxI9ULlAc5od8QU1Og3B6BdiYutO7Tx0ZkQYtcYBx1h_s93VVqCSbc4kzrr8cnTSRAX/exec";
+    const APP_URL = "https://script.google.com/macros/s/AKfycbxI9ULlAc5od8QU1Og3B6BdiYutO7Tx0ZkQYtcYBx1h_s93VVqCSbc4kzrr8cnTSRAX/exec";
     let bulkData = [];
 
+    // Initialize the Table
     const table = new Tabulator("#main-table", {
-        height: "400px",
+        height: "500px",
         layout: "fitColumns",
+        placeholder: "Fetching data from Google Sheets...",
         columns: [
-    {title: "Timestamp", field: "0", width: 100},
-    {title: "Date", field: "1", width: 100}, // Will show as 04-04-26
-    {title: "Customer", field: "2"},
-    {title: "P/I No.", field: "3"},
-    {title: "Part No.", field: "4"},
-    {title: "Qty", field: "5", width: 80},
-    {title: "Issued By", field: "6"},
-],
+            {title: "Timestamp", field: "0", width: 100},
+            {title: "Date", field: "1", width: 100},
+            {title: "Customer", field: "2"},
+            {title: "P/I No.", field: "3"},
+            {title: "Part No.", field: "4"},
+            {title: "Qty", field: "5", width: 80},
+            {title: "Issued By", field: "6"},
+        ],
     });
 
-    // 1. LOAD DATA
+    // 1. Fetch data from Sheet
     async function loadData() {
-        const res = await fetch(URL);
-        const json = await res.json();
-        json.shift(); // Remove header row
-        table.setData(json.reverse()); // Newest first
+        try {
+            const response = await fetch(APP_URL);
+            const rawData = await response.json();
+            // Data format from Sheet: [[ColA, ColB...], [Row2...]]
+            if (rawData.length > 1) {
+                const rows = rawData.slice(1); // Remove header row
+                table.setData(rows.reverse()); // Show newest at top
+            } else {
+                table.setPlaceholder("Database is currently empty.");
+            }
+        } catch (e) {
+            console.error(e);
+            table.setPlaceholder("Error: Could not connect to Google Sheets.");
+        }
     }
 
-    // 2. SEARCH
+    // 2. Search Functionality
     document.getElementById("search-box").addEventListener("keyup", (e) => {
         table.setFilter("4", "like", e.target.value);
     });
 
-    // 3. MANUAL SAVE
+    // 3. Manual Entry Save
     function saveManual() {
         const data = {
             receivedDate: document.getElementById('m-date').value,
@@ -90,46 +138,67 @@
             issuedBy: document.getElementById('m-issued').value
         };
         
-        if(!data.partNo) return alert("Please enter a Part Number");
+        if(!data.partNo || !data.receivedDate) {
+            alert("Please fill in at least the Date and Part Number.");
+            return;
+        }
         sendToSheets(data);
     }
 
-    // 4. PASTE LOGIC
+    // 4. Excel Paste Logic
     document.addEventListener('paste', (e) => {
         const text = e.clipboardData.getData('text');
         const rows = text.split('\n').filter(r => r.trim() !== "");
+        
         bulkData = rows.map(r => {
             const c = r.split('\t');
-            return { receivedDate: c[0], customer: c[1], piNo: c[2], partNo: c[3], qty: c[4], issuedBy: c[5] };
+            return { 
+                receivedDate: c[0] || "", 
+                customer: c[1] || "", 
+                piNo: c[2] || "", 
+                partNo: c[3] || "", 
+                qty: c[4] || "", 
+                issuedBy: c[5] || "" 
+            };
         });
         
-        document.getElementById('bulk-save-btn').style.display = "block";
-        document.getElementById('bulk-save-btn').innerText = `Save ${bulkData.length} Rows from Excel`;
+        if(bulkData.length > 0) {
+            const btn = document.getElementById('bulk-save-btn');
+            btn.style.display = "block";
+            btn.innerText = `Click to Save ${bulkData.length} Rows from Excel`;
+            document.getElementById('paste-zone').innerHTML = "<b>Data Detected!</b> Click the green button below to save.";
+        }
     });
 
-    // 5. SEND TO GOOGLE
+    // 5. Shared Save Function
     async function sendToSheets(payload) {
         const btn = event.target;
         const originalText = btn.innerText;
-        btn.innerText = "Sending...";
+        btn.innerText = "Processing... Please wait";
         btn.disabled = true;
 
         try {
-            await fetch(URL, {
+            await fetch(APP_URL, {
                 method: "POST",
-                mode: "no-cors",
+                mode: "no-cors", // Required for Google Apps Script
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
-            alert("Data Saved Successfully!");
-            location.reload();
+            
+            alert("Successfully saved to Google Sheets!");
+            // Clear inputs
+            document.querySelectorAll('input').forEach(i => i.value = "");
+            location.reload(); // Refresh to show new data
         } catch (e) {
-            alert("Error saving data");
+            alert("Error: Script could not be reached.");
             btn.disabled = false;
             btn.innerText = originalText;
         }
     }
 
+    // Run on load
     loadData();
 </script>
+
 </body>
 </html>
