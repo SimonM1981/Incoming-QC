@@ -57,20 +57,19 @@
         height: "500px",
         layout: "fitColumns",
         columns: [
-            {title: "ID", field: "0", visible: false}, // HIDDEN ID COLUMN
-            {title: "Timestamp", field: "1", width: 150},
-            {title: "Date", field: "2", width: 100},
-            {title: "Customer", field: "3"},
-            {title: "P/I No.", field: "4"},
-            {title: "Part No.", field: "5"},
-            {title: "Qty", field: "6", width: 90, editor: "number", cellEdited: function(cell) {
+            {title: "ID", field: "0", visible: false}, // HIDDEN (Column A)
+            {title: "Timestamp", field: "1", width: 150}, // Column B
+            {title: "Date", field: "2", width: 100}, // Column C
+            {title: "Customer", field: "3"}, // Column D
+            {title: "P/I No.", field: "4"}, // Column E
+            {title: "Part No.", field: "5"}, // Column F
+            {title: "Qty", field: "6", width: 100, editor: "number", cellEdited: function(cell) {
                 const row = cell.getRow().getData();
                 pendingUpdate = { action: "updateQty", id: row[0], newQty: cell.getValue() };
-                const btn = document.getElementById('update-btn');
-                btn.style.display = "block";
-                btn.innerText = "⚠️ CONFIRM CHANGE: Qty " + cell.getValue() + " for Part " + row[5];
+                document.getElementById('update-btn').style.display = "block";
+                document.getElementById('update-btn').innerText = "⚠️ CLICK TO SAVE: New Qty " + cell.getValue() + " for Part " + row[5];
             }},
-            {title: "Issued By", field: "7"},
+            {title: "Issued By", field: "7"}, // Column H
         ],
     });
 
@@ -84,16 +83,16 @@
 
     async function commitUpdate() {
         const btn = document.getElementById('update-btn');
-        btn.innerText = "Saving to Google Sheets...";
+        btn.innerText = "Syncing with Sheet...";
         btn.disabled = true;
         try {
             await fetch(APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(pendingUpdate) });
-            setTimeout(() => { alert("Database Updated!"); location.reload(); }, 1500);
+            setTimeout(() => { alert("Updated Successfully!"); location.reload(); }, 1500);
         } catch (e) { alert("Error."); btn.disabled = false; }
     }
 
     document.getElementById("search-box").addEventListener("keyup", (e) => {
-        table.setFilter("5", "like", e.target.value);
+        table.setFilter("5", "like", e.target.value); // Filters Part Number (Column F)
     });
 
     function saveManual() {
