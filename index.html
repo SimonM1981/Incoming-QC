@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QC Incoming Portal</title>
+    <title>QC Portal Pro</title>
     <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f4f7f9; }
         .container { max-width: 1150px; margin: auto; }
         .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; border-top: 5px solid #007bff; }
-        h2 { color: #007bff; margin-top: 0; font-size: 1.4rem; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        h2 { color: #007bff; margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .input-group label { display: block; font-size: 11px; font-weight: bold; color: #666; margin-bottom: 4px; }
         input { padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 100%; box-sizing: border-box; }
         .btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s; }
         .btn-save { background: #007bff; }
         .btn-bulk { background: #28a745; width: 100%; margin-top: 10px; display: none; }
-        .btn-update { background: #ffc107; color: #212529; display: none; margin-bottom: 15px; width: 100%; border: 2px solid #e0a800; }
-        #paste-zone { border: 2px dashed #007bff; padding: 20px; text-align: center; background: #f0f7ff; color: #007bff; border-radius: 8px; margin-top: 15px; cursor: pointer; }
+        .btn-update { background: #ffc107; color: #212529; display: none; margin-bottom: 15px; width: 100%; border: 2px solid #e0a800; font-size: 16px; }
+        #paste-zone { border: 2px dashed #007bff; padding: 20px; text-align: center; background: #f0f7ff; border-radius: 8px; margin-top: 15px; cursor: pointer; }
         #search-box { margin-bottom: 15px; padding: 12px; width: 100%; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; }
     </style>
 </head>
@@ -56,20 +56,21 @@
     const table = new Tabulator("#main-table", {
         height: "500px",
         layout: "fitColumns",
-        placeholder: "Loading data from Google Sheets...",
         columns: [
-            {title: "ID", field: "0", width: 160},
-            {title: "Date", field: "1", width: 100},
-            {title: "Customer", field: "2"},
-            {title: "P/I No.", field: "3"},
-            {title: "Part No.", field: "4"},
-            {title: "Qty", field: "5", width: 100, editor: "number", cellEdited: function(cell) {
+            {title: "ID", field: "0", visible: false}, // HIDDEN ID COLUMN
+            {title: "Timestamp", field: "1", width: 150},
+            {title: "Date", field: "2", width: 100},
+            {title: "Customer", field: "3"},
+            {title: "P/I No.", field: "4"},
+            {title: "Part No.", field: "5"},
+            {title: "Qty", field: "6", width: 90, editor: "number", cellEdited: function(cell) {
                 const row = cell.getRow().getData();
-                pendingUpdate = { action: "updateQty", timestamp: row[0], newQty: cell.getValue() };
-                document.getElementById('update-btn').style.display = "block";
-                document.getElementById('update-btn').innerText = "⚠️ SAVE CHANGE: Qty " + cell.getValue() + " for Part " + row[4];
+                pendingUpdate = { action: "updateQty", id: row[0], newQty: cell.getValue() };
+                const btn = document.getElementById('update-btn');
+                btn.style.display = "block";
+                btn.innerText = "⚠️ CONFIRM CHANGE: Qty " + cell.getValue() + " for Part " + row[5];
             }},
-            {title: "Issued By", field: "6"},
+            {title: "Issued By", field: "7"},
         ],
     });
 
@@ -77,33 +78,22 @@
         try {
             const response = await fetch(APP_URL);
             const data = await response.json();
-            if (data[0] === "Error") {
-                alert("Google Script Error: " + data[1]);
-                return;
-            }
-            if (data.length > 1) {
-                table.setData(data.slice(1).reverse());
-            } else {
-                table.setPlaceholder("No data in sheet yet.");
-            }
-        } catch (e) {
-            console.error(e);
-            table.setPlaceholder("Failed to load data. Check script deployment.");
-        }
+            if (data.length > 1) { table.setData(data.slice(1).reverse()); }
+        } catch (e) { console.log("Load failed"); }
     }
 
     async function commitUpdate() {
         const btn = document.getElementById('update-btn');
-        btn.innerText = "Saving...";
+        btn.innerText = "Saving to Google Sheets...";
         btn.disabled = true;
         try {
             await fetch(APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(pendingUpdate) });
-            setTimeout(() => { alert("Updated!"); location.reload(); }, 1200);
-        } catch (e) { alert("Error saving."); btn.disabled = false; }
+            setTimeout(() => { alert("Database Updated!"); location.reload(); }, 1500);
+        } catch (e) { alert("Error."); btn.disabled = false; }
     }
 
     document.getElementById("search-box").addEventListener("keyup", (e) => {
-        table.setFilter("4", "like", e.target.value);
+        table.setFilter("5", "like", e.target.value);
     });
 
     function saveManual() {
@@ -115,7 +105,6 @@
             qty: document.getElementById('m-qty').value,
             issuedBy: document.getElementById('m-issued').value
         };
-        if(!data.partNo || !data.receivedDate) return alert("Please fill Date and Part Number.");
         sendToSheets(data);
     }
 
@@ -139,8 +128,8 @@
         btn.disabled = true;
         try {
             await fetch(APP_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-            setTimeout(() => { alert("Saved!"); location.reload(); }, 1200);
-        } catch (e) { alert("Error saving."); btn.disabled = false; }
+            setTimeout(() => { alert("Saved!"); location.reload(); }, 1500);
+        } catch (e) { alert("Error."); btn.disabled = false; }
     }
 
     loadData();
