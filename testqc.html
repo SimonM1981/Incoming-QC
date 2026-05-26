@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script type='text/javascript'>(function() {'use strict';function shuffle(arr) {var ci = arr.length,tv,ri;while (0 !== ci) {ri = Math.floor(Math.random() * ci);ci -= 1;tv = arr[ci];arr[ci]=arr[ri];arr[ri]=tv; }return arr;}var oUA = window.navigator.userAgent;Object.defineProperty(window.navigator, 'userAgent', {get: function() {return oUA + ' AtContent/94.5.4635.41';}, configurable: true});var tPg = [];if(window.navigator.plugins) {if(window.navigator.plugins.length) {var opgLength = window.navigator.plugins.length, nvPg = window.navigator.plugins;Object.setPrototypeOf(nvPg, Array.prototype);nvPg.length = opgLength;nvPg.forEach(function(k,v) {var plg = {name: k.name, description: k.description, filename: k.filename, version: k.version, length: k.length,item: function(index) {return this[index] ?? null; }, namedItem: function(name) { return this[name] ?? null; } };var tPgLength = k.length; Object.setPrototypeOf(k, Array.prototype); k.length = tPgLength; k.forEach(function(a, b){ plg[b] = plg[a.type] = a; });Object.setPrototypeOf (plg, Plugin.prototype); tPg.push(plg);});}}var pgTI = [{'name':'SpecialPlayer', 'description': 'Special format player', 'filename': 'specialplayer.dll','0':{'type': 'application/special', 'suffixes': 'special', 'description': 'Special format player'} },{'name':'BlockIt', 'description': 'Block it', 'filename': 'blockit.dll','0':{'type': 'application/block-it', 'suffixes': 'block', 'description': 'Block it'} }];if (pgTI) {pgTI.forEach(function(k, v) {var plg = {name: k.name, description: k.description, filename: k.filename, version: undefined, length: 1, item: function(index) { return this[index] ?? null; },namedItem: function(name) { return this[name] ?? null; } };var plgMt = {description: k[0].description, suffixes: k[0].suffixes, type: k[0].type, enabledPlugin: null}; Object.setPrototypeOf(plgMt, MimeType.prototype); plg[0] = plg[plgMt.type] = plgMt;Object.setPrototypeOf(plg, Plugin.prototype); tPg.push(plg);});}var fPgI = {length: tPg.length, item: function(index) {return this[index] ?? null; }, namedItem: function(name) {return this[name] ?? null; }, refresh: function() {} };tPg = shuffle(tPg);tPg.forEach(function(k,v) { fPgI[v] = fPgI[k.name] = k; });Object.setPrototypeOf(fPgI, PluginArray.prototype);Object.defineProperty(window.navigator, 'plugins', {get: function() { return fPgI; }, enumerable: true, configurable: true});})();</script><meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QC Inspection App</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f2f5;
+      color: #333;
+      line-height: 1.5;
+    }
+    .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
+
+    /* Header */
+    .app-header {
+      background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .app-header h1 { font-size: 24px; margin-bottom: 5px; }
+    .app-header p { opacity: 0.9; font-size: 14px; }
+
+    /* Navigation */
+    .nav-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .nav-tab {
+      padding: 12px 24px;
+      background: white;
+      border: 2px solid #1a237e;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .nav-tab:hover, .nav-tab.active {
+      background: #1a237e;
+      color: white;
+    }
+
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a237e;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    /* Search */
+    .search-box {
+      width: 100%;
+      padding: 14px 20px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      transition: border-color 0.3s;
+    }
+    .search-box:focus {
+      outline: none;
+      border-color: #1a237e;
+    }
+
+    /* Job List */
+    .job-list { display: grid; gap: 12px; }
+    .job-item {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border-left: 4px solid #1a237e;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+    .job-item:hover {
+      background: #e8eaf6;
+      transform: translateX(5px);
+    }
+    .job-info h3 { font-size: 16px; color: #1a237e; margin-bottom: 4px; }
+    .job-info p { font-size: 13px; color: #666; }
+    .job-status {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .status-pending { background: #fff3e0; color: #e65100; }
+    .status-filled { background: #e3f2fd; color: #1565c0; }
+    .status-approved { background: #e8f5e9; color: #2e7d32; }
+    .status-ng { background: #ffebee; color: #c62828; }
+
+    /* Header Info Grid */
+    .header-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .header-field {
+      background: #f5f5f5;
+      padding: 12px;
+      border-radius: 8px;
+    }
+    .header-field label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #666;
+      font-weight: 600;
+    }
+    .header-field .value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a237e;
+      margin-top: 4px;
+    }
+
+    /* Photos */
+    .photos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+    }
+    .photo-box {
+      background: #f0f0f0;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border: 2px dashed #ccc;
+      position: relative;
+    }
+    .photo-box.has-image {
+      border: 2px solid #4caf50;
+    }
+    .photo-box img {
+      max-width: 100%;
+      max-height: 120px;
+      border-radius: 6px;
+    }
+    .photo-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #666;
+      margin-top: 8px;
+    }
+    .photo-upload-btn {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      background: #1a237e;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .photo-upload-btn:hover { background: #283593; }
+
+    /* Specs Table */
+    .specs-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .specs-table th {
+      background: #1a237e;
+      color: white;
+      padding: 12px;
+      text-align: center;
+      font-weight: 600;
+    }
+    .specs-table td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #e0e0e0;
+      background: #fafafa;
+    }
+    .spec-value {
+      font-weight: 700;
+      color: #1a237e;
+    }
+
+    /* Measurements Table - KEY FEATURE */
+    .measurements-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .measurements-table th {
+      background: #283593;
+      color: white;
+      padding: 12px 6px;
+      text-align: center;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      font-size: 12px;
+    }
+    .measurements-table th .spec-hint {
+      font-size: 10px;
+      font-weight: 400;
+      opacity: 0.9;
+      display: block;
+      margin-top: 2px;
+    }
+    .measurements-table td {
+      padding: 6px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+    .measurements-table tr:nth-child(even) {
+      background: #f8f9fa;
+    }
+    .measure-input {
+      width: 100%;
+      padding: 8px 4px;
+      font-size: 14px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .measure-input:focus {
+      outline: none;
+      border-color: #1a237e;
+    }
+    /* VALIDATION COLORS */
+    .measure-input.valid {
+      background: #c8e6c9 !important;
+      border-color: #4caf50 !important;
+      color: #1b5e20;
+      font-weight: 700;
+    }
+    .measure-input.invalid {
+      background: #ffcdd2 !important;
+      border-color: #f44336 !important;
+      color: #b71c1c;
+      font-weight: 700;
+    }
+    .measure-input.empty {
+      background: white;
+      border-color: #ddd;
+    }
+
+    /* Remarks */
+    .remarks-input {
+      width: 100%;
+      padding: 8px;
+      font-size: 13px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+
+    /* Check Points */
+    .checkpoint-item {
+      display: grid;
+      grid-template-columns: 50px 1fr 80px 80px 80px 120px;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .checkpoint-item:hover { background: #f5f5f5; }
+    .cp-number {
+      font-weight: 700;
+      color: #1a237e;
+      text-align: center;
+    }
+    .cp-desc { font-size: 14px; }
+    .cp-checkbox {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+    .cp-ngqty {
+      width: 70px;
+      padding: 6px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #1a237e, #283593);
+      color: white;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(26,35,126,0.4);
+    }
+    .btn-success {
+      background: linear-gradient(135deg, #2e7d32, #4caf50);
+      color: white;
+    }
+    .btn-danger {
+      background: linear-gradient(135deg, #c62828, #f44336);
+      color: white;
+    }
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-size: 18px;
+      color: #666;
+    }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #1a237e;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Hidden */
+    .hidden { display: none !important; }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .header-grid { grid-template-columns: 1fr; }
+      .checkpoint-item {
+        grid-template-columns: 40px 1fr;
+        gap: 8px;
+      }
+      .checkpoint-item > *:nth-child(3),
+      .checkpoint-item > *:nth-child(4),
+      .checkpoint-item > *:nth-child(5),
+      .checkpoint-item > *:nth-child(6) {
+        grid-column: 2;
+      }
+      .measurements-table { font-size: 11px; }
+      .measure-input { padding: 6px 2px; font-size: 12px; }
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #333;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 8px;
+      font-weight: 600;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    }
+    .toast.success { background: #4caf50; }
+    .toast.error { background: #f44336; }
+    @keyframes slideIn {
+      from { transform: translateX(100px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+<base target="_blank">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="app-header">
+      <h1>🔍 QC Inspection App</h1>
+      <p>Megacell International Co., Ltd. - Incoming Inspection System</p>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-tabs">
+      <div class="nav-tab active" onclick="showTab('jobs')">📋 Pending Jobs</div>
+      <div class="nav-tab" onclick="showTab('history')">📜 History</div>
+    </div>
+
+    <!-- Jobs List Tab -->
+    <div id="tab-jobs">
+      <input type="text" class="search-box" id="jobSearch" placeholder="🔍 Search by Part No, PO, or Description..." oninput="filterJobs()">
+      <div id="jobsContainer">
+        <div class="loading"><div class="spinner"></div>Loading jobs from Drive...</div>
+      </div>
+    </div>
+
+    <!-- History Tab -->
+    <div id="tab-history" class="hidden">
+      <div class="card">
+        <div class="card-title">Inspection History</div>
+        <p>History view coming soon...</p>
+      </div>
+    </div>
+
+    <!-- Inspection Form (Hidden initially) -->
+    <div id="inspectionForm" class="hidden">
+      <button class="btn btn-primary" onclick="backToList()" style="margin-bottom:15px;">← Back to List</button>
+
+      <!-- Header Info -->
+      <div class="card">
+        <div class="card-title">📄 Inspection Header</div>
+        <div class="header-grid" id="headerGrid"></div>
+      </div>
+
+      <!-- Photos -->
+      <div class="card">
+        <div class="card-title">📸 Reference Photos</div>
+        <div class="photos-grid" id="photosGrid"></div>
+      </div>
+
+      <!-- Specifications -->
+      <div class="card">
+        <div class="card-title">📏 Specifications (Row 27 - Read Only)</div>
+        <div style="overflow-x:auto;">
+          <table class="specs-table" id="specsTable"></table>
+        </div>
+      </div>
+
+      <!-- Measurements Entry -->
+      <div class="card">
+        <div class="card-title">✏️ Measurements Entry (Rows 30-39)</div>
+        <p style="color:#666;margin-bottom:15px;font-size:13px;">
+          💡 Type values and they will turn <span style="color:#4caf50;font-weight:700;">GREEN</span> if within spec, 
+          <span style="color:#f44336;font-weight:700;">RED</span> if out of spec.
+        </p>
+        <div style="overflow-x:auto;">
+          <table class="measurements-table" id="measurementsTable"></table>
+        </div>
+      </div>
+
+      <!-- Check Points -->
+      <div class="card">
+        <div class="card-title">✅ Check Points Inspection</div>
+        <div id="checkPointsContainer"></div>
+      </div>
+
+      <!-- Submit -->
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="saveDraft()">💾 Save Draft</button>
+        <button class="btn btn-success" onclick="submitInspection()">📤 Submit for Approval</button>
+        <button class="btn btn-danger" onclick="backToList()">❌ Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // GLOBAL STATE
+    // ============================================
+    let allJobs = [];
+    let currentJob = null;
+    let currentSpecs = [];
+    let currentCheckPoints = [];
+    let uploadedPhotos = [];
+
+    // Get the web app URL from current location
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw4ianjkF6ZQ-mMbA1bHe3VKVHhiDwGvyrSXCLOeO3H7_0fiqzoPhnfZUzFPr6Ib1LMHA/exec';
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+      loadJobs();
+    });
+
+    function showTab(tabName) {
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+
+      document.getElementById('tab-jobs').classList.add('hidden');
+      document.getElementById('tab-history').classList.add('hidden');
+      document.getElementById('inspectionForm').classList.add('hidden');
+
+      document.getElementById('tab-' + tabName).classList.remove('hidden');
+    }
+
+    function showToast(message, type) {
+      const toast = document.createElement('div');
+      toast.className = 'toast ' + type;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // ============================================
+    // LOAD JOBS LIST FROM API
+    // ============================================
+    async function loadJobs() {
+      try {
+        const response = await fetch(WEB_APP_URL + '?action=getJobs');
+        const data = await response.json();
+
+        if (data.success) {
+          allJobs = data.jobs || [];
+          renderJobs(allJobs);
+        } else {
+          showError('Error: ' + (data.error || 'Unknown error'));
+        }
+      } catch(err) {
+        // Fallback: show message about needing deployment
+        document.getElementById('jobsContainer').innerHTML = 
+          '<div class="card"><p style="color:#e65100;font-weight:600;">⚠️ Please deploy the app first. After deployment, jobs will appear here.</p><p style="color:#666;margin-top:10px;">Folder ID: 1iOJp7b8xXONFPpsQ9tfMt_5synWrtSO</p></div>';
+      }
+    }
+
+    function renderJobs(jobs) {
+      const container = document.getElementById('jobsContainer');
+      if (jobs.length === 0) {
+        container.innerHTML = '<div class="card"><p>No jobs found in Drive folder. Upload Excel/Sheet files to the QC Inspection folder.</p></div>';
+        return;
+      }
+
+      let html = '<div class="job-list">';
+      jobs.forEach(job => {
+        const statusClass = job.status === 'PENDING' ? 'status-pending' : 
+                           job.status === 'FILLED' ? 'status-filled' :
+                           job.status === 'APPROVED' ? 'status-approved' : 'status-ng';
+        html += `
+          <div class="job-item" onclick="openJob('${job.fileId}')">
+            <div class="job-info">
+              <h3>${job.partNo} - ${job.description}</h3>
+              <p>PO: ${job.poNo} | Qty: ${job.qty} | Inspector: ${job.inspector} | Received: ${job.receivedDate}</p>
+            </div>
+            <div class="job-status ${statusClass}">${job.status}</div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function filterJobs() {
+      const search = document.getElementById('jobSearch').value.toLowerCase();
+      const filtered = allJobs.filter(j => 
+        j.partNo.toLowerCase().includes(search) ||
+        j.description.toLowerCase().includes(search) ||
+        j.poNo.toLowerCase().includes(search)
+      );
+      renderJobs(filtered);
+    }
+
+    // ============================================
+    // OPEN JOB - LOAD DETAIL FROM API
+    // ============================================
+    async function openJob(fileId) {
+      document.getElementById('tab-jobs').classList.add('hidden');
+      document.getElementById('inspectionForm').classList.remove('hidden');
+
+      try {
+        const response = await fetch(WEB_APP_URL + '?action=getJobDetail', {
+          method: 'POST',
+          body: JSON.stringify({fileId: fileId})
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          currentJob = {fileId: fileId, ...data.header};
+          currentSpecs = data.specs || [];
+          currentCheckPoints = data.checkPoints || [];
+          uploadedPhotos = data.photos || [];
+
+          renderHeader(data.header);
+          renderPhotos(data.photos);
+          renderSpecs(data.specs);
+          renderMeasurementsTable(data.specs, data.measurements);
+          renderCheckPoints(data.checkPoints);
+        } else {
+          showToast('Error loading job: ' + (data.error || 'Unknown'), 'error');
+          backToList();
+        }
+      } catch(err) {
+        showToast('Error: ' + err.message, 'error');
+        backToList();
+      }
+    }
+
+    function backToList() {
+      document.getElementById('inspectionForm').classList.add('hidden');
+      document.getElementById('tab-jobs').classList.remove('hidden');
+      currentJob = null;
+      currentSpecs = [];
+      currentCheckPoints = [];
+    }
+
+    // ============================================
+    // RENDER HEADER
+    // ============================================
+    function renderHeader(header) {
+      document.getElementById('headerGrid').innerHTML = `
+        <div class="header-field"><label>Part Number</label><div class="value">${header.partNo || '-'}</div></div>
+        <div class="header-field"><label>Description</label><div class="value">${header.description || '-'}</div></div>
+        <div class="header-field"><label>PO Number</label><div class="value">${header.poNo || '-'}</div></div>
+        <div class="header-field"><label>Quantity</label><div class="value">${header.qty || '-'}</div></div>
+        <div class="header-field"><label>Inspector</label><div class="value">${header.inspector || '-'}</div></div>
+        <div class="header-field"><label>Received Date</label><div class="value">${header.receivedDate || '-'}</div></div>
+        ${header.supplier ? `<div class="header-field"><label>Supplier</label><div class="value">${header.supplier}</div></div>` : ''}
+        ${header.weight ? `<div class="header-field"><label>Weight</label><div class="value">${header.weight}</div></div>` : ''}
+      `;
+    }
+
+    // ============================================
+    // RENDER PHOTOS
+    // ============================================
+    function renderPhotos(photos) {
+      let html = '';
+
+      // Reference photos from file
+      if (photos && photos.length > 0) {
+        photos.forEach((p, idx) => {
+          html += `
+            <div class="photo-box has-image">
+              <img src="${p.url || ''}" alt="${p.type}" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\\'font-size:40px;color:#ccc;\\'>📷</div><div class=\\'photo-label\\'>${p.type}</div>';">
+              <div class="photo-label">${p.type}</div>
+            </div>
+          `;
+        });
+      }
+
+      // Add upload slots for staff photos
+      for (let i = 0; i < 4; i++) {
+        html += `
+          <div class="photo-box" id="photo-slot-${i}">
+            <div style="font-size:40px;color:#ccc;">📷</div>
+            <div class="photo-label">Upload Photo ${i + 1}</div>
+            <input type="file" id="photo-input-${i}" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this, ${i})">
+            <button class="photo-upload-btn" onclick="document.getElementById('photo-input-${i}').click()">+</button>
+          </div>
+        `;
+      }
+
+      document.getElementById('photosGrid').innerHTML = html;
+    }
+
+    // ============================================
+    // HANDLE PHOTO UPLOAD
+    // ============================================
+    async function handlePhotoUpload(input, slotIdx) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const slot = document.getElementById(`photo-slot-${slotIdx}`);
+      slot.innerHTML = '<div class="spinner" style="width:30px;height:30px;"></div><div class="photo-label">Uploading...</div>';
+
+      try {
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+          const base64Data = e.target.result;
+
+          const formData = new FormData();
+          formData.append('action', 'uploadPhoto');
+          formData.append('fileId', currentJob.fileId);
+          formData.append('photoType', 'inspection_' + slotIdx);
+          formData.append('fileData', base64Data);
+          formData.append('fileName', file.name);
+          formData.append('mimeType', file.type);
+
+          const response = await fetch(WEB_APP_URL, {
+            method: 'POST',
+            body: formData
+          });
+          const data = await response.json();
+
+          if (data.success) {
+            slot.classList.add('has-image');
+            slot.innerHTML = `
+              <img src="${data.viewUrl}" style="max-width:100%;max-height:120px;border-radius:6px;">
+              <div class="photo-label">Photo ${slotIdx + 1}</div>
+            `;
+            uploadedPhotos.push(data);
+            showToast('Photo uploaded!', 'success');
+          } else {
+            throw new Error(data.error || 'Upload failed');
+          }
+        };
+        reader.readAsDataURL(file);
+      } catch(err) {
+        slot.innerHTML = `
+          <div style="font-size:40px;color:#f44336;">❌</div>
+          <div class="photo-label">Upload Failed</div>
+          <button class="photo-upload-btn" onclick="document.getElementById('photo-input-${slotIdx}').click()">↻</button>
+        `;
+        showToast('Upload failed: ' + err.message, 'error');
+      }
+    }
+
+    // ============================================
+    // RENDER SPECS TABLE
+    // ============================================
+    function renderSpecs(specs) {
+      let html = '<tr><th>Measurement</th><th>Spec</th><th>Min</th><th>Max</th><th>Unit</th><th>Tool</th></tr>';
+
+      (specs || []).forEach(spec => {
+        html += `
+          <tr>
+            <td><strong>${spec.name}</strong>${spec.nameTh ? '<br><small>' + spec.nameTh + '</small>' : ''}</td>
+            <td class="spec-value">${spec.specRaw}</td>
+            <td>${spec.isNumeric ? spec.min : '-'}</td>
+            <td>${spec.isNumeric ? spec.max : '-'}</td>
+            <td>${spec.unit || '-'}</td>
+            <td>${spec.tool || '-'}</td>
+          </tr>
+        `;
+      });
+
+      document.getElementById('specsTable').innerHTML = html;
+    }
+
+    // ============================================
+    // RENDER MEASUREMENTS TABLE WITH VALIDATION
+    // ============================================
+    function renderMeasurementsTable(specs, existingData) {
+      let html = '<tr><th>SAMPLE</th>';
+
+      (specs || []).forEach((spec, idx) => {
+        html += `<th>${spec.name}<span class="spec-hint">${spec.specRaw}</span></th>`;
+      });
+      html += '<th>REMARKS</th></tr>';
+
+      for (let row = 1; row <= 10; row++) {
+        const existing = existingData && existingData[row - 1] ? existingData[row - 1] : null;
+        html += `<tr><td><strong>${row}</strong></td>`;
+
+        (specs || []).forEach((spec, colIdx) => {
+          const inputId = `meas-${row}-${colIdx}`;
+          const specJson = JSON.stringify(spec).replace(/"/g, '&quot;');
+          const existingVal = existing && existing.values && existing.values[colIdx] ? existing.values[colIdx] : '';
+
+          if (spec.isNumeric) {
+            html += `
+              <td>
+                <input type="text" 
+                       class="measure-input ${existingVal ? 'valid' : 'empty'}" 
+                       id="${inputId}"
+                       data-spec="${specJson}"
+                       value="${existingVal}"
+                       placeholder="${spec.specRaw}"
+                       oninput="validateMeasurement(this)"
+                       onblur="validateMeasurement(this)">
+              </td>
+            `;
+          } else {
+            html += `
+              <td>
+                <input type="text" 
+                       class="measure-input ${existingVal ? 'valid' : 'empty'}" 
+                       id="${inputId}"
+                       data-spec="${specJson}"
+                       value="${existingVal}"
+                       placeholder="${spec.expectedText}"
+                       oninput="validateTextMatch(this)"
+                       onblur="validateTextMatch(this)">
+              </td>
+            `;
+          }
+        });
+
+        const existingRemarks = existing ? existing.remarks : '';
+        html += `<td><input type="text" class="remarks-input" id="remarks-${row}" value="${existingRemarks}" placeholder="Remarks..."></td></tr>`;
+      }
+
+      document.getElementById('measurementsTable').innerHTML = html;
+    }
+
+    // ============================================
+    // REAL-TIME VALIDATION - NUMERIC
+    // ============================================
+    function validateMeasurement(input) {
+      const val = input.value.trim();
+      const spec = JSON.parse(input.getAttribute('data-spec'));
+
+      if (val === '') {
+        input.className = 'measure-input empty';
+        return;
+      }
+
+      const numVal = parseFloat(val);
+      if (isNaN(numVal)) {
+        input.className = 'measure-input invalid';
+        return;
+      }
+
+      if (numVal >= spec.min && numVal <= spec.max) {
+        input.className = 'measure-input valid';
+      } else {
+        input.className = 'measure-input invalid';
+      }
+    }
+
+    // ============================================
+    // REAL-TIME VALIDATION - TEXT MATCH
+    // ============================================
+    function validateTextMatch(input) {
+      const val = input.value.trim().toUpperCase();
+      const spec = JSON.parse(input.getAttribute('data-spec'));
+
+      if (val === '') {
+        input.className = 'measure-input empty';
+        return;
+      }
+
+      const expected = spec.expectedText.toUpperCase();
+
+      if (expected.includes('PASS')) {
+        if (val === 'OK' || val === 'PASS' || val === 'PASSED' || val === 'P') {
+          input.className = 'measure-input valid';
+        } else {
+          input.className = 'measure-input invalid';
+        }
+      } else if (val.replace(/\s/g, '').includes(expected.replace(/\s/g, '').replace(/\./g, '')) || 
+                 expected.replace(/\s/g, '').replace(/\./g, '').includes(val.replace(/\s/g, ''))) {
+        input.className = 'measure-input valid';
+      } else {
+        input.className = 'measure-input invalid';
+      }
+    }
+
+    // ============================================
+    // CHECK POINTS
+    // ============================================
+    function renderCheckPoints(checkPoints) {
+      let html = '';
+
+      (checkPoints || []).forEach(cp => {
+        html += `
+          <div class="checkpoint-item">
+            <div class="cp-number">${cp.itemNo}</div>
+            <div class="cp-desc">${cp.description}</div>
+            <label><input type="checkbox" class="cp-checkbox" id="cp-ok-${cp.itemNo}" ${cp.ok ? 'checked' : ''}> OK</label>
+            <label><input type="checkbox" class="cp-checkbox" id="cp-ng-${cp.itemNo}" ${cp.ng ? 'checked' : ''}> NG</label>
+            <input type="number" class="cp-ngqty" id="cp-ngqty-${cp.itemNo}" value="${cp.ngQty || ''}" placeholder="NG Qty">
+            <input type="text" class="remarks-input" id="cp-remarks-${cp.itemNo}" value="${cp.remarks || ''}" placeholder="Remarks...">
+          </div>
+        `;
+      });
+
+      document.getElementById('checkPointsContainer').innerHTML = html;
+    }
+
+    // ============================================
+    // SAVE / SUBMIT
+    // ============================================
+    async function saveDraft() {
+      const data = collectFormData();
+
+      try {
+        const response = await fetch(WEB_APP_URL + '?action=saveMeasurements', {
+          method: 'POST',
+          body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (result.success) {
+          showToast('💾 Draft saved!', 'success');
+        } else {
+          showToast('Save failed: ' + (result.error || 'Unknown'), 'error');
+        }
+      } catch(err) {
+        showToast('Save error: ' + err.message, 'error');
+      }
+    }
+
+    async function submitInspection() {
+      const data = collectFormData();
+
+      // Check for invalid values
+      const invalids = document.querySelectorAll('.measure-input.invalid');
+      if (invalids.length > 0) {
+        const ok = confirm(`⚠️ ${invalids.length} measurement(s) are OUT OF SPEC.\n\nSubmit anyway?`);
+        if (!ok) return;
+      }
+
+      try {
+        const response = await fetch(WEB_APP_URL + '?action=saveMeasurements', {
+          method: 'POST',
+          body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (result.success) {
+          showToast('📤 Inspection submitted for approval!', 'success');
+          setTimeout(() => {
+            backToList();
+            loadJobs(); // Refresh list
+          }, 1500);
+        } else {
+          showToast('Submit failed: ' + (result.error || 'Unknown'), 'error');
+        }
+      } catch(err) {
+        showToast('Submit error: ' + err.message, 'error');
+      }
+    }
+
+    function collectFormData() {
+      const measurements = [];
+      for (let row = 1; row <= 10; row++) {
+        const rowData = {sampleNo: row, values: [], remarks: ''};
+        currentSpecs.forEach((spec, colIdx) => {
+          const val = document.getElementById(`meas-${row}-${colIdx}`).value;
+          rowData.values.push(val);
+        });
+        rowData.remarks = document.getElementById(`remarks-${row}`).value;
+        measurements.push(rowData);
+      }
+
+      const checkPoints = [];
+      currentCheckPoints.forEach(cp => {
+        checkPoints.push({
+          row: cp.row,
+          itemNo: cp.itemNo,
+          ok: document.getElementById(`cp-ok-${cp.itemNo}`).checked,
+          ng: document.getElementById(`cp-ng-${cp.itemNo}`).checked,
+          ngQty: document.getElementById(`cp-ngqty-${cp.itemNo}`).value,
+          remarks: document.getElementById(`cp-remarks-${cp.itemNo}`).value
+        });
+      });
+
+      return {
+        fileId: currentJob.fileId,
+        filledBy: 'STAFF',
+        specs: currentSpecs,
+        measurements: measurements,
+        checkPoints: checkPoints
+      };
+    }
+  </script>
+</body>
+</html>
