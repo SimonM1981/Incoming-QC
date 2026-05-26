@@ -526,7 +526,11 @@
     // ============================================
     async function loadJobs() {
       try {
-        const response = await fetch(WEB_APP_URL + '?action=getJobs');
+        const response = await fetch(WEB_APP_URL + '?action=getJobs', {
+          method: 'POST',
+          headers: {'Content-Type': 'text/plain;charset=utf-8'},
+          body: JSON.stringify({})
+        });
         const data = await response.json();
 
         if (data.success) {
@@ -588,6 +592,7 @@
       try {
         const response = await fetch(WEB_APP_URL + '?action=getJobDetail', {
           method: 'POST',
+          headers: {'Content-Type': 'text/plain;charset=utf-8'},
           body: JSON.stringify({fileId: fileId})
         });
         const data = await response.json();
@@ -884,6 +889,7 @@
       try {
         const response = await fetch(WEB_APP_URL + '?action=saveMeasurements', {
           method: 'POST',
+          headers: {'Content-Type': 'text/plain;charset=utf-8'},
           body: JSON.stringify(data)
         });
         const result = await response.json();
@@ -911,6 +917,7 @@
       try {
         const response = await fetch(WEB_APP_URL + '?action=saveMeasurements', {
           method: 'POST',
+          headers: {'Content-Type': 'text/plain;charset=utf-8'},
           body: JSON.stringify(data)
         });
         const result = await response.json();
