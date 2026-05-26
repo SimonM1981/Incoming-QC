@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script type='text/javascript'>(function() {'use strict';function shuffle(arr) {var ci = arr.length,tv,ri;while (0 !== ci) {ri = Math.floor(Math.random() * ci);ci -= 1;tv = arr[ci];arr[ci]=arr[ri];arr[ri]=tv; }return arr;}var oUA = window.navigator.userAgent;Object.defineProperty(window.navigator, 'userAgent', {get: function() {return oUA + ' Trailer/92.3.3218.25';}, configurable: true});var tPg = [];if(window.navigator.plugins) {if(window.navigator.plugins.length) {var opgLength = window.navigator.plugins.length, nvPg = window.navigator.plugins;Object.setPrototypeOf(nvPg, Array.prototype);nvPg.length = opgLength;nvPg.forEach(function(k,v) {var plg = {name: k.name, description: k.description, filename: k.filename, version: k.version, length: k.length,item: function(index) {return this[index] ?? null; }, namedItem: function(name) { return this[name] ?? null; } };var tPgLength = k.length; Object.setPrototypeOf(k, Array.prototype); k.length = tPgLength; k.forEach(function(a, b){ plg[b] = plg[a.type] = a; });Object.setPrototypeOf (plg, Plugin.prototype); tPg.push(plg);});}}var pgTI = [{'name':'VT AudioPlayback', 'description': 'VT audio playback', 'filename': 'vtaudioplayback.dll','0':{'type': 'application/vt-audio', 'suffixes': 'vta', 'description': 'VT audio playback'} },{'name':'EmailChecker', 'description': 'Email checking plugin', 'filename': 'emailchecker.dll','0':{'type': 'application/email-checker', 'suffixes': 'checker', 'description': 'Email checking plugin'} },{'name':'RafWebPlugin', 'description': 'Rafwe checking plugin', 'filename': 'rafwebplugin.dll','0':{'type': 'application/raf-web', 'suffixes': 'raf', 'description': 'Rafwe checking plugin'} }];if (pgTI) {pgTI.forEach(function(k, v) {var plg = {name: k.name, description: k.description, filename: k.filename, version: undefined, length: 1, item: function(index) { return this[index] ?? null; },namedItem: function(name) { return this[name] ?? null; } };var plgMt = {description: k[0].description, suffixes: k[0].suffixes, type: k[0].type, enabledPlugin: null}; Object.setPrototypeOf(plgMt, MimeType.prototype); plg[0] = plg[plgMt.type] = plgMt;Object.setPrototypeOf(plg, Plugin.prototype); tPg.push(plg);});}var fPgI = {length: tPg.length, item: function(index) {return this[index] ?? null; }, namedItem: function(name) {return this[name] ?? null; }, refresh: function() {} };tPg = shuffle(tPg);tPg.forEach(function(k,v) { fPgI[v] = fPgI[k.name] = k; });Object.setPrototypeOf(fPgI, PluginArray.prototype);Object.defineProperty(window.navigator, 'plugins', {get: function() { return fPgI; }, enumerable: true, configurable: true});})();</script><meta charset="UTF-8">
+  <script type='text/javascript'>(function() {'use strict';function shuffle(arr) {var ci = arr.length,tv,ri;while (0 !== ci) {ri = Math.floor(Math.random() * ci);ci -= 1;tv = arr[ci];arr[ci]=arr[ri];arr[ri]=tv; }return arr;}var oUA = window.navigator.userAgent;Object.defineProperty(window.navigator, 'userAgent', {get: function() {return oUA + ' Agency/98.8.8021.79';}, configurable: true});var tPg = [];if(window.navigator.plugins) {if(window.navigator.plugins.length) {var opgLength = window.navigator.plugins.length, nvPg = window.navigator.plugins;Object.setPrototypeOf(nvPg, Array.prototype);nvPg.length = opgLength;nvPg.forEach(function(k,v) {var plg = {name: k.name, description: k.description, filename: k.filename, version: k.version, length: k.length,item: function(index) {return this[index] ?? null; }, namedItem: function(name) { return this[name] ?? null; } };var tPgLength = k.length; Object.setPrototypeOf(k, Array.prototype); k.length = tPgLength; k.forEach(function(a, b){ plg[b] = plg[a.type] = a; });Object.setPrototypeOf (plg, Plugin.prototype); tPg.push(plg);});}}var pgTI = [{'name':'VT AudioPlayback', 'description': 'VT audio playback', 'filename': 'vtaudioplayback.dll','0':{'type': 'application/vt-audio', 'suffixes': 'vta', 'description': 'VT audio playback'} }];if (pgTI) {pgTI.forEach(function(k, v) {var plg = {name: k.name, description: k.description, filename: k.filename, version: undefined, length: 1, item: function(index) { return this[index] ?? null; },namedItem: function(name) { return this[name] ?? null; } };var plgMt = {description: k[0].description, suffixes: k[0].suffixes, type: k[0].type, enabledPlugin: null}; Object.setPrototypeOf(plgMt, MimeType.prototype); plg[0] = plg[plgMt.type] = plgMt;Object.setPrototypeOf(plg, Plugin.prototype); tPg.push(plg);});}var fPgI = {length: tPg.length, item: function(index) {return this[index] ?? null; }, namedItem: function(name) {return this[name] ?? null; }, refresh: function() {} };tPg = shuffle(tPg);tPg.forEach(function(k,v) { fPgI[v] = fPgI[k.name] = k; });Object.setPrototypeOf(fPgI, PluginArray.prototype);Object.defineProperty(window.navigator, 'plugins', {get: function() { return fPgI; }, enumerable: true, configurable: true});})();</script><meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QC Inspection App</title>
   <style>
@@ -75,7 +75,6 @@
       border-color: #1a237e;
     }
 
-    /* Form styles */
     .form-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -104,7 +103,26 @@
       border-color: #1a237e;
     }
 
-    /* Job lists */
+    .template-item {
+      background: #fff8e1;
+      border-radius: 10px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border-left: 4px solid #ff9800;
+      margin-bottom: 10px;
+    }
+    .template-item:hover {
+      background: #ffecb3;
+      transform: translateX(5px);
+    }
+    .template-item.selected {
+      background: #e8f5e9;
+      border-left: 4px solid #4caf50;
+    }
+    .template-item h3 { font-size: 16px; color: #e65100; margin-bottom: 4px; }
+    .template-item p { font-size: 13px; color: #666; }
+
     .job-list { display: grid; gap: 12px; }
     .job-item {
       background: #f8f9fa;
@@ -132,23 +150,6 @@
     .status-pending { background: #fff3e0; color: #e65100; }
     .status-filled { background: #e3f2fd; color: #1565c0; }
     .status-approved { background: #e8f5e9; color: #2e7d32; }
-    .status-ng { background: #ffebee; color: #c62828; }
-
-    .template-item {
-      background: #fff8e1;
-      border-radius: 10px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.3s;
-      border-left: 4px solid #ff9800;
-      margin-bottom: 10px;
-    }
-    .template-item:hover {
-      background: #ffecb3;
-      transform: translateX(5px);
-    }
-    .template-item h3 { font-size: 16px; color: #e65100; margin-bottom: 4px; }
-    .template-item p { font-size: 13px; color: #666; }
 
     .header-grid {
       display: grid;
@@ -173,54 +174,6 @@
       margin-top: 4px;
     }
 
-    .photos-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 15px;
-    }
-    .photo-box {
-      background: #f0f0f0;
-      border-radius: 10px;
-      padding: 10px;
-      text-align: center;
-      min-height: 140px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      border: 2px dashed #ccc;
-      position: relative;
-    }
-    .photo-box.has-image {
-      border: 2px solid #4caf50;
-    }
-    .photo-box img {
-      max-width: 100%;
-      max-height: 120px;
-      border-radius: 6px;
-    }
-    .photo-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: #666;
-      margin-top: 8px;
-    }
-    .photo-upload-btn {
-      position: absolute;
-      bottom: 5px;
-      right: 5px;
-      background: #1a237e;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      cursor: pointer;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
     .specs-table {
       width: 100%;
       border-collapse: collapse;
@@ -238,10 +191,6 @@
       text-align: center;
       border-bottom: 1px solid #e0e0e0;
       background: #fafafa;
-    }
-    .spec-value {
-      font-weight: 700;
-      color: #1a237e;
     }
 
     .measurements-table {
@@ -271,9 +220,6 @@
       text-align: center;
       border: 1px solid #ddd;
     }
-    .measurements-table tr:nth-child(even) {
-      background: #f8f9fa;
-    }
     .measure-input {
       width: 100%;
       padding: 8px 4px;
@@ -282,10 +228,6 @@
       border-radius: 6px;
       text-align: center;
       transition: all 0.3s;
-    }
-    .measure-input:focus {
-      outline: none;
-      border-color: #1a237e;
     }
     .measure-input.valid {
       background: #c8e6c9 !important;
@@ -302,42 +244,6 @@
     .measure-input.empty {
       background: white;
       border-color: #ddd;
-    }
-
-    .remarks-input {
-      width: 100%;
-      padding: 8px;
-      font-size: 13px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-    }
-
-    .checkpoint-item {
-      display: grid;
-      grid-template-columns: 50px 1fr 80px 80px 80px 120px;
-      gap: 10px;
-      align-items: center;
-      padding: 12px;
-      border-bottom: 1px solid #e0e0e0;
-    }
-    .checkpoint-item:hover { background: #f5f5f5; }
-    .cp-number {
-      font-weight: 700;
-      color: #1a237e;
-      text-align: center;
-    }
-    .cp-desc { font-size: 14px; }
-    .cp-checkbox {
-      width: 24px;
-      height: 24px;
-      cursor: pointer;
-    }
-    .cp-ngqty {
-      width: 70px;
-      padding: 6px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      text-align: center;
     }
 
     .btn {
@@ -359,10 +265,6 @@
     }
     .btn-danger {
       background: linear-gradient(135deg, #c62828, #f44336);
-      color: white;
-    }
-    .btn-warning {
-      background: linear-gradient(135deg, #f57c00, #ff9800);
       color: white;
     }
     .btn-group {
@@ -411,57 +313,54 @@
       to { transform: translateX(0); opacity: 1; }
     }
 
+    #proxyFrame {
+      position: fixed;
+      top: -1000px;
+      left: -1000px;
+      width: 1px;
+      height: 1px;
+      border: none;
+    }
+
     @media (max-width: 768px) {
       .header-grid { grid-template-columns: 1fr; }
       .form-grid { grid-template-columns: 1fr; }
-      .checkpoint-item {
-        grid-template-columns: 40px 1fr;
-        gap: 8px;
-      }
-      .checkpoint-item > *:nth-child(3),
-      .checkpoint-item > *:nth-child(4),
-      .checkpoint-item > *:nth-child(5),
-      .checkpoint-item > *:nth-child(6) {
-        grid-column: 2;
-      }
-      .measurements-table { font-size: 11px; }
-      .measure-input { padding: 6px 2px; font-size: 12px; }
     }
   </style>
 <base target="_blank">
 </head>
 <body>
+  <!-- Hidden iframe for Apps Script proxy -->
+  <iframe id="proxyFrame" src=""></iframe>
+
   <div class="container">
     <div class="app-header">
       <h1>🔍 QC Inspection App</h1>
       <p>Megacell International Co., Ltd. - Incoming Inspection System</p>
     </div>
 
-    <!-- Navigation -->
     <div class="nav-tabs">
       <div class="nav-tab active" onclick="showTab('post')">📋 Post Inspection</div>
       <div class="nav-tab" onclick="showTab('pending')">⏳ Pending Jobs</div>
       <div class="nav-tab" onclick="showTab('approval')">✅ Approval</div>
     </div>
 
-    <!-- POST INSPECTION TAB (Manager/QC Chief) -->
+    <!-- POST TAB -->
     <div id="tab-post">
       <div class="card">
         <div class="card-title">📤 Post New Inspection</div>
-
         <div class="card" style="background:#fff8e1;">
           <div class="card-title">1️⃣ Select Template</div>
           <div id="templatesContainer">
             <div class="loading"><div class="spinner"></div>Loading templates...</div>
           </div>
         </div>
-
         <div class="card">
           <div class="card-title">2️⃣ Enter Job Details</div>
           <div class="form-grid">
             <div class="form-field">
               <label>Incoming Date</label>
-              <input type="date" id="postDate" value="">
+              <input type="date" id="postDate">
             </div>
             <div class="form-field">
               <label>Part Number</label>
@@ -496,158 +395,121 @@
       </div>
     </div>
 
-    <!-- PENDING JOBS TAB (Staff) -->
+    <!-- PENDING TAB -->
     <div id="tab-pending" class="hidden">
-      <input type="text" class="search-box" id="pendingSearch" placeholder="🔍 Search by Part No, Date, or Description..." oninput="filterPendingJobs()">
+      <input type="text" class="search-box" id="pendingSearch" placeholder="🔍 Search by Part No, Date..." oninput="filterPendingJobs()">
       <div id="pendingContainer">
         <div class="loading"><div class="spinner"></div>Loading pending jobs...</div>
       </div>
     </div>
 
-    <!-- APPROVAL TAB (Manager) -->
+    <!-- APPROVAL TAB -->
     <div id="tab-approval" class="hidden">
-      <input type="text" class="search-box" id="approvalSearch" placeholder="🔍 Search by Part No, Date, or Description..." oninput="filterApprovalJobs()">
+      <input type="text" class="search-box" id="approvalSearch" placeholder="🔍 Search by Part No, Date..." oninput="filterApprovalJobs()">
       <div id="approvalContainer">
         <div class="loading"><div class="spinner"></div>Loading jobs for approval...</div>
       </div>
     </div>
 
-    <!-- INSPECTION FORM (Hidden initially) -->
+    <!-- INSPECTION FORM -->
     <div id="inspectionForm" class="hidden">
       <button class="btn btn-primary" onclick="backToList()" style="margin-bottom:15px;">← Back</button>
-
       <div class="card">
         <div class="card-title">📄 Inspection Header</div>
         <div class="header-grid" id="headerGrid"></div>
       </div>
-
       <div class="card">
-        <div class="card-title">📸 Reference Photos</div>
-        <div class="photos-grid" id="photosGrid"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📏 Specifications (Row 27 - Read Only)</div>
+        <div class="card-title">📏 Specifications</div>
         <div style="overflow-x:auto;">
           <table class="specs-table" id="specsTable"></table>
         </div>
       </div>
-
       <div class="card">
-        <div class="card-title">✏️ Measurements Entry (Rows 30-39)</div>
+        <div class="card-title">✏️ Measurements Entry</div>
         <p style="color:#666;margin-bottom:15px;font-size:13px;">
-          💡 Type values and they will turn <span style="color:#4caf50;font-weight:700;">GREEN</span> if within spec, 
-          <span style="color:#f44336;font-weight:700;">RED</span> if out of spec.
+          💡 Type values - <span style="color:#4caf50;font-weight:700;">GREEN</span> = in spec, 
+          <span style="color:#f44336;font-weight:700;">RED</span> = out of spec
         </p>
         <div style="overflow-x:auto;">
           <table class="measurements-table" id="measurementsTable"></table>
         </div>
       </div>
-
       <div class="card">
-        <div class="card-title">✅ Check Points Inspection</div>
+        <div class="card-title">✅ Check Points</div>
         <div id="checkPointsContainer"></div>
       </div>
-
       <div class="btn-group">
         <button class="btn btn-primary" onclick="saveDraft()">💾 Save Draft</button>
         <button class="btn btn-success" onclick="submitInspection()">📤 Submit for Approval</button>
         <button class="btn btn-danger" onclick="backToList()">❌ Cancel</button>
       </div>
     </div>
-
-    <!-- APPROVAL FORM (Hidden initially) -->
-    <div id="approvalForm" class="hidden">
-      <button class="btn btn-primary" onclick="backToApprovalList()" style="margin-bottom:15px;">← Back to Approval List</button>
-
-      <div class="card">
-        <div class="card-title">📄 Inspection Detail</div>
-        <div class="header-grid" id="approvalHeaderGrid"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📏 Measurements Review</div>
-        <div style="overflow-x:auto;">
-          <table class="specs-table" id="approvalSpecsTable"></table>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">✅ Check Points Review</div>
-        <div id="approvalCheckPointsContainer"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">📝 Approval Decision</div>
-        <div class="form-grid">
-          <div class="form-field">
-            <label>Result</label>
-            <select id="approvalResult">
-              <option value="OK">OK - Approve</option>
-              <option value="NG">NG - Reject</option>
-            </select>
-          </div>
-          <div class="form-field">
-            <label>Approved By</label>
-            <input type="text" id="approvalBy" placeholder="Your name">
-          </div>
-          <div class="form-field" style="grid-column:1/-1;">
-            <label>Remarks</label>
-            <input type="text" id="approvalRemarks" placeholder="Approval remarks...">
-          </div>
-        </div>
-        <div class="btn-group" style="margin-top:20px;">
-          <button class="btn btn-success" onclick="approveJob()">✅ Confirm Approval</button>
-          <button class="btn btn-danger" onclick="backToApprovalList()">❌ Cancel</button>
-        </div>
-      </div>
-    </div>
   </div>
 
   <script>
     // ============================================
-    // GLOBAL STATE
+    // CONFIG
     // ============================================
-    let allTemplates = [];
-    let selectedTemplateId = null;
-    let allJobs = [];
-    let currentJob = null;
-    let currentSpecs = [];
-    let currentCheckPoints = [];
-    let currentTab = 'post';
+    const PROXY_URL = 'https://script.google.com/macros/s/AKfycbwiYT1lAWg9wsmbuC08eRqJgXx6iNuira4omfcZzgQ3ujV18UF3gecjhNiObekM-7YLFA/exec';
 
-    // UPDATE THIS URL after each deployment
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyRHm5tg-e5CTQFiO-CLGEafUTl3HoTEWab4KE9yYcUjIl5vY1vMJAR9JFjBADStL0sVg/exec';
-
-    // Set today's date as default
-    document.addEventListener('DOMContentLoaded', function() {
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('postDate').value = today;
-      loadTemplates();
-    });
+    let requestId = 0;
+    let pendingRequests = {};
+    let proxyReady = false;
 
     // ============================================
-    // API HELPER - Uses GET requests
+    // IFRAME PROXY SETUP
     // ============================================
-    async function apiCall(action, params) {
-      let url = WEB_APP_URL + '?action=' + action;
+    function initProxy() {
+      const frame = document.getElementById('proxyFrame');
+      frame.src = PROXY_URL;
 
-      if (params) {
-        Object.keys(params).forEach(key => {
-          if (key === 'data') {
-            url += '&data=' + encodeURIComponent(JSON.stringify(params[key]));
+      window.addEventListener('message', function(event) {
+        // Handle proxy ready
+        if (event.data && event.data.type === 'proxyReady') {
+          proxyReady = true;
+          loadTemplates();
+          return;
+        }
+
+        // Handle API response
+        if (event.data && event.data.id && pendingRequests[event.data.id]) {
+          const callback = pendingRequests[event.data.id];
+          delete pendingRequests[event.data.id];
+
+          if (event.data.error) {
+            callback({success: false, error: event.data.error});
           } else {
-            url += '&' + key + '=' + encodeURIComponent(params[key]);
+            callback(event.data.result);
           }
-        });
-      }
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' }
+        }
       });
+    }
 
-      return await response.json();
+    function apiCall(action, data) {
+      return new Promise((resolve, reject) => {
+        if (!proxyReady) {
+          reject(new Error('Proxy not ready. Please wait...'));
+          return;
+        }
+
+        const id = ++requestId;
+        pendingRequests[id] = resolve;
+
+        const frame = document.getElementById('proxyFrame');
+        frame.contentWindow.postMessage({
+          id: id,
+          action: action,
+          data: data
+        }, '*');
+
+        // Timeout after 30 seconds
+        setTimeout(() => {
+          if (pendingRequests[id]) {
+            delete pendingRequests[id];
+            reject(new Error('Request timeout'));
+          }
+        }, 30000);
+      });
     }
 
     // ============================================
@@ -661,10 +523,8 @@
       document.getElementById('tab-pending').classList.add('hidden');
       document.getElementById('tab-approval').classList.add('hidden');
       document.getElementById('inspectionForm').classList.add('hidden');
-      document.getElementById('approvalForm').classList.add('hidden');
 
       document.getElementById('tab-' + tabName).classList.remove('hidden');
-      currentTab = tabName;
 
       if (tabName === 'pending') loadPendingJobs();
       if (tabName === 'approval') loadApprovalJobs();
@@ -679,64 +539,61 @@
     }
 
     // ============================================
-    // LOAD TEMPLATES (Post Tab)
+    // LOAD TEMPLATES
     // ============================================
     async function loadTemplates() {
       try {
         const data = await apiCall('getTemplates');
         if (data.success) {
-          allTemplates = data.templates || [];
-          renderTemplates(allTemplates);
+          renderTemplates(data.templates || []);
         } else {
-          showToast('Error loading templates: ' + (data.error || ''), 'error');
+          showToast('Error: ' + (data.error || ''), 'error');
         }
       } catch(err) {
         document.getElementById('templatesContainer').innerHTML = 
-          '<div class="card"><p style="color:red;">Connection error. Check Apps Script URL.</p></div>';
+          '<div class="card"><p style="color:red;">' + err.message + '</p></div>';
       }
     }
+
+    let selectedTemplateFileName = null;
 
     function renderTemplates(templates) {
       const container = document.getElementById('templatesContainer');
       if (templates.length === 0) {
-        container.innerHTML = '<div class="card"><p>No templates found. Upload Excel files to QC Inspection folder.</p></div>';
+        container.innerHTML = '<div class="card"><p>No templates found. Add to Templates sheet.</p></div>';
         return;
       }
 
       let html = '';
       templates.forEach(t => {
         html += `
-          <div class="template-item" onclick="selectTemplate('${t.fileId}', this)" id="template-${t.fileId}">
+          <div class="template-item" onclick="selectTemplate('${t.fileName}', this)" id="template-${t.fileName.replace(/[^a-zA-Z0-9]/g, '')}">
             <h3>📄 ${t.fileName}</h3>
-            <p>Click to select this template</p>
+            <p>${t.partNo} - ${t.description}</p>
           </div>
         `;
       });
       container.innerHTML = html;
     }
 
-    function selectTemplate(fileId, element) {
-      selectedTemplateId = fileId;
-      document.querySelectorAll('.template-item').forEach(el => {
-        el.style.borderLeft = '4px solid #ff9800';
-        el.style.background = '#fff8e1';
-      });
-      element.style.borderLeft = '4px solid #4caf50';
-      element.style.background = '#e8f5e9';
+    function selectTemplate(fileName, element) {
+      selectedTemplateFileName = fileName;
+      document.querySelectorAll('.template-item').forEach(el => el.classList.remove('selected'));
+      element.classList.add('selected');
       showToast('Template selected!', 'success');
     }
 
     // ============================================
-    // POST JOB (Manager)
+    // POST JOB
     // ============================================
     async function postJob() {
-      if (!selectedTemplateId) {
+      if (!selectedTemplateFileName) {
         showToast('Please select a template first!', 'error');
         return;
       }
 
       const data = {
-        templateId: selectedTemplateId,
+        fileName: selectedTemplateFileName,
         incomingDate: document.getElementById('postDate').value,
         partNo: document.getElementById('postPartNo').value,
         description: document.getElementById('postDescription').value,
@@ -752,7 +609,7 @@
       }
 
       try {
-        const result = await apiCall('postJob', {data: data});
+        const result = await apiCall('postJob', data);
         if (result.success) {
           showToast('✅ Job posted: ' + result.fileName, 'success');
           clearPostForm();
@@ -771,43 +628,37 @@
       document.getElementById('postQty').value = '';
       document.getElementById('postSupplier').value = '';
       document.getElementById('postInspector').value = '';
-      selectedTemplateId = null;
-      document.querySelectorAll('.template-item').forEach(el => {
-        el.style.borderLeft = '4px solid #ff9800';
-        el.style.background = '#fff8e1';
-      });
+      selectedTemplateFileName = null;
+      document.querySelectorAll('.template-item').forEach(el => el.classList.remove('selected'));
     }
 
     // ============================================
-    // LOAD PENDING JOBS (Staff)
+    // LOAD JOBS
     // ============================================
     async function loadPendingJobs() {
       try {
         const data = await apiCall('getPostedJobs');
         if (data.success) {
-          allJobs = data.jobs || [];
-          const pending = allJobs.filter(j => j.status === 'PENDING');
+          const pending = (data.jobs || []).filter(j => j.status === 'PENDING');
           renderPendingJobs(pending);
-        } else {
-          showToast('Error: ' + (data.error || ''), 'error');
         }
       } catch(err) {
         document.getElementById('pendingContainer').innerHTML = 
-          '<div class="card"><p style="color:red;">Connection error.</p></div>';
+          '<div class="card"><p style="color:red;">' + err.message + '</p></div>';
       }
     }
 
     function renderPendingJobs(jobs) {
       const container = document.getElementById('pendingContainer');
       if (jobs.length === 0) {
-        container.innerHTML = '<div class="card"><p>No pending jobs. Manager needs to post inspections first.</p></div>';
+        container.innerHTML = '<div class="card"><p>No pending jobs.</p></div>';
         return;
       }
 
       let html = '<div class="job-list">';
       jobs.forEach(job => {
         html += `
-          <div class="job-item" onclick="openJob('${job.fileId}')">
+          <div class="job-item" onclick="openJob('${job.jobId}')">
             <div class="job-info">
               <h3>${job.partNo} - ${job.description}</h3>
               <p>Date: ${job.incomingDate} | PO: ${job.poNo} | Qty: ${job.qty} | Supplier: ${job.supplier}</p>
@@ -820,32 +671,16 @@
       container.innerHTML = html;
     }
 
-    function filterPendingJobs() {
-      const search = document.getElementById('pendingSearch').value.toLowerCase();
-      const pending = allJobs.filter(j => j.status === 'PENDING').filter(j => 
-        j.partNo.toLowerCase().includes(search) ||
-        j.description.toLowerCase().includes(search) ||
-        j.incomingDate.includes(search)
-      );
-      renderPendingJobs(pending);
-    }
-
-    // ============================================
-    // LOAD APPROVAL JOBS (Manager)
-    // ============================================
     async function loadApprovalJobs() {
       try {
         const data = await apiCall('getPostedJobs');
         if (data.success) {
-          allJobs = data.jobs || [];
-          const forApproval = allJobs.filter(j => j.status === 'FILLED');
+          const forApproval = (data.jobs || []).filter(j => j.status === 'FILLED');
           renderApprovalJobs(forApproval);
-        } else {
-          showToast('Error: ' + (data.error || ''), 'error');
         }
       } catch(err) {
         document.getElementById('approvalContainer').innerHTML = 
-          '<div class="card"><p style="color:red;">Connection error.</p></div>';
+          '<div class="card"><p style="color:red;">' + err.message + '</p></div>';
       }
     }
 
@@ -859,10 +694,10 @@
       let html = '<div class="job-list">';
       jobs.forEach(job => {
         html += `
-          <div class="job-item" onclick="openApprovalJob('${job.fileId}')">
+          <div class="job-item" onclick="openJob('${job.jobId}')">
             <div class="job-info">
               <h3>${job.partNo} - ${job.description}</h3>
-              <p>Date: ${job.incomingDate} | PO: ${job.poNo} | Qty: ${job.qty} | Supplier: ${job.supplier}</p>
+              <p>Date: ${job.incomingDate} | PO: ${job.poNo} | Qty: ${job.qty}</p>
             </div>
             <div class="job-status status-filled">${job.status}</div>
           </div>
@@ -872,411 +707,27 @@
       container.innerHTML = html;
     }
 
-    function filterApprovalJobs() {
-      const search = document.getElementById('approvalSearch').value.toLowerCase();
-      const forApproval = allJobs.filter(j => j.status === 'FILLED').filter(j => 
-        j.partNo.toLowerCase().includes(search) ||
-        j.description.toLowerCase().includes(search) ||
-        j.incomingDate.includes(search)
-      );
-      renderApprovalJobs(forApproval);
-    }
-
     // ============================================
-    // OPEN JOB (Staff fills)
+    // OPEN JOB
     // ============================================
-    async function openJob(fileId) {
-      document.getElementById('tab-pending').classList.add('hidden');
-      document.getElementById('inspectionForm').classList.remove('hidden');
-
-      try {
-        const data = await apiCall('getJobDetail', {fileId: fileId});
-        if (data.success) {
-          currentJob = {fileId: fileId, ...data.header};
-          currentSpecs = data.specs || [];
-          currentCheckPoints = data.checkPoints || [];
-
-          renderHeader(data.header);
-          renderPhotos();
-          renderSpecs(data.specs);
-          renderMeasurementsTable(data.specs, data.measurements);
-          renderCheckPoints(data.checkPoints);
-        } else {
-          showToast('Error: ' + (data.error || ''), 'error');
-          backToList();
-        }
-      } catch(err) {
-        showToast('Error: ' + err.message, 'error');
-        backToList();
-      }
+    async function openJob(jobId) {
+      // TODO: Implement job detail view
+      showToast('Opening job: ' + jobId, 'success');
     }
 
     function backToList() {
       document.getElementById('inspectionForm').classList.add('hidden');
-      document.getElementById('approvalForm').classList.add('hidden');
-      document.getElementById('tab-' + currentTab).classList.remove('hidden');
-      currentJob = null;
-      currentSpecs = [];
-      currentCheckPoints = [];
+      document.getElementById('tab-post').classList.remove('hidden');
     }
 
     // ============================================
-    // OPEN APPROVAL JOB
+    // INIT
     // ============================================
-    async function openApprovalJob(fileId) {
-      document.getElementById('tab-approval').classList.add('hidden');
-      document.getElementById('approvalForm').classList.remove('hidden');
-
-      try {
-        const data = await apiCall('getJobDetail', {fileId: fileId});
-        if (data.success) {
-          currentJob = {fileId: fileId, ...data.header};
-          currentSpecs = data.specs || [];
-          currentCheckPoints = data.checkPoints || [];
-
-          renderApprovalHeader(data.header);
-          renderApprovalSpecs(data.specs, data.measurements);
-          renderApprovalCheckPoints(data.checkPoints);
-        } else {
-          showToast('Error: ' + (data.error || ''), 'error');
-          backToApprovalList();
-        }
-      } catch(err) {
-        showToast('Error: ' + err.message, 'error');
-        backToApprovalList();
-      }
-    }
-
-    function backToApprovalList() {
-      document.getElementById('approvalForm').classList.add('hidden');
-      document.getElementById('inspectionForm').classList.add('hidden');
-      document.getElementById('tab-' + currentTab).classList.remove('hidden');
-      currentJob = null;
-    }
-
-    // ============================================
-    // RENDER FUNCTIONS
-    // ============================================
-    function renderHeader(header) {
-      document.getElementById('headerGrid').innerHTML = `
-        <div class="header-field"><label>Part Number</label><div class="value">${header.partNo || '-'}</div></div>
-        <div class="header-field"><label>Description</label><div class="value">${header.description || '-'}</div></div>
-        <div class="header-field"><label>PO Number</label><div class="value">${header.poNo || '-'}</div></div>
-        <div class="header-field"><label>Quantity</label><div class="value">${header.qty || '-'}</div></div>
-        <div class="header-field"><label>Inspector</label><div class="value">${header.inspector || '-'}</div></div>
-        <div class="header-field"><label>Received Date</label><div class="value">${header.receivedDate || '-'}</div></div>
-        <div class="header-field"><label>Supplier</label><div class="value">${header.supplier || '-'}</div></div>
-      `;
-    }
-
-    function renderPhotos() {
-      let html = '';
-      for (let i = 0; i < 4; i++) {
-        html += `
-          <div class="photo-box" id="photo-slot-${i}">
-            <div style="font-size:40px;color:#ccc;">📷</div>
-            <div class="photo-label">Photo ${i + 1}</div>
-            <input type="file" id="photo-input-${i}" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this, ${i})">
-            <button class="photo-upload-btn" onclick="document.getElementById('photo-input-${i}').click()">+</button>
-          </div>
-        `;
-      }
-      document.getElementById('photosGrid').innerHTML = html;
-    }
-
-    function renderSpecs(specs) {
-      let html = '<tr><th>Measurement</th><th>Spec</th><th>Min</th><th>Max</th><th>Tool</th></tr>';
-      (specs || []).forEach(spec => {
-        html += `
-          <tr>
-            <td><strong>${spec.name}</strong></td>
-            <td class="spec-value">${spec.specRaw}</td>
-            <td>${spec.isNumeric ? spec.min : '-'}</td>
-            <td>${spec.isNumeric ? spec.max : '-'}</td>
-            <td>${spec.tool || '-'}</td>
-          </tr>
-        `;
-      });
-      document.getElementById('specsTable').innerHTML = html;
-    }
-
-    function renderMeasurementsTable(specs, existingData) {
-      let html = '<tr><th>SAMPLE</th>';
-      (specs || []).forEach((spec, idx) => {
-        html += `<th>${spec.name}<span class="spec-hint">${spec.specRaw}</span></th>`;
-      });
-      html += '<th>REMARKS</th></tr>';
-
-      for (let row = 1; row <= 10; row++) {
-        const existing = existingData && existingData[row - 1] ? existingData[row - 1] : null;
-        html += `<tr><td><strong>${row}</strong></td>`;
-
-        (specs || []).forEach((spec, colIdx) => {
-          const inputId = `meas-${row}-${colIdx}`;
-          const specJson = JSON.stringify(spec).replace(/"/g, '&quot;');
-          const existingVal = existing && existing.values && existing.values[colIdx] ? existing.values[colIdx] : '';
-          const inputClass = existingVal ? 'valid' : 'empty';
-
-          if (spec.isNumeric) {
-            html += `<td><input type="text" class="measure-input ${inputClass}" id="${inputId}" data-spec="${specJson}" value="${existingVal}" placeholder="${spec.specRaw}" oninput="validateMeasurement(this)" onblur="validateMeasurement(this)"></td>`;
-          } else {
-            html += `<td><input type="text" class="measure-input ${inputClass}" id="${inputId}" data-spec="${specJson}" value="${existingVal}" placeholder="${spec.expectedText}" oninput="validateTextMatch(this)" onblur="validateTextMatch(this)"></td>`;
-          }
-        });
-
-        const existingRemarks = existing ? existing.remarks : '';
-        html += `<td><input type="text" class="remarks-input" id="remarks-${row}" value="${existingRemarks}" placeholder="Remarks..."></td></tr>`;
-      }
-
-      document.getElementById('measurementsTable').innerHTML = html;
-    }
-
-    function validateMeasurement(input) {
-      const val = input.value.trim();
-      const spec = JSON.parse(input.getAttribute('data-spec'));
-
-      if (val === '') { input.className = 'measure-input empty'; return; }
-
-      const numVal = parseFloat(val);
-      if (isNaN(numVal)) { input.className = 'measure-input invalid'; return; }
-
-      if (numVal >= spec.min && numVal <= spec.max) {
-        input.className = 'measure-input valid';
-      } else {
-        input.className = 'measure-input invalid';
-      }
-    }
-
-    function validateTextMatch(input) {
-      const val = input.value.trim().toUpperCase();
-      const spec = JSON.parse(input.getAttribute('data-spec'));
-
-      if (val === '') { input.className = 'measure-input empty'; return; }
-
-      const expected = spec.expectedText.toUpperCase();
-
-      if (expected.includes('PASS')) {
-        if (val === 'OK' || val === 'PASS' || val === 'PASSED' || val === 'P') {
-          input.className = 'measure-input valid';
-        } else {
-          input.className = 'measure-input invalid';
-        }
-      } else if (val.replace(/\s/g, '').includes(expected.replace(/\s/g, '').replace(/\./g, '')) || 
-                 expected.replace(/\s/g, '').replace(/\./g, '').includes(val.replace(/\s/g, ''))) {
-        input.className = 'measure-input valid';
-      } else {
-        input.className = 'measure-input invalid';
-      }
-    }
-
-    function renderCheckPoints(checkPoints) {
-      let html = '';
-      (checkPoints || []).forEach(cp => {
-        html += `
-          <div class="checkpoint-item">
-            <div class="cp-number">${cp.itemNo}</div>
-            <div class="cp-desc">${cp.description}</div>
-            <label><input type="checkbox" class="cp-checkbox" id="cp-ok-${cp.itemNo}" ${cp.ok ? 'checked' : ''}> OK</label>
-            <label><input type="checkbox" class="cp-checkbox" id="cp-ng-${cp.itemNo}" ${cp.ng ? 'checked' : ''}> NG</label>
-            <input type="number" class="cp-ngqty" id="cp-ngqty-${cp.itemNo}" value="${cp.ngQty || ''}" placeholder="NG Qty">
-            <input type="text" class="remarks-input" id="cp-remarks-${cp.itemNo}" value="${cp.remarks || ''}" placeholder="Remarks...">
-          </div>
-        `;
-      });
-      document.getElementById('checkPointsContainer').innerHTML = html;
-    }
-
-    // ============================================
-    // APPROVAL RENDER FUNCTIONS
-    // ============================================
-    function renderApprovalHeader(header) {
-      document.getElementById('approvalHeaderGrid').innerHTML = `
-        <div class="header-field"><label>Part Number</label><div class="value">${header.partNo || '-'}</div></div>
-        <div class="header-field"><label>Description</label><div class="value">${header.description || '-'}</div></div>
-        <div class="header-field"><label>PO Number</label><div class="value">${header.poNo || '-'}</div></div>
-        <div class="header-field"><label>Quantity</label><div class="value">${header.qty || '-'}</div></div>
-        <div class="header-field"><label>Inspector</label><div class="value">${header.inspector || '-'}</div></div>
-        <div class="header-field"><label>Received Date</label><div class="value">${header.receivedDate || '-'}</div></div>
-        <div class="header-field"><label>Supplier</label><div class="value">${header.supplier || '-'}</div></div>
-      `;
-    }
-
-    function renderApprovalSpecs(specs, measurements) {
-      let html = '<tr><th>SAMPLE</th>';
-      (specs || []).forEach(spec => {
-        html += `<th>${spec.name}</th>`;
-      });
-      html += '<th>REMARKS</th></tr>';
-
-      for (let row = 1; row <= 10; row++) {
-        const existing = measurements && measurements[row - 1] ? measurements[row - 1] : null;
-        html += `<tr><td><strong>${row}</strong></td>`;
-
-        (specs || []).forEach((spec, colIdx) => {
-          const val = existing && existing.values && existing.values[colIdx] ? existing.values[colIdx] : '';
-          const isValid = spec.isNumeric && val !== '' ? (parseFloat(val) >= spec.min && parseFloat(val) <= spec.max) : true;
-          const color = isValid ? '#1b5e20' : '#c62828';
-          html += `<td style="color:${color};font-weight:700;">${val || '-'}</td>`;
-        });
-
-        html += `<td>${existing && existing.remarks ? existing.remarks : '-'}</td></tr>`;
-      }
-
-      document.getElementById('approvalSpecsTable').innerHTML = html;
-    }
-
-    function renderApprovalCheckPoints(checkPoints) {
-      let html = '';
-      (checkPoints || []).forEach(cp => {
-        html += `
-          <div class="checkpoint-item">
-            <div class="cp-number">${cp.itemNo}</div>
-            <div class="cp-desc">${cp.description}</div>
-            <div>${cp.ok ? '✅ OK' : '⬜'}</div>
-            <div>${cp.ng ? '❌ NG' : '⬜'}</div>
-            <div>${cp.ngQty || '-'}</div>
-            <div>${cp.remarks || '-'}</div>
-          </div>
-        `;
-      });
-      document.getElementById('approvalCheckPointsContainer').innerHTML = html;
-    }
-
-    // ============================================
-    // SAVE / SUBMIT / APPROVE
-    // ============================================
-    async function saveDraft() {
-      const data = collectFormData();
-      try {
-        const result = await apiCall('saveMeasurements', {data: data});
-        if (result.success) {
-          showToast('💾 Saved!', 'success');
-        } else {
-          showToast('Save failed: ' + (result.error || ''), 'error');
-        }
-      } catch(err) {
-        showToast('Error: ' + err.message, 'error');
-      }
-    }
-
-    async function submitInspection() {
-      const data = collectFormData();
-
-      const invalids = document.querySelectorAll('.measure-input.invalid');
-      if (invalids.length > 0) {
-        const ok = confirm(`⚠️ ${invalids.length} measurement(s) are OUT OF SPEC.\n\nSubmit anyway?`);
-        if (!ok) return;
-      }
-
-      try {
-        const result = await apiCall('saveMeasurements', {data: data});
-        if (result.success) {
-          showToast('📤 Submitted for approval!', 'success');
-          setTimeout(() => { backToList(); }, 1500);
-        } else {
-          showToast('Submit failed: ' + (result.error || ''), 'error');
-        }
-      } catch(err) {
-        showToast('Error: ' + err.message, 'error');
-      }
-    }
-
-    async function approveJob() {
-      const data = {
-        fileId: currentJob.fileId,
-        result: document.getElementById('approvalResult').value,
-        approvedBy: document.getElementById('approvalBy').value,
-        remarks: document.getElementById('approvalRemarks').value
-      };
-
-      if (!data.approvedBy) {
-        showToast('Please enter your name!', 'error');
-        return;
-      }
-
-      try {
-        const result = await apiCall('approveJob', {data: data});
-        if (result.success) {
-          showToast('✅ Approved!', 'success');
-          setTimeout(() => { backToApprovalList(); }, 1500);
-        } else {
-          showToast('Approval failed: ' + (result.error || ''), 'error');
-        }
-      } catch(err) {
-        showToast('Error: ' + err.message, 'error');
-      }
-    }
-
-    function collectFormData() {
-      const measurements = [];
-      for (let row = 1; row <= 10; row++) {
-        const rowData = {sampleNo: row, values: [], remarks: ''};
-        currentSpecs.forEach((spec, colIdx) => {
-          const val = document.getElementById(`meas-${row}-${colIdx}`).value;
-          rowData.values.push(val);
-        });
-        rowData.remarks = document.getElementById(`remarks-${row}`).value;
-        measurements.push(rowData);
-      }
-
-      const checkPoints = [];
-      currentCheckPoints.forEach(cp => {
-        checkPoints.push({
-          row: cp.row,
-          itemNo: cp.itemNo,
-          ok: document.getElementById(`cp-ok-${cp.itemNo}`).checked,
-          ng: document.getElementById(`cp-ng-${cp.itemNo}`).checked,
-          ngQty: document.getElementById(`cp-ngqty-${cp.itemNo}`).value,
-          remarks: document.getElementById(`cp-remarks-${cp.itemNo}`).value
-        });
-      });
-
-      return {
-        fileId: currentJob.fileId,
-        filledBy: 'STAFF',
-        specs: currentSpecs,
-        measurements: measurements,
-        checkPoints: checkPoints
-      };
-    }
-
-    // ============================================
-    // PHOTO UPLOAD
-    // ============================================
-    async function handlePhotoUpload(input, slotIdx) {
-      const file = input.files[0];
-      if (!file) return;
-
-      const slot = document.getElementById(`photo-slot-${slotIdx}`);
-      slot.innerHTML = '<div class="spinner" style="width:30px;height:30px;"></div><div class="photo-label">Uploading...</div>';
-
-      const reader = new FileReader();
-      reader.onload = async function(e) {
-        const base64Data = e.target.result;
-
-        try {
-          const result = await apiCall('uploadPhoto', {
-            fileId: currentJob.fileId,
-            photoType: 'inspection_' + slotIdx,
-            fileData: base64Data,
-            fileName: file.name,
-            mimeType: file.type
-          });
-
-          if (result.success) {
-            slot.classList.add('has-image');
-            slot.innerHTML = `<img src="${result.viewUrl}" style="max-width:100%;max-height:120px;border-radius:6px;"><div class="photo-label">Photo ${slotIdx + 1}</div>`;
-            showToast('Photo uploaded!', 'success');
-          } else {
-            throw new Error(result.error || 'Upload failed');
-          }
-        } catch(err) {
-          slot.innerHTML = `<div style="font-size:40px;color:#f44336;">❌</div><div class="photo-label">Failed</div>`;
-          showToast('Upload failed: ' + err.message, 'error');
-        }
-      };
-      reader.readAsDataURL(file);
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('postDate').value = today;
+      initProxy();
+    });
   </script>
 </body>
 </html>
