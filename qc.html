@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QC Inspection System</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* ── Reset & Base ─────────────────────────────── */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --brand:    #1a3c6e;
+  --brand-lt: #2457a0;
+  --accent:   #f59e0b;
+  --green:    #16a34a;
+  --red:      #dc2626;
+  --orange:   #ea580c;
+  --purple:   #7c3aed;
+  --gray-50:  #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+  --gray-600: #475569;
+  --gray-700: #334155;
+  --gray-800: #1e293b;
+  --gray-900: #0f172a;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.08);
+  --shadow:   0 4px 12px rgba(0,0,0,.10);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.16);
+  --radius:   8px;
+  --radius-lg:12px;
+}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gray-50);color:var(--gray-800);min-height:100vh}
+
+/* ── Layout ───────────────────────────────────── */
+.app-shell{display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--brand);color:#fff;display:flex;align-items:center;gap:16px;padding:0 24px;height:60px;box-shadow:var(--shadow);position:sticky;top:0;z-index:100}
+.topbar-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
+.topbar-logo svg{opacity:.9}
+.topbar-title{flex:1}
+.topbar-title small{opacity:.7;font-size:12px;font-weight:400;display:block;margin-top:-2px}
+.topbar-user{display:flex;align-items:center;gap:10px;font-size:14px}
+.topbar-user select{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:4px 10px;border-radius:6px;font-size:13px;cursor:pointer}
+.topbar-user select option{color:var(--gray-800);background:#fff}
+.topbar-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:.2s}
+.topbar-btn:hover{background:rgba(255,255,255,.25)}
+.topbar-btn.accent{background:var(--accent);border-color:var(--accent);color:#000}
+.topbar-btn.accent:hover{background:#d97706}
+
+.main{flex:1;padding:24px;max-width:1400px;margin:0 auto;width:100%}
+
+/* ── Stat Cards ───────────────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);border:1px solid var(--gray-200);cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--card-color)}
+.stat-card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+.stat-card.active{box-shadow:var(--shadow);ring:2px;border-color:var(--card-color)}
+.stat-card .icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:18px;background:color-mix(in srgb,var(--card-color) 12%,transparent)}
+.stat-card .value{font-size:32px;font-weight:700;line-height:1;color:var(--gray-900)}
+.stat-card .label{font-size:12px;color:var(--gray-500);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.stat-card.c-blue{--card-color:var(--brand-lt)}
+.stat-card.c-orange{--card-color:var(--orange)}
+.stat-card.c-green{--card-color:var(--green)}
+.stat-card.c-red{--card-color:var(--red)}
+.stat-card.c-purple{--card-color:var(--purple)}
+
+/* ── Tabs ─────────────────────────────────────── */
+.tabs{display:flex;gap:0;background:#fff;border-radius:var(--radius-lg) var(--radius-lg) 0 0;border:1px solid var(--gray-200);border-bottom:none;overflow:hidden}
+.tab{padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;color:var(--gray-500);border-bottom:3px solid transparent;transition:.2s;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.tab:hover{color:var(--gray-800);background:var(--gray-50)}
+.tab.active{color:var(--brand);border-bottom-color:var(--brand);background:#fff}
+.tab .badge{background:var(--gray-200);color:var(--gray-600);font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;min-width:20px;text-align:center}
+.tab.active .badge{background:var(--brand);color:#fff}
+.tab-overdue .badge{background:var(--red);color:#fff}
+
+/* ── Panel ────────────────────────────────────── */
+.panel{background:#fff;border:1px solid var(--gray-200);border-radius:0 0 var(--radius-lg) var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden}
+.panel-toolbar{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--gray-100);flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--gray-100);border-radius:6px;padding:7px 12px;flex:1;min-width:180px}
+.search-box input{border:none;background:none;outline:none;font-size:14px;color:var(--gray-800);width:100%}
+.search-box svg{color:var(--gray-400);flex-shrink:0}
+.filter-sel{border:1px solid var(--gray-200);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--gray-700);background:#fff;cursor:pointer;outline:none}
+.btn{border:none;border-radius:6px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--brand);color:#fff}
+.btn-primary:hover{background:var(--brand-lt)}
+.btn-success{background:var(--green);color:#fff}
+.btn-success:hover{filter:brightness(1.1)}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{filter:brightness(1.1)}
+.btn-ghost{background:transparent;color:var(--gray-600);border:1px solid var(--gray-200)}
+.btn-ghost:hover{background:var(--gray-50)}
+.btn-accent{background:var(--accent);color:#000}
+.btn-accent:hover{background:#d97706}
+.btn-sm{padding:5px 10px;font-size:12px}
+
+/* ── Table ────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:var(--gray-50);border-bottom:2px solid var(--gray-200)}
+th{padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--gray-100);transition:.15s}
+tbody tr:hover{background:var(--gray-50)}
+td{padding:12px 14px;color:var(--gray-700);vertical-align:middle}
+.td-part{font-weight:700;color:var(--gray-900)}
+.td-jobid{font-family:monospace;font-size:12px;color:var(--gray-500)}
+
+/* ── Badges ───────────────────────────────────── */
+.badge-status{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.s-under{background:#dbeafe;color:#1d4ed8}
+.s-pending{background:#fef3c7;color:#92400e}
+.s-approved{background:#dcfce7;color:#166534}
+.s-rejected{background:#fee2e2;color:#991b1b}
+.s-overdue{background:#fee2e2;color:#991b1b}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+/* ── Row actions ─────────────────────────────── */
+.actions{display:flex;gap:6px;align-items:center}
+
+/* ── Overdue indicator ────────────────────────── */
+.overdue-row{background:linear-gradient(90deg,#fff5f5 0%,#fff 8%) !important}
+.overdue-tag{font-size:11px;color:var(--red);font-weight:700;display:inline-flex;align-items:center;gap:3px}
+
+/* ── Empty state ──────────────────────────────── */
+.empty{text-align:center;padding:64px 20px;color:var(--gray-400)}
+.empty svg{margin-bottom:16px;opacity:.4}
+.empty h3{font-size:18px;color:var(--gray-600);margin-bottom:6px}
+.empty p{font-size:14px}
+
+/* ── Modal ────────────────────────────────────── */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)}
+.overlay.hidden{display:none}
+.modal{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);width:100%;animation:modalIn .2s ease;overflow:hidden}
+.modal.sm{max-width:480px}
+.modal.md{max-width:680px}
+.modal.lg{max-width:960px}
+.modal.xl{max-width:1100px;max-height:90vh;display:flex;flex-direction:column}
+@keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:none}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--gray-200);background:var(--gray-50)}
+.modal-title{font-size:16px;font-weight:700;color:var(--gray-900);display:flex;align-items:center;gap:10px}
+.modal-body{padding:24px;overflow-y:auto;flex:1}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--gray-200);display:flex;justify-content:flex-end;gap:10px;background:var(--gray-50)}
+.close-btn{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray-400);padding:4px;border-radius:4px;line-height:1}
+.close-btn:hover{color:var(--gray-700);background:var(--gray-100)}
+
+/* ── Form ─────────────────────────────────────── */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row.cols-1{grid-template-columns:1fr}
+.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:12px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.4px}
+.form-group input,.form-group select,.form-group textarea{border:1px solid var(--gray-300);border-radius:6px;padding:9px 12px;font-size:14px;color:var(--gray-800);outline:none;transition:.2s;background:#fff}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(26,60,110,.1)}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-hint{font-size:11px;color:var(--gray-400);margin-top:2px}
+
+/* ── Inspection Form (Excel rows render) ─────── */
+.insp-table-wrap{overflow-x:auto;border:1px solid var(--gray-200);border-radius:var(--radius)}
+.insp-table{width:100%;border-collapse:collapse;font-size:13px;min-width:600px}
+.insp-table th{background:var(--brand);color:#fff;padding:10px 12px;text-align:center;font-size:12px;white-space:nowrap}
+.insp-table th.item-col{background:var(--gray-700);text-align:left;width:200px}
+.insp-table .spec-row td{background:var(--gray-50);font-size:12px;color:var(--gray-500);text-align:center;padding:6px 8px;border-bottom:2px solid var(--gray-200)}
+.insp-table .spec-row td.item-col{text-align:left;color:var(--gray-700);font-weight:600}
+.insp-table .input-row td{border-bottom:1px solid var(--gray-100);padding:4px 6px;vertical-align:middle}
+.insp-table .input-row td input{width:100%;border:1px solid var(--gray-300);border-radius:4px;padding:5px 8px;font-size:13px;text-align:center;outline:none;min-width:70px}
+.insp-table .input-row td input:focus{border-color:var(--brand);background:#eff6ff}
+.insp-table .result-cell{text-align:center;font-weight:700;font-size:12px}
+.r-pass{color:var(--green)}
+.r-fail{color:var(--red)}
+.photo-upload-area{border:2px dashed var(--gray-300);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:.2s;margin-top:16px}
+.photo-upload-area:hover{border-color:var(--brand);background:var(--gray-50)}
+.photo-upload-area input{display:none}
+.photo-previews{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.photo-thumb{width:80px;height:80px;border-radius:6px;object-fit:cover;border:2px solid var(--gray-200);cursor:pointer}
+.photo-thumb:hover{border-color:var(--brand)}
+
+/* ── Loading / Spinner ────────────────────────── */
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay{position:absolute;inset:0;background:rgba(255,255,255,.8);display:flex;align-items:center;justify-content:center;z-index:10;border-radius:inherit}
+.loading-spinner{width:32px;height:32px;border:3px solid var(--gray-200);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite}
+
+/* ── Toast ────────────────────────────────────── */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--gray-900);color:#fff;padding:12px 18px;border-radius:8px;font-size:14px;box-shadow:var(--shadow-lg);animation:toastIn .3s ease;display:flex;align-items:center;gap:10px;min-width:260px;max-width:400px}
+.toast.success{background:var(--green)}
+.toast.error{background:var(--red)}
+.toast.warning{background:var(--orange)}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+
+/* ── History / Logs ───────────────────────────── */
+.log-entry{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--gray-100)}
+.log-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.log-meta{font-size:12px;color:var(--gray-400)}
+
+/* ── Config Banner ────────────────────────────── */
+.config-banner{background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius);padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-size:14px}
+.config-banner.hidden{display:none}
+.config-banner strong{color:#92400e}
+
+/* ── Scrollbar ────────────────────────────────── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:3px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ── Responsive ───────────────────────────────── */
+@media(max-width:900px){
+  .stats-row{grid-template-columns:repeat(3,1fr)}
+  .form-row{grid-template-columns:1fr}
+  .form-row.cols-3{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .main{padding:12px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .topbar{padding:0 14px}
+  .tabs{overflow-x:auto}
+  .panel-toolbar{gap:6px}
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+<!-- ── Top Bar ──────────────────────────────────────────── -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <rect width="28" height="28" rx="6" fill="rgba(255,255,255,.15)"/>
+      <path d="M7 9h14M7 14h10M7 19h12" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="21" cy="19" r="4" fill="#f59e0b"/>
+      <path d="M19.5 19l1 1 2-2" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="topbar-title">
+      QC Inspection System
+      <small>Quality Control Management</small>
+    </div>
+  </div>
+  <div style="flex:1"></div>
+  <div class="topbar-user">
+    <span style="font-size:13px;opacity:.7">Role:</span>
+    <select id="roleSelect" onchange="APP.setRole(this.value)">
+      <option value="staff">Staff (Inspector)</option>
+      <option value="chief">QC Chief</option>
+      <option value="manager">Manager</option>
+    </select>
+    <button class="topbar-btn accent" id="postJobBtn" style="display:none" onclick="APP.openPostJob()">
+      + Post Job
+    </button>
+    <button class="topbar-btn" onclick="APP.refresh()">↻ Refresh</button>
+    <button class="topbar-btn" onclick="APP.openConfig()">⚙ Config</button>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- Config Banner -->
+  <div class="config-banner" id="configBanner">
+    ⚠️ <strong>Setup required:</strong> Click ⚙ Config and enter your Google Apps Script Web App URL to connect the system.
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card c-blue" onclick="APP.switchTab('all')">
+      <div class="icon" style="--card-color:var(--brand-lt)">📋</div>
+      <div class="value" id="statTotal">—</div>
+      <div class="label">Total Jobs</div>
+    </div>
+    <div class="stat-card c-blue" onclick="APP.switchTab('underqc')">
+      <div class="icon">🔍</div>
+      <div class="value" id="statUnderQC">—</div>
+      <div class="label">Under QC</div>
+    </div>
+    <div class="stat-card c-orange" onclick="APP.switchTab('pending')">
+      <div class="icon">⏳</div>
+      <div class="value" id="statPending">—</div>
+      <div class="label">Pending Approval</div>
+    </div>
+    <div class="stat-card c-green" onclick="APP.switchTab('history')">
+      <div class="icon">✅</div>
+      <div class="value" id="statApproved">—</div>
+      <div class="label">Approved</div>
+    </div>
+    <div class="stat-card c-red" onclick="APP.switchTab('overdue')">
+      <div class="icon">🚨</div>
+      <div class="value" id="statOverdue">—</div>
+      <div class="label">Overdue</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" data-tab="underqc" onclick="APP.switchTab('underqc')">
+      🔍 Under QC <span class="badge" id="tabBadge-underqc">0</span>
+    </div>
+    <div class="tab" data-tab="pending" onclick="APP.switchTab('pending')">
+      ⏳ Pending Approval <span class="badge" id="tabBadge-pending">0</span>
+    </div>
+    <div class="tab" data-tab="history" onclick="APP.switchTab('history')">
+      📁 History <span class="badge" id="tabBadge-history">0</span>
+    </div>
+    <div class="tab tab-overdue" data-tab="overdue" onclick="APP.switchTab('overdue')">
+      🚨 Overdue <span class="badge" id="tabBadge-overdue">0</span>
+    </div>
+    <div class="tab" data-tab="logs" onclick="APP.switchTab('logs')">
+      📝 Audit Log
+    </div>
+  </div>
+
+  <!-- Panel -->
+  <div class="panel">
+    <div class="panel-toolbar">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="Search part no, supplier, inspector…" oninput="APP.applyFilters()"/>
+      </div>
+      <select class="filter-sel" id="filterSupplier" onchange="APP.applyFilters()">
+        <option value="">All Suppliers</option>
+      </select>
+      <select class="filter-sel" id="filterInspector" onchange="APP.applyFilters()">
+        <option value="">All Inspectors</option>
+      </select>
+      <input type="date" class="filter-sel" id="filterDateFrom" onchange="APP.applyFilters()" title="From date"/>
+      <input type="date" class="filter-sel" id="filterDateTo" onchange="APP.applyFilters()" title="To date"/>
+      <button class="btn btn-ghost btn-sm" onclick="APP.clearFilters()">✕ Clear</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost btn-sm" onclick="APP.exportExcel()">⬇ Excel</button>
+      <button class="btn btn-ghost btn-sm" onclick="APP.exportPrint()">🖨 Print</button>
+    </div>
+
+    <!-- Tab content areas -->
+    <div id="tabContent-underqc" class="tab-content">
+      <div class="tbl-wrap" id="loading-underqc" style="position:relative;min-height:200px">
+        <div class="loading-overlay"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
+    <div id="tabContent-pending" class="tab-content" style="display:none">
+      <div class="tbl-wrap" id="loading-pending" style="position:relative;min-height:200px">
+        <div class="loading-overlay"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
+    <div id="tabContent-history" class="tab-content" style="display:none">
+      <div class="tbl-wrap" id="loading-history" style="position:relative;min-height:200px">
+        <div class="loading-overlay"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
+    <div id="tabContent-overdue" class="tab-content" style="display:none">
+      <div class="tbl-wrap" id="loading-overdue" style="position:relative;min-height:200px">
+        <div class="loading-overlay"><div class="loading-spinner"></div></div>
+      </div>
+    </div>
+    <div id="tabContent-logs" class="tab-content" style="display:none;padding:0 20px 20px">
+      <div id="logsContainer" style="margin-top:16px"></div>
+    </div>
+  </div>
+
+</main>
+</div><!-- /app-shell -->
+
+<!-- ════════ MODALS ════════ -->
+
+<!-- Config Modal -->
+<div class="overlay hidden" id="configOverlay" onclick="APP.closeConfig(event)">
+  <div class="modal md" onclick="e=>e.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">⚙️ System Configuration</div>
+      <button class="close-btn" onclick="APP.closeConfig()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:20px">
+        <label>Google Apps Script Web App URL</label>
+        <input type="url" id="cfgGasUrl" placeholder="https://script.google.com/macros/s/…/exec"/>
+        <div class="form-hint">Deploy code.gs as Web App → Anyone (even anonymous). Paste the /exec URL here.</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Your Name</label>
+          <input type="text" id="cfgUserName" placeholder="John Smith"/>
+        </div>
+        <div class="form-group">
+          <label>Default Role</label>
+          <select id="cfgRole">
+            <option value="staff">Staff (Inspector)</option>
+            <option value="chief">QC Chief</option>
+            <option value="manager">Manager</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Overdue Threshold (days)</label>
+        <input type="number" id="cfgOverdueDays" value="3" min="1" max="30"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="APP.closeConfig()">Cancel</button>
+      <button class="btn btn-primary" onclick="APP.saveConfig()">Save & Connect</button>
+    </div>
+  </div>
+</div>
+
+<!-- Post Job Modal (QC Chief) -->
+<div class="overlay hidden" id="postJobOverlay" onclick="APP.closePostJob(event)">
+  <div class="modal md" onclick="e=>e.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">📋 Post New QC Job</div>
+      <button class="close-btn" onclick="APP.closePostJob()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row cols-1" style="margin-bottom:8px">
+        <div class="form-group">
+          <label>Part Number</label>
+          <input type="text" id="pjPartNo" placeholder="e.g. 45535-09250" oninput="APP.partSearch(this.value)" list="partSuggestions" autocomplete="off"/>
+          <datalist id="partSuggestions"></datalist>
+          <div class="form-hint" id="pjPartHint">Type to search master parts list</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Supplier</label>
+          <input type="text" id="pjSupplier" placeholder="Supplier name"/>
+        </div>
+        <div class="form-group">
+          <label>Inspector (Assigned to)</label>
+          <input type="text" id="pjInspector" placeholder="Inspector name"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Batch / PO Number</label>
+          <input type="text" id="pjBatch" placeholder="Optional"/>
+        </div>
+        <div class="form-group">
+          <label>Quantity</label>
+          <input type="number" id="pjQty" placeholder="Optional"/>
+        </div>
+      </div>
+      <div class="form-group form-row cols-1" style="margin-bottom:0">
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="pjNotes" placeholder="Additional notes…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="APP.closePostJob()">Cancel</button>
+      <button class="btn btn-primary" id="postJobSubmitBtn" onclick="APP.submitPostJob()">
+        Post Job
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Inspection Modal (Staff) -->
+<div class="overlay hidden" id="inspOverlay">
+  <div class="modal xl" onclick="e=>e.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">
+        🔬 QC Inspection Form
+        <span id="inspJobId" style="font-size:13px;font-weight:400;color:var(--gray-500)"></span>
+      </div>
+      <button class="close-btn" onclick="APP.closeInsp()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Job meta info -->
+      <div id="inspMeta" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;background:var(--gray-50);border-radius:var(--radius);padding:14px;font-size:13px">
+      </div>
+
+      <!-- Template loading state -->
+      <div id="inspTemplateLoading" style="text-align:center;padding:40px;color:var(--gray-400)">
+        <div style="font-size:32px;margin-bottom:8px">⏳</div>
+        Loading inspection template…
+      </div>
+
+      <!-- Measurements table -->
+      <div id="inspTableWrap" style="display:none">
+        <h3 style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">📐 Measurements</h3>
+        <div class="insp-table-wrap">
+          <table class="insp-table">
+            <thead>
+              <tr>
+                <th class="item-col">Inspection Item</th>
+                <th style="background:var(--gray-600)">Spec / Standard</th>
+                <div id="inspColHeaders"></div>
+              </tr>
+            </thead>
+            <tbody id="inspTbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Additional fields -->
+        <div class="form-row" style="margin-top:20px">
+          <div class="form-group">
+            <label>Overall Result</label>
+            <select id="inspOverallResult">
+              <option value="">— Select —</option>
+              <option value="PASS">PASS</option>
+              <option value="FAIL">FAIL</option>
+              <option value="CONDITIONAL">CONDITIONAL PASS</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Inspector Name</label>
+            <input type="text" id="inspectorName"/>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:16px">
+          <label>Remarks / Defect Description</label>
+          <textarea id="inspRemarks" placeholder="Describe any defects, non-conformances, or observations…"></textarea>
+        </div>
+
+        <!-- Photo Upload -->
+        <h3 style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">📷 Inspection Photos</h3>
+        <div class="photo-upload-area" onclick="document.getElementById('photoInput').click()">
+          <input type="file" id="photoInput" multiple accept="image/*" onchange="APP.handlePhotoUpload(this)"/>
+          <div style="font-size:24px;margin-bottom:6px">📁</div>
+          <div style="font-size:14px;color:var(--gray-500)">Click to upload or drag &amp; drop photos</div>
+          <div style="font-size:12px;color:var(--gray-400);margin-top:4px">JPG, PNG, WEBP — max 5MB each</div>
+        </div>
+        <div class="photo-previews" id="photoPreviews"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="APP.closeInsp()">Close</button>
+      <button class="btn btn-primary" id="inspSubmitBtn" onclick="APP.submitInspection()" style="display:none">
+        Submit for Approval
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Approve/Reject Modal (Manager) -->
+<div class="overlay hidden" id="decisionOverlay" onclick="APP.closeDecision(event)">
+  <div class="modal sm" onclick="e=>e.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title" id="decisionTitle">Manager Decision</div>
+      <button class="close-btn" onclick="APP.closeDecision()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="decisionJobInfo" style="background:var(--gray-50);border-radius:var(--radius);padding:14px;margin-bottom:16px;font-size:14px"></div>
+      <div class="form-group">
+        <label>Remarks</label>
+        <textarea id="decisionRemarks" placeholder="Optional remarks…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="APP.closeDecision()">Cancel</button>
+      <button class="btn" id="decisionBtn" onclick="APP.submitDecision()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ════════ JAVASCRIPT ════════ -->
+<script>
+(function(){
+"use strict";
+
+// ── State ─────────────────────────────────────────────────
+var STATE = {
+  gasUrl: "",
+  userName: "QC User",
+  role: "staff",
+  overdueDays: 3,
+  activeTab: "underqc",
+  jobs: {},          // keyed by tab
+  filteredJobs: [],
+  masterParts: [],
+  stats: {},
+  currentInspJob: null,
+  currentDecisionJob: null,
+  currentDecisionAction: null,
+  uploadedPhotoIds: [],
+  pendingPostJobPart: null
+};
+
+// ── Config ────────────────────────────────────────────────
+function loadConfig() {
+  STATE.gasUrl    = localStorage.getItem("qc_gas_url") || "";
+  STATE.userName  = localStorage.getItem("qc_user")    || "QC User";
+  STATE.role      = localStorage.getItem("qc_role")    || "staff";
+  STATE.overdueDays = parseInt(localStorage.getItem("qc_overdue")||"3")||3;
+  document.getElementById("roleSelect").value = STATE.role;
+  updateRoleUI();
+  if (!STATE.gasUrl) {
+    document.getElementById("configBanner").classList.remove("hidden");
+  } else {
+    document.getElementById("configBanner").classList.add("hidden");
+  }
+}
+
+APP.setRole = function(r) {
+  STATE.role = r;
+  localStorage.setItem("qc_role", r);
+  updateRoleUI();
+  APP.refresh();
+};
+
+function updateRoleUI() {
+  document.getElementById("postJobBtn").style.display =
+    (STATE.role === "chief") ? "" : "none";
+}
+
+APP.openConfig = function() {
+  document.getElementById("cfgGasUrl").value = STATE.gasUrl;
+  document.getElementById("cfgUserName").value = STATE.userName;
+  document.getElementById("cfgRole").value = STATE.role;
+  document.getElementById("cfgOverdueDays").value = STATE.overdueDays;
+  document.getElementById("configOverlay").classList.remove("hidden");
+};
+
+APP.closeConfig = function(e) {
+  if (e && e.target !== document.getElementById("configOverlay")) return;
+  document.getElementById("configOverlay").classList.add("hidden");
+};
+
+APP.saveConfig = function() {
+  STATE.gasUrl  = document.getElementById("cfgGasUrl").value.trim();
+  STATE.userName= document.getElementById("cfgUserName").value.trim() || "QC User";
+  STATE.role    = document.getElementById("cfgRole").value;
+  STATE.overdueDays = parseInt(document.getElementById("cfgOverdueDays").value)||3;
+  localStorage.setItem("qc_gas_url",   STATE.gasUrl);
+  localStorage.setItem("qc_user",      STATE.userName);
+  localStorage.setItem("qc_role",      STATE.role);
+  localStorage.setItem("qc_overdue",   STATE.overdueDays);
+  document.getElementById("roleSelect").value = STATE.role;
+  document.getElementById("configOverlay").classList.add("hidden");
+  if (STATE.gasUrl) {
+    document.getElementById("configBanner").classList.add("hidden");
+    toast("Configuration saved. Connecting…", "success");
+    APP.refresh();
+  } else {
+    toast("Please enter the GAS Web App URL", "error");
+  }
+  updateRoleUI();
+};
+
+// ── API ───────────────────────────────────────────────────
+async function api(action, params, body) {
+  if (!STATE.gasUrl) {
+    toast("GAS URL not configured. Click ⚙ Config.", "error");
+    throw new Error("No GAS URL");
+  }
+  var url = STATE.gasUrl + "?action=" + encodeURIComponent(action);
+  if (params) {
+    Object.keys(params).forEach(function(k) {
+      if (params[k] !== undefined && params[k] !== "")
+        url += "&" + encodeURIComponent(k) + "=" + encodeURIComponent(params[k]);
+    });
+  }
+  var options = { method: "GET" };
+  if (body) {
+    options.method = "POST";
+    options.headers = { "Content-Type": "application/json" };
+    options.body = JSON.stringify(Object.assign({ action: action }, body));
+  }
+  var res = await fetch(url, options);
+  var json = await res.json();
+  return json;
+}
+
+// ── Load & Refresh ────────────────────────────────────────
+APP.refresh = function() {
+  loadStats();
+  loadCurrentTab();
+};
+
+async function loadStats() {
+  try {
+    var r = await api("getStats");
+    if (r.ok) {
+      STATE.stats = r.stats;
+      document.getElementById("statTotal").textContent   = r.stats.total;
+      document.getElementById("statUnderQC").textContent = r.stats.underQC;
+      document.getElementById("statPending").textContent = r.stats.pendingApproval;
+      document.getElementById("statApproved").textContent= r.stats.approved;
+      document.getElementById("statOverdue").textContent  = r.stats.overdue;
+    }
+  } catch(e) {}
+}
+
+async function loadCurrentTab() {
+  var tab = STATE.activeTab;
+  var statusMap = {
+    underqc: "UNDER_QC",
+    pending: "PENDING_APPROVAL",
+    history: null,
+    overdue: null,
+    logs: null
+  };
+  if (tab === "logs") {
+    loadLogs();
+    return;
+  }
+  var filters = getFilters();
+  var params = Object.assign({}, filters);
+  if (statusMap[tab]) params.status = statusMap[tab];
+  // History shows approved + rejected
+  if (tab === "history") {
+    // We'll request all and filter client-side
+    delete params.status;
+  }
+  try {
+    var r = await api("getJobs", params);
+    if (r.ok) {
+      var jobs = r.jobs;
+      if (tab === "history") {
+        jobs = jobs.filter(function(j){ return j.status === "APPROVED" || j.status === "REJECTED"; });
+      }
+      if (tab === "overdue") {
+        jobs = jobs.filter(function(j){ return j.isOverdue; });
+      }
+      STATE.jobs[tab] = jobs;
+      STATE.filteredJobs = jobs;
+      renderJobs(tab, jobs);
+      updateTabBadges(r.jobs);
+      updateFilterOptions(r.jobs);
+    }
+  } catch(e) {
+    showError(tab, "Failed to load. Check configuration.");
+  }
+}
+
+function updateTabBadges(allJobs) {
+  var counts = { underqc: 0, pending: 0, history: 0, overdue: 0 };
+  allJobs.forEach(function(j) {
+    if (j.status === "UNDER_QC") counts.underqc++;
+    if (j.status === "PENDING_APPROVAL") counts.pending++;
+    if (j.status === "APPROVED" || j.status === "REJECTED") counts.history++;
+    if (j.isOverdue) counts.overdue++;
+  });
+  Object.keys(counts).forEach(function(k) {
+    var el = document.getElementById("tabBadge-"+k);
+    if (el) el.textContent = counts[k];
+  });
+}
+
+function updateFilterOptions(jobs) {
+  var suppliers = [...new Set(jobs.map(j=>j.supplier).filter(Boolean))].sort();
+  var inspectors= [...new Set(jobs.map(j=>j.inspector).filter(Boolean))].sort();
+  var sel1 = document.getElementById("filterSupplier");
+  var sel2 = document.getElementById("filterInspector");
+  var cur1 = sel1.value; var cur2 = sel2.value;
+  sel1.innerHTML = '<option value="">All Suppliers</option>' + suppliers.map(s=>`<option${s===cur1?' selected':''}>${s}</option>`).join('');
+  sel2.innerHTML = '<option value="">All Inspectors</option>' + inspectors.map(s=>`<option${s===cur2?' selected':''}>${s}</option>`).join('');
+}
+
+// ── Render Jobs ───────────────────────────────────────────
+function renderJobs(tab, jobs) {
+  var wrap = document.getElementById("tabContent-"+tab);
+  if (!wrap) return;
+  if (!jobs || jobs.length === 0) {
+    wrap.innerHTML = `<div class="empty">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6m-3-3v6m-7 4V5a2 2 0 012-2h8l4 4v14a2 2 0 01-2 2H4a2 2 0 01-2-2z"/></svg>
+      <h3>No jobs found</h3><p>Adjust filters or post a new job.</p></div>`;
+    return;
+  }
+
+  var isHistory = (tab === "history");
+  var isMgr = (STATE.role === "manager");
+
+  var html = `<div class="tbl-wrap"><table>
+    <thead><tr>
+      <th>Job ID</th><th>Part No</th><th>Supplier</th><th>Inspector</th>
+      <th>Status</th><th>Posted</th><th>Days</th><th>Actions</th>
+    </tr></thead>
+    <tbody>`;
+
+  jobs.forEach(function(job) {
+    var overdueMark = job.isOverdue ? '<span class="overdue-tag">🚨 OVERDUE</span>' : '';
+    var rowClass = job.isOverdue ? 'overdue-row' : '';
+    var statusBadge = makeStatusBadge(job.status);
+    var postedFmt = job.postedDate ? new Date(job.postedDate).toLocaleDateString() : "—";
+    var actions = makeActions(job, tab, isMgr);
+
+    html += `<tr class="${rowClass}">
+      <td class="td-jobid">${job.jobId}</td>
+      <td class="td-part">${job.partNo}</td>
+      <td>${job.supplier||"—"}</td>
+      <td>${job.inspector||"—"}</td>
+      <td>${statusBadge} ${overdueMark}</td>
+      <td>${postedFmt}</td>
+      <td>${job.daysOld !== undefined ? job.daysOld+'d' : "—"}</td>
+      <td><div class="actions">${actions}</div></td>
+    </tr>`;
+    if (isHistory && job.remarks) {
+      html += `<tr><td colspan="8" style="padding:4px 14px 10px;font-size:12px;color:var(--gray-500)">
+        💬 ${escHtml(job.remarks)}</td></tr>`;
+    }
+  });
+
+  html += "</tbody></table></div>";
+  wrap.innerHTML = html;
+}
+
+function makeStatusBadge(status) {
+  var map = {
+    UNDER_QC:        ['s-under',   '🔍 Under QC'],
+    PENDING_APPROVAL:['s-pending', '⏳ Pending'],
+    APPROVED:        ['s-approved','✅ Approved'],
+    REJECTED:        ['s-rejected','❌ Rejected']
+  };
+  var d = map[status] || ['', status];
+  return `<span class="badge-status ${d[0]}"><span class="dot"></span>${d[1]}</span>`;
+}
+
+function makeActions(job, tab, isMgr) {
+  var btns = [];
+  if (job.status === "UNDER_QC") {
+    btns.push(`<button class="btn btn-primary btn-sm" onclick="APP.openInsp('${job.jobId}')">📝 Inspect</button>`);
+  }
+  if (job.status === "PENDING_APPROVAL" && isMgr) {
+    btns.push(`<button class="btn btn-success btn-sm" onclick="APP.openDecision('${job.jobId}','approve')">✅ Approve</button>`);
+    btns.push(`<button class="btn btn-danger btn-sm" onclick="APP.openDecision('${job.jobId}','reject')">❌ Reject</button>`);
+  }
+  if (job.fileId) {
+    btns.push(`<a href="https://drive.google.com/file/d/${job.fileId}" target="_blank" class="btn btn-ghost btn-sm">📄 File</a>`);
+  }
+  return btns.join("");
+}
+
+function showError(tab, msg) {
+  var el = document.getElementById("tabContent-"+tab);
+  if (el) el.innerHTML = `<div class="empty"><div style="font-size:40px">⚠️</div><h3>Error</h3><p>${msg}</p></div>`;
+}
+
+// ── Filters ───────────────────────────────────────────────
+function getFilters() {
+  return {
+    q:        document.getElementById("searchInput").value.trim(),
+    supplier: document.getElementById("filterSupplier").value,
+    inspector:document.getElementById("filterInspector").value,
+    dateFrom: document.getElementById("filterDateFrom").value,
+    dateTo:   document.getElementById("filterDateTo").value
+  };
+}
+
+APP.applyFilters = function() {
+  loadCurrentTab();
+};
+
+APP.clearFilters = function() {
+  document.getElementById("searchInput").value = "";
+  document.getElementById("filterSupplier").value = "";
+  document.getElementById("filterInspector").value = "";
+  document.getElementById("filterDateFrom").value = "";
+  document.getElementById("filterDateTo").value = "";
+  loadCurrentTab();
+};
+
+// ── Tab Switching ─────────────────────────────────────────
+APP.switchTab = function(tab) {
+  STATE.activeTab = tab;
+  document.querySelectorAll(".tab").forEach(function(el) {
+    el.classList.toggle("active", el.dataset.tab === tab);
+  });
+  document.querySelectorAll(".tab-content").forEach(function(el) {
+    el.style.display = el.id === "tabContent-"+tab ? "" : "none";
+  });
+  loadCurrentTab();
+};
+
+// ── Post Job ──────────────────────────────────────────────
+APP.openPostJob = function() {
+  document.getElementById("pjPartNo").value = "";
+  document.getElementById("pjSupplier").value = "";
+  document.getElementById("pjInspector").value = "";
+  document.getElementById("pjBatch").value = "";
+  document.getElementById("pjQty").value = "";
+  document.getElementById("pjNotes").value = "";
+  document.getElementById("pjPartHint").textContent = "Type to search master parts list";
+  document.getElementById("postJobOverlay").classList.remove("hidden");
+  loadMasterParts();
+};
+
+APP.closePostJob = function(e) {
+  if (e && e.target !== document.getElementById("postJobOverlay")) return;
+  document.getElementById("postJobOverlay").classList.add("hidden");
+};
+
+async function loadMasterParts() {
+  try {
+    var r = await api("getMasterParts");
+    if (r.ok) {
+      STATE.masterParts = r.parts;
+      var dl = document.getElementById("partSuggestions");
+      dl.innerHTML = r.parts.slice(0,200).map(function(p) {
+        return `<option value="${escHtml(p.partNo)}" data-supplier="${escHtml(p.supplier)}" data-file="${escHtml(p.fileName)}">${p.partNo} — ${p.description||p.fileName}</option>`;
+      }).join("");
+    }
+  } catch(e) {}
+}
+
+APP.partSearch = function(val) {
+  var part = STATE.masterParts.find(function(p){ return p.partNo === val; });
+  if (part) {
+    if (part.supplier && !document.getElementById("pjSupplier").value)
+      document.getElementById("pjSupplier").value = part.supplier;
+    document.getElementById("pjPartHint").textContent =
+      "✓ Found: " + (part.description || part.fileName || part.partNo);
+    STATE.pendingPostJobPart = part;
+  } else {
+    STATE.pendingPostJobPart = null;
+    document.getElementById("pjPartHint").textContent = "Type to search master parts list";
+  }
+};
+
+APP.submitPostJob = async function() {
+  var partNo   = document.getElementById("pjPartNo").value.trim();
+  var supplier = document.getElementById("pjSupplier").value.trim();
+  var insp     = document.getElementById("pjInspector").value.trim();
+  if (!partNo) { toast("Part number is required", "error"); return; }
+  var btn = document.getElementById("postJobSubmitBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Posting…';
+  try {
+    var r = await api("postJob", null, {
+      action: "postJob",
+      partNo: partNo,
+      supplier: supplier,
+      inspector: insp,
+      postedBy: STATE.userName,
+      fileName: STATE.pendingPostJobPart ? STATE.pendingPostJobPart.fileName : "",
+      notes: document.getElementById("pjNotes").value.trim()
+    });
+    if (r.ok) {
+      toast("✅ Job posted: " + r.jobId, "success");
+      document.getElementById("postJobOverlay").classList.add("hidden");
+      APP.refresh();
+    } else {
+      toast(r.error || "Failed to post job", "error");
+    }
+  } catch(e) {
+    toast("Network error: " + e.message, "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Post Job";
+  }
+};
+
+// ── Inspection Form ───────────────────────────────────────
+APP.openInsp = async function(jobId) {
+  // Find job in current data
+  var job = null;
+  Object.values(STATE.jobs).forEach(function(arr) {
+    if (!job) job = (arr||[]).find(function(j){ return j.jobId === jobId; });
+  });
+  if (!job) { toast("Job not found in local state", "error"); return; }
+
+  STATE.currentInspJob = job;
+  STATE.uploadedPhotoIds = [];
+
+  document.getElementById("inspOverlay").classList.remove("hidden");
+  document.getElementById("inspJobId").textContent = jobId;
+  document.getElementById("inspectorName").value = STATE.userName;
+
+  // Meta info
+  document.getElementById("inspMeta").innerHTML = [
+    ["Part No",   job.partNo],
+    ["Supplier",  job.supplier||"—"],
+    ["Inspector", job.inspector||"—"],
+    ["Posted",    job.postedDate ? new Date(job.postedDate).toLocaleDateString() : "—"]
+  ].map(function(item) {
+    return `<div><div style="font-size:11px;color:var(--gray-500);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">${item[0]}</div>
+    <div style="font-weight:600;color:var(--gray-900)">${item[1]}</div></div>`;
+  }).join("");
+
+  document.getElementById("inspTableWrap").style.display = "none";
+  document.getElementById("inspTemplateLoading").style.display = "";
+  document.getElementById("inspSubmitBtn").style.display = "none";
+
+  if (!job.fileId) {
+    document.getElementById("inspTemplateLoading").innerHTML = "⚠️ No template file linked to this job.";
+    return;
+  }
+
+  // Load template data
+  try {
+    var r = await api("getTemplateData", { fileId: job.fileId });
+    if (r.ok && r.items && r.items.length > 0) {
+      renderInspTable(r.items, job.inspData);
+      document.getElementById("inspTemplateLoading").style.display = "none";
+      document.getElementById("inspTableWrap").style.display = "";
+      if (job.status === "UNDER_QC") {
+        document.getElementById("inspSubmitBtn").style.display = "";
+      }
+    } else {
+      document.getElementById("inspTemplateLoading").innerHTML =
+        '⚠️ Could not read template data.' + (r.error ? '<br><small>'+escHtml(r.error)+'</small>' : '');
+    }
+  } catch(e) {
+    document.getElementById("inspTemplateLoading").innerHTML = "⚠️ " + escHtml(e.message);
+  }
+};
+
+function renderInspTable(items, existing) {
+  // items: [{name, spec, colIndex, existingInputs}]
+  var NUM_ROWS = 10; // rows 30-39
+  var tbody = document.getElementById("inspTbody");
+
+  // Build header col cells (measurement names)
+  var colHeaders = items.map(function(item) {
+    return `<th>${escHtml(item.name)}</th>`;
+  }).join("");
+
+  // Replace dynamic header
+  var headerTr = document.querySelector(".insp-table thead tr");
+  headerTr.innerHTML = `<th class="item-col">Inspection Item</th><th style="background:var(--gray-600)">Spec / Standard</th>${colHeaders}`;
+
+  // Row labels
+  var rowLabels = ["Trial 1","Trial 2","Trial 3","Trial 4","Trial 5","Trial 6","Trial 7","Trial 8","Trial 9","Trial 10"];
+
+  var html = "";
+
+  // Spec row
+  html += `<tr class="spec-row">
+    <td class="item-col">📏 Specification</td>
+    <td>—</td>
+    ${items.map(function(item){ return `<td>${escHtml(item.spec||"—")}</td>`; }).join("")}
+  </tr>`;
+
+  // Input rows (row 30-39)
+  for (var row = 0; row < NUM_ROWS; row++) {
+    html += `<tr class="input-row">
+      <td class="item-col" style="color:var(--gray-600);font-size:12px">${rowLabels[row]}</td>
+      <td></td>
+      ${items.map(function(item,ci) {
+        var existVal = (item.existingInputs && item.existingInputs[row]) || "";
+        if (existing && existing.values) {
+          var found = existing.values.find(function(v){ return v.colIndex === item.colIndex && v.row === row; });
+          if (found) existVal = found.value||"";
+        }
+        return `<td><input type="text" class="insp-input"
+          data-col="${item.colIndex}" data-row="${row}" data-spec="${escHtml(item.spec||'')}"
+          value="${escHtml(existVal)}"
+          oninput="checkResult(this)"
+          placeholder="—"/></td>`;
+      }).join("")}
+    </tr>`;
+  }
+
+  // Result row
+  html += `<tr class="spec-row" id="inspResultRow">
+    <td class="item-col" style="font-weight:700">Result</td>
+    <td></td>
+    ${items.map(function(item,ci) {
+      return `<td class="result-cell" id="res-col-${item.colIndex}">—</td>`;
+    }).join("")}
+  </tr>`;
+
+  tbody.innerHTML = html;
+  document.getElementById("photoPreviews").innerHTML = "";
+}
+
+function checkResult(input) {
+  // Simple PASS/FAIL check: if spec contains range like "10.0~11.0" or "≤5.0"
+  var spec = input.dataset.spec;
+  var val  = parseFloat(input.value);
+  if (isNaN(val) || !spec) return;
+  var colIndex = input.dataset.col;
+  var resultEl = document.getElementById("res-col-"+colIndex);
+  if (!resultEl) return;
+  var pass = evaluateSpec(val, spec);
+  if (pass === true)  { resultEl.textContent="PASS"; resultEl.className="result-cell r-pass"; }
+  else if (pass===false){ resultEl.textContent="FAIL"; resultEl.className="result-cell r-fail"; }
+  else { resultEl.textContent="—"; resultEl.className="result-cell"; }
+}
+
+function evaluateSpec(val, spec) {
+  // Range: "10.0~11.0" or "10.0 - 11.0"
+  var range = spec.match(/([\d.]+)\s*[~–\-]\s*([\d.]+)/);
+  if (range) { var lo=parseFloat(range[1]),hi=parseFloat(range[2]); return val>=lo&&val<=hi; }
+  // Max: "≤5.0" or "<=5.0"
+  var max = spec.match(/[≤<]=?\s*([\d.]+)/);
+  if (max) return val <= parseFloat(max[1]);
+  // Min: "≥2.0" or ">=2.0"
+  var min = spec.match(/[≥>]=?\s*([\d.]+)/);
+  if (min) return val >= parseFloat(min[1]);
+  return null;
+}
+
+APP.closeInsp = function() {
+  document.getElementById("inspOverlay").classList.add("hidden");
+  STATE.currentInspJob = null;
+};
+
+APP.handlePhotoUpload = async function(input) {
+  var files = input.files;
+  if (!files || files.length === 0) return;
+  var previews = document.getElementById("photoPreviews");
+
+  for (var i = 0; i < files.length; i++) {
+    var file = files[i];
+    if (file.size > 5*1024*1024) { toast(file.name+" is too large (max 5MB)", "warning"); continue; }
+    var b64 = await toBase64(file);
+    var imgEl = document.createElement("img");
+    imgEl.src = b64;
+    imgEl.className = "photo-thumb";
+    imgEl.title = file.name;
+    previews.appendChild(imgEl);
+    toast("Uploading "+file.name+"…");
+    try {
+      var r = await api("uploadPhoto", null, {
+        action:"uploadPhoto",
+        base64: b64,
+        filename: file.name,
+        mimeType: file.type
+      });
+      if (r.ok) {
+        STATE.uploadedPhotoIds.push(r.fileId);
+        toast("Photo uploaded: "+file.name, "success");
+      } else {
+        toast("Upload failed: "+r.error, "error");
+      }
+    } catch(e) {
+      toast("Upload error: "+e.message, "error");
+    }
+  }
+};
+
+function toBase64(file) {
+  return new Promise(function(resolve, reject) {
+    var reader = new FileReader();
+    reader.onload = function(e){ resolve(e.target.result); };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+APP.submitInspection = async function() {
+  var job = STATE.currentInspJob;
+  if (!job) return;
+
+  var overall = document.getElementById("inspOverallResult").value;
+  if (!overall) { toast("Please select Overall Result (PASS/FAIL)", "error"); return; }
+
+  // Collect measurements
+  var inputs = document.querySelectorAll(".insp-input");
+  var values = [];
+  inputs.forEach(function(inp) {
+    values.push({
+      colIndex: parseInt(inp.dataset.col),
+      row: parseInt(inp.dataset.row),
+      value: inp.value,
+      spec: inp.dataset.spec
+    });
+  });
+
+  var btn = document.getElementById("inspSubmitBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Submitting…';
+
+  try {
+    var r = await api("submitInspection", null, {
+      action: "submitInspection",
+      jobId: job.jobId,
+      submittedBy: document.getElementById("inspectorName").value || STATE.userName,
+      measurements: { values: values, overallResult: overall },
+      remarks: document.getElementById("inspRemarks").value,
+      photoIds: STATE.uploadedPhotoIds.join(",")
+    });
+    if (r.ok) {
+      toast("✅ Inspection submitted for approval!", "success");
+      APP.closeInsp();
+      APP.refresh();
+    } else {
+      toast(r.error || "Submission failed", "error");
+    }
+  } catch(e) {
+    toast("Network error: "+e.message, "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Submit for Approval";
+  }
+};
+
+// ── Manager Decision ──────────────────────────────────────
+APP.openDecision = function(jobId, action) {
+  var job = null;
+  Object.values(STATE.jobs).forEach(function(arr) {
+    if (!job) job = (arr||[]).find(function(j){ return j.jobId === jobId; });
+  });
+  if (!job) { toast("Job not found", "error"); return; }
+  STATE.currentDecisionJob  = job;
+  STATE.currentDecisionAction = action;
+
+  var isApprove = (action === "approve");
+  var btn = document.getElementById("decisionBtn");
+  btn.textContent = isApprove ? "✅ Approve" : "❌ Reject";
+  btn.className = "btn " + (isApprove ? "btn-success" : "btn-danger");
+  document.getElementById("decisionTitle").textContent = isApprove ? "✅ Approve Job" : "❌ Reject Job";
+  document.getElementById("decisionJobInfo").innerHTML =
+    `<strong>Job:</strong> ${escHtml(jobId)}<br>
+     <strong>Part:</strong> ${escHtml(job.partNo)}<br>
+     <strong>Inspector:</strong> ${escHtml(job.inspector||"—")}<br>
+     <strong>Supplier:</strong> ${escHtml(job.supplier||"—")}`;
+  document.getElementById("decisionRemarks").value = "";
+  document.getElementById("decisionOverlay").classList.remove("hidden");
+};
+
+APP.closeDecision = function(e) {
+  if (e && e.target !== document.getElementById("decisionOverlay")) return;
+  document.getElementById("decisionOverlay").classList.add("hidden");
+};
+
+APP.submitDecision = async function() {
+  var job    = STATE.currentDecisionJob;
+  var action = STATE.currentDecisionAction;
+  if (!job || !action) return;
+  var remarks = document.getElementById("decisionRemarks").value.trim();
+  var btn = document.getElementById("decisionBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Processing…';
+
+  try {
+    var gasAction = action === "approve" ? "approveJob" : "rejectJob";
+    var keyField  = action === "approve" ? "approvedBy" : "rejectedBy";
+    var body = { action: gasAction, jobId: job.jobId, remarks: remarks };
+    body[keyField] = STATE.userName;
+
+    var r = await api(gasAction, null, body);
+    if (r.ok) {
+      toast((action==="approve"?"✅ Job approved!":"❌ Job rejected!"), action==="approve"?"success":"error");
+      APP.closeDecision();
+      APP.refresh();
+    } else {
+      toast(r.error||"Failed", "error");
+    }
+  } catch(e) {
+    toast("Network error: "+e.message, "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = action==="approve" ? "✅ Approve" : "❌ Reject";
+  }
+};
+
+// ── Logs ──────────────────────────────────────────────────
+async function loadLogs() {
+  var el = document.getElementById("logsContainer");
+  el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gray-400)"><div class="loading-spinner" style="margin:0 auto"></div></div>';
+  try {
+    var r = await api("getLogs", { limit: 100 });
+    if (r.ok) {
+      if (!r.logs.length) { el.innerHTML = '<div class="empty"><h3>No logs yet</h3></div>'; return; }
+      var colorMap = {
+        POST_JOB:          "#2457a0",
+        SUBMIT_INSPECTION: "#7c3aed",
+        APPROVE_JOB:       "#16a34a",
+        REJECT_JOB:        "#dc2626"
+      };
+      el.innerHTML = r.logs.map(function(log) {
+        var col = colorMap[log.action] || "#94a3b8";
+        var dt  = log.timestamp ? new Date(log.timestamp).toLocaleString() : "—";
+        return `<div class="log-entry">
+          <div class="log-dot" style="background:${col}"></div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--gray-800)">${escHtml(log.action)} — ${escHtml(log.jobId||"")}</div>
+            <div style="font-size:12px;color:var(--gray-600);margin-top:2px">${escHtml(log.details||"")}</div>
+            <div class="log-meta">${escHtml(log.user||"")} · ${dt}</div>
+          </div>
+        </div>`;
+      }).join("");
+    }
+  } catch(e) {
+    el.innerHTML = '<div class="empty"><h3>Failed to load logs</h3></div>';
+  }
+}
+
+// ── Export ─────────────────────────────────────────────────
+APP.exportExcel = function() {
+  var jobs = STATE.jobs[STATE.activeTab] || [];
+  if (!jobs.length) { toast("No data to export", "warning"); return; }
+  var rows = [["Job ID","Part No","Supplier","Inspector","Status","Posted Date","Days Old","Submitted","Decision By","Remarks"]];
+  jobs.forEach(function(j) {
+    rows.push([j.jobId,j.partNo,j.supplier,j.inspector,j.status,
+      j.postedDate?new Date(j.postedDate).toLocaleDateString():"",
+      j.daysOld,
+      j.submittedDate?new Date(j.submittedDate).toLocaleDateString():"",
+      j.decisionBy, j.remarks]);
+  });
+  var wb = XLSX.utils.book_new();
+  var ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = rows[0].map(function(){ return {wch:18}; });
+  XLSX.utils.book_append_sheet(wb, ws, "QC Jobs");
+  XLSX.writeFile(wb, "QC_Export_"+new Date().toISOString().slice(0,10)+".xlsx");
+  toast("Excel exported", "success");
+};
+
+APP.exportPrint = function() {
+  var jobs = STATE.jobs[STATE.activeTab] || [];
+  if (!jobs.length) { toast("No data to print", "warning"); return; }
+  var html = `<html><head><title>QC Report</title>
+  <style>body{font-family:Arial,sans-serif;font-size:12px}
+  table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:6px 8px;text-align:left}
+  th{background:#1a3c6e;color:#fff}tr:nth-child(even){background:#f5f5f5}
+  h2{color:#1a3c6e;margin-bottom:8px}.meta{color:#666;margin-bottom:16px;font-size:11px}</style>
+  </head><body>
+  <h2>QC Inspection Report — ${escHtml(STATE.activeTab.toUpperCase())}</h2>
+  <div class="meta">Exported: ${new Date().toLocaleString()} | Total: ${jobs.length}</div>
+  <table><tr><th>Job ID</th><th>Part No</th><th>Supplier</th><th>Inspector</th><th>Status</th><th>Posted</th><th>Days</th><th>Remarks</th></tr>
+  ${jobs.map(function(j){ return `<tr>
+    <td>${escHtml(j.jobId)}</td><td>${escHtml(j.partNo)}</td><td>${escHtml(j.supplier||"")}</td>
+    <td>${escHtml(j.inspector||"")}</td><td>${escHtml(j.status)}</td>
+    <td>${j.postedDate?new Date(j.postedDate).toLocaleDateString():""}</td>
+    <td>${j.daysOld}</td><td>${escHtml(j.remarks||"")}</td></tr>`; }).join("")}
+  </table></body></html>`;
+  var win = window.open("","_blank");
+  win.document.write(html);
+  win.document.close();
+  win.print();
+};
+
+// ── Toast ─────────────────────────────────────────────────
+function toast(msg, type) {
+  var el = document.createElement("div");
+  el.className = "toast" + (type?" "+type:"");
+  el.innerHTML = (type==="success"?"✅ ":type==="error"?"❌ ":type==="warning"?"⚠️ ":"ℹ️ ") + escHtml(String(msg));
+  var cont = document.getElementById("toastContainer");
+  cont.appendChild(el);
+  setTimeout(function(){ el.style.opacity="0"; el.style.transition="opacity .3s"; setTimeout(function(){ el.remove(); },350); }, 3500);
+}
+
+// ── Utils ─────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ── Expose to global APP ──────────────────────────────────
+window.APP = window.APP || {};
+Object.assign(window.APP, {
+  refresh: function() {
+    loadStats();
+    loadCurrentTab();
+  }
+});
+
+// ── Bootstrap ─────────────────────────────────────────────
+window.APP = window.APP || {};
+// (Already defined above)
+
+loadConfig();
+if (STATE.gasUrl) {
+  loadStats();
+  loadCurrentTab();
+} else {
+  // Show empty states
+  ["underqc","pending","history","overdue"].forEach(function(tab) {
+    var el = document.getElementById("tabContent-"+tab);
+    if (el) el.innerHTML = '<div class="empty"><div style="font-size:40px">🔌</div><h3>Not Connected</h3><p>Click ⚙ Config to set up your GAS URL.</p></div>';
+  });
+}
+
+// Auto-refresh every 60s
+setInterval(function() {
+  if (STATE.gasUrl) loadStats();
+}, 60000);
+
+})();
+</script>
+</body>
+</html>
