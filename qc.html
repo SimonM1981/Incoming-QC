@@ -1017,7 +1017,7 @@ APP.openInsp = async function(jobId) {
 
   // Load template data
   try {
-    var r = await api("getTemplateData", { fileId: job.fileId });
+    var r = await api("getTemplateData", { fileId: job.fileId, partNo: job.partNo });
     if (r.ok && r.items && r.items.length > 0) {
       renderInspTable(r.items, job.inspData);
       document.getElementById("inspTemplateLoading").style.display = "none";
