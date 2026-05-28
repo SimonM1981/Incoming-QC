@@ -583,7 +583,7 @@ var STATE = {
 
 // ── Config ────────────────────────────────────────────────
 function loadConfig() {
-  var DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbyVFsS2s4RM6GVJn91RzvdMv2tLdwF2CZYmbJiyHY-n9ilj8RtGArIAaJLV1cnCFpvxgQ/exec";
+  var DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbwhdXiKNeIDgZSBDcHXG5K12UiEslTZKL3h5JlEnhlcO4Dn1I9K4PK7VB5kh4dxM9Mbag/exec";
   STATE.gasUrl    = localStorage.getItem("qc_gas_url") || DEFAULT_GAS_URL;
   STATE.userName  = localStorage.getItem("qc_user")    || "QC User";
   STATE.role      = localStorage.getItem("qc_role")    || "staff";
@@ -1017,7 +1017,7 @@ APP.openInsp = async function(jobId) {
 
   // Load template data
   try {
-    var r = await api("getTemplateData", { fileId: job.fileId, partNo: job.partNo });
+    var r = await api("getTemplateData", { jobId: job.jobId, fileId: job.fileId, partNo: job.partNo });
     if (r.ok && r.items && r.items.length > 0) {
       renderInspTable(r.items, job.inspData);
       document.getElementById("inspTemplateLoading").style.display = "none";
