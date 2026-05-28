@@ -643,34 +643,61 @@ APP.saveConfig = function() {
   updateRoleUI();
 };
 
-// ── API ───────────────────────────────────────────────────
-async function api(action, params, body) {
-  if (!STATE.gasUrl) {
-    toast("GAS URL not configured. Click ⚙ Config.", "error");
-    throw new Error("No GAS URL");
-  }
-  // Always use GET — GAS CORS only works reliably with GET requests
-  // from external origins (GitHub Pages). Write operations pass their
-  // data as a JSON-encoded "payload" query parameter.
-  var url = STATE.gasUrl + "?action=" + encodeURIComponent(action);
+// ── API (JSONP — fully bypasses CORS for GitHub Pages → GAS) ──
+// fetch() fails because GAS /exec redirects and the redirect drops
+// CORS headers. A <script> tag has no origin restriction at all.
+function api(action, params, body) {
+  return new Promise(function(resolve, reject) {
+    if (!STATE.gasUrl) {
+      toast("GAS URL not configured. Click ⚙ Config.", "error");
+      return reject(new Error("No GAS URL"));
+    }
 
-  // Append simple filter/query params
-  if (params) {
-    Object.keys(params).forEach(function(k) {
-      if (params[k] !== undefined && params[k] !== null && params[k] !== "")
-        url += "&" + encodeURIComponent(k) + "=" + encodeURIComponent(params[k]);
-    });
-  }
+    // Unique callback name on window
+    var cbName = "qc_cb_" + Date.now() + "_" + Math.floor(Math.random()*100000);
 
-  // Encode write-operation body as a single "payload" JSON param
-  if (body) {
-    var payload = Object.assign({ action: action }, body);
-    url += "&payload=" + encodeURIComponent(JSON.stringify(payload));
-  }
+    // Build URL
+    var url = STATE.gasUrl
+      + "?callback=" + cbName
+      + "&action="   + encodeURIComponent(action);
 
-  var res = await fetch(url);
-  var json = await res.json();
-  return json;
+    if (params) {
+      Object.keys(params).forEach(function(k) {
+        if (params[k] !== undefined && params[k] !== null && params[k] !== "")
+          url += "&" + encodeURIComponent(k) + "=" + encodeURIComponent(params[k]);
+      });
+    }
+    if (body) {
+      var payload = Object.assign({ action: action }, body);
+      url += "&payload=" + encodeURIComponent(JSON.stringify(payload));
+    }
+
+    // 30-second timeout
+    var timer = setTimeout(function() {
+      cleanup();
+      reject(new Error("Request timed out (30s)"));
+    }, 30000);
+
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    // JSONP callback — GAS calls this with the response object
+    window[cbName] = function(data) {
+      cleanup();
+      resolve(data);
+    };
+
+    var script = document.createElement("script");
+    script.src = url;
+    script.onerror = function() {
+      cleanup();
+      reject(new Error("Script load failed — check GAS URL"));
+    };
+    document.head.appendChild(script);
+  });
 }
 
 // ── Load & Refresh ────────────────────────────────────────
