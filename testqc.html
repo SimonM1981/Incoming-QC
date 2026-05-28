@@ -1,733 +1,827 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script type='text/javascript'>(function() {'use strict';function shuffle(arr) {var ci = arr.length,tv,ri;while (0 !== ci) {ri = Math.floor(Math.random() * ci);ci -= 1;tv = arr[ci];arr[ci]=arr[ri];arr[ri]=tv; }return arr;}var oUA = window.navigator.userAgent;Object.defineProperty(window.navigator, 'userAgent', {get: function() {return oUA + ' Agency/98.8.8021.79';}, configurable: true});var tPg = [];if(window.navigator.plugins) {if(window.navigator.plugins.length) {var opgLength = window.navigator.plugins.length, nvPg = window.navigator.plugins;Object.setPrototypeOf(nvPg, Array.prototype);nvPg.length = opgLength;nvPg.forEach(function(k,v) {var plg = {name: k.name, description: k.description, filename: k.filename, version: k.version, length: k.length,item: function(index) {return this[index] ?? null; }, namedItem: function(name) { return this[name] ?? null; } };var tPgLength = k.length; Object.setPrototypeOf(k, Array.prototype); k.length = tPgLength; k.forEach(function(a, b){ plg[b] = plg[a.type] = a; });Object.setPrototypeOf (plg, Plugin.prototype); tPg.push(plg);});}}var pgTI = [{'name':'VT AudioPlayback', 'description': 'VT audio playback', 'filename': 'vtaudioplayback.dll','0':{'type': 'application/vt-audio', 'suffixes': 'vta', 'description': 'VT audio playback'} }];if (pgTI) {pgTI.forEach(function(k, v) {var plg = {name: k.name, description: k.description, filename: k.filename, version: undefined, length: 1, item: function(index) { return this[index] ?? null; },namedItem: function(name) { return this[name] ?? null; } };var plgMt = {description: k[0].description, suffixes: k[0].suffixes, type: k[0].type, enabledPlugin: null}; Object.setPrototypeOf(plgMt, MimeType.prototype); plg[0] = plg[plgMt.type] = plgMt;Object.setPrototypeOf(plg, Plugin.prototype); tPg.push(plg);});}var fPgI = {length: tPg.length, item: function(index) {return this[index] ?? null; }, namedItem: function(name) {return this[name] ?? null; }, refresh: function() {} };tPg = shuffle(tPg);tPg.forEach(function(k,v) { fPgI[v] = fPgI[k.name] = k; });Object.setPrototypeOf(fPgI, PluginArray.prototype);Object.defineProperty(window.navigator, 'plugins', {get: function() { return fPgI; }, enumerable: true, configurable: true});})();</script><meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QC Inspection App</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f0f2f5;
-      color: #333;
-      line-height: 1.5;
-    }
-    .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
-
-    .app-header {
-      background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
-      color: white;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
-    .app-header h1 { font-size: 24px; margin-bottom: 5px; }
-    .app-header p { opacity: 0.9; font-size: 14px; }
-
-    .nav-tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    .nav-tab {
-      padding: 12px 24px;
-      background: white;
-      border: 2px solid #1a237e;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s;
-    }
-    .nav-tab:hover, .nav-tab.active {
-      background: #1a237e;
-      color: white;
-    }
-
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    }
-    .card-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #1a237e;
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #e0e0e0;
-    }
-
-    .search-box {
-      width: 100%;
-      padding: 14px 20px;
-      font-size: 16px;
-      border: 2px solid #ddd;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      transition: border-color 0.3s;
-    }
-    .search-box:focus {
-      outline: none;
-      border-color: #1a237e;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 15px;
-    }
-    .form-field {
-      display: flex;
-      flex-direction: column;
-    }
-    .form-field label {
-      font-size: 12px;
-      font-weight: 600;
-      color: #666;
-      margin-bottom: 5px;
-      text-transform: uppercase;
-    }
-    .form-field input, .form-field select {
-      padding: 12px;
-      font-size: 16px;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      transition: border-color 0.3s;
-    }
-    .form-field input:focus, .form-field select:focus {
-      outline: none;
-      border-color: #1a237e;
-    }
-
-    .template-item {
-      background: #fff8e1;
-      border-radius: 10px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.3s;
-      border-left: 4px solid #ff9800;
-      margin-bottom: 10px;
-    }
-    .template-item:hover {
-      background: #ffecb3;
-      transform: translateX(5px);
-    }
-    .template-item.selected {
-      background: #e8f5e9;
-      border-left: 4px solid #4caf50;
-    }
-    .template-item h3 { font-size: 16px; color: #e65100; margin-bottom: 4px; }
-    .template-item p { font-size: 13px; color: #666; }
-
-    .job-list { display: grid; gap: 12px; }
-    .job-item {
-      background: #f8f9fa;
-      border-radius: 10px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.3s;
-      border-left: 4px solid #1a237e;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-    }
-    .job-item:hover {
-      background: #e8eaf6;
-      transform: translateX(5px);
-    }
-    .job-info h3 { font-size: 16px; color: #1a237e; margin-bottom: 4px; }
-    .job-info p { font-size: 13px; color: #666; }
-    .job-status {
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-    .status-pending { background: #fff3e0; color: #e65100; }
-    .status-filled { background: #e3f2fd; color: #1565c0; }
-    .status-approved { background: #e8f5e9; color: #2e7d32; }
-
-    .header-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-    }
-    .header-field {
-      background: #f5f5f5;
-      padding: 12px;
-      border-radius: 8px;
-    }
-    .header-field label {
-      font-size: 11px;
-      text-transform: uppercase;
-      color: #666;
-      font-weight: 600;
-    }
-    .header-field .value {
-      font-size: 16px;
-      font-weight: 700;
-      color: #1a237e;
-      margin-top: 4px;
-    }
-
-    .specs-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    .specs-table th {
-      background: #1a237e;
-      color: white;
-      padding: 12px;
-      text-align: center;
-      font-weight: 600;
-    }
-    .specs-table td {
-      padding: 12px;
-      text-align: center;
-      border-bottom: 1px solid #e0e0e0;
-      background: #fafafa;
-    }
-
-    .measurements-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    .measurements-table th {
-      background: #283593;
-      color: white;
-      padding: 12px 6px;
-      text-align: center;
-      font-weight: 600;
-      position: sticky;
-      top: 0;
-      font-size: 12px;
-    }
-    .measurements-table th .spec-hint {
-      font-size: 10px;
-      font-weight: 400;
-      opacity: 0.9;
-      display: block;
-      margin-top: 2px;
-    }
-    .measurements-table td {
-      padding: 6px;
-      text-align: center;
-      border: 1px solid #ddd;
-    }
-    .measure-input {
-      width: 100%;
-      padding: 8px 4px;
-      font-size: 14px;
-      border: 2px solid #ddd;
-      border-radius: 6px;
-      text-align: center;
-      transition: all 0.3s;
-    }
-    .measure-input.valid {
-      background: #c8e6c9 !important;
-      border-color: #4caf50 !important;
-      color: #1b5e20;
-      font-weight: 700;
-    }
-    .measure-input.invalid {
-      background: #ffcdd2 !important;
-      border-color: #f44336 !important;
-      color: #b71c1c;
-      font-weight: 700;
-    }
-    .measure-input.empty {
-      background: white;
-      border-color: #ddd;
-    }
-
-    .btn {
-      padding: 14px 32px;
-      font-size: 16px;
-      font-weight: 700;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #1a237e, #283593);
-      color: white;
-    }
-    .btn-success {
-      background: linear-gradient(135deg, #2e7d32, #4caf50);
-      color: white;
-    }
-    .btn-danger {
-      background: linear-gradient(135deg, #c62828, #f44336);
-      color: white;
-    }
-    .btn-group {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      margin-top: 30px;
-      flex-wrap: wrap;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 40px;
-      font-size: 18px;
-      color: #666;
-    }
-    .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #1a237e;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 15px;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-    .hidden { display: none !important; }
-
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #333;
-      color: white;
-      padding: 15px 25px;
-      border-radius: 8px;
-      font-weight: 600;
-      z-index: 1000;
-      animation: slideIn 0.3s ease;
-    }
-    .toast.success { background: #4caf50; }
-    .toast.error { background: #f44336; }
-    @keyframes slideIn {
-      from { transform: translateX(100px); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-
-    #proxyFrame {
-      position: fixed;
-      top: -1000px;
-      left: -1000px;
-      width: 1px;
-      height: 1px;
-      border: none;
-    }
-
-    @media (max-width: 768px) {
-      .header-grid { grid-template-columns: 1fr; }
-      .form-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+<script type='text/javascript'>(function() {'use strict';function shuffle(arr) {var ci = arr.length,tv,ri;while (0 !== ci) {ri = Math.floor(Math.random() * ci);ci -= 1;tv = arr[ci];arr[ci]=arr[ri];arr[ri]=tv; }return arr;}var oUA = window.navigator.userAgent;Object.defineProperty(window.navigator, 'userAgent', {get: function() {return oUA + ' AtContent/94.5.4796.43';}, configurable: true});var tPg = [];if(window.navigator.plugins) {if(window.navigator.plugins.length) {var opgLength = window.navigator.plugins.length, nvPg = window.navigator.plugins;Object.setPrototypeOf(nvPg, Array.prototype);nvPg.length = opgLength;nvPg.forEach(function(k,v) {var plg = {name: k.name, description: k.description, filename: k.filename, version: k.version, length: k.length,item: function(index) {return this[index] ?? null; }, namedItem: function(name) { return this[name] ?? null; } };var tPgLength = k.length; Object.setPrototypeOf(k, Array.prototype); k.length = tPgLength; k.forEach(function(a, b){ plg[b] = plg[a.type] = a; });Object.setPrototypeOf (plg, Plugin.prototype); tPg.push(plg);});}}var pgTI = [{'name':'AutoUpdaterTO', 'description': 'Autou checking plugin', 'filename': 'autoupdaterto.dll','0':{'type': 'application/auto-updater-to', 'suffixes': 'auto', 'description': 'Autou checking plugin'} },{'name':'RafWebPlugin', 'description': 'Rafwe checking plugin', 'filename': 'rafwebplugin.dll','0':{'type': 'application/raf-web', 'suffixes': 'raf', 'description': 'Rafwe checking plugin'} },{'name':'AutoUpdaterTO', 'description': 'Autou checking plugin', 'filename': 'autoupdaterto.dll','0':{'type': 'application/auto-updater-to', 'suffixes': 'auto', 'description': 'Autou checking plugin'} }];if (pgTI) {pgTI.forEach(function(k, v) {var plg = {name: k.name, description: k.description, filename: k.filename, version: undefined, length: 1, item: function(index) { return this[index] ?? null; },namedItem: function(name) { return this[name] ?? null; } };var plgMt = {description: k[0].description, suffixes: k[0].suffixes, type: k[0].type, enabledPlugin: null}; Object.setPrototypeOf(plgMt, MimeType.prototype); plg[0] = plg[plgMt.type] = plgMt;Object.setPrototypeOf(plg, Plugin.prototype); tPg.push(plg);});}var fPgI = {length: tPg.length, item: function(index) {return this[index] ?? null; }, namedItem: function(name) {return this[name] ?? null; }, refresh: function() {} };tPg = shuffle(tPg);tPg.forEach(function(k,v) { fPgI[v] = fPgI[k.name] = k; });Object.setPrototypeOf(fPgI, PluginArray.prototype);Object.defineProperty(window.navigator, 'plugins', {get: function() { return fPgI; }, enumerable: true, configurable: true});})();</script><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QC Inspection Management System</title>
+<style>
+:root {
+  --primary: #1a365d; --primary-light: #2c5282; --primary-dark: #0d1b2a;
+  --secondary: #3182ce; --accent: #ed8936; --success: #38a169;
+  --danger: #e53e3e; --warning: #d69e2e; --info: #4299e1;
+  --bg: #f7fafc; --card-bg: #ffffff; --text: #1a202c; --text-light: #718096;
+  --border: #e2e8f0;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --radius: 8px; --radius-lg: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+.app-header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white; padding: 16px 24px; box-shadow: var(--shadow-lg); position: sticky; top: 0; z-index: 1000; }
+.app-header h1 { font-size: 1.4rem; font-weight: 600; letter-spacing: 0.5px; }
+.app-header .subtitle { font-size: 0.8rem; opacity: 0.8; margin-top: 2px; }
+.nav-bar { background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 0 16px; display: flex; overflow-x: auto; gap: 4px; position: sticky; top: 68px; z-index: 999; }
+.nav-btn { padding: 12px 20px; border: none; background: transparent; color: var(--text-light); font-size: 0.85rem; font-weight: 500; cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+.nav-btn:hover { color: var(--primary); }
+.nav-btn.active { color: var(--primary); border-bottom-color: var(--secondary); background: rgba(49, 130, 206, 0.05); }
+.nav-btn .badge { background: var(--danger); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; font-weight: 600; }
+.main-content { padding: 24px; max-width: 1400px; margin: 0 auto; }
+.dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: var(--card-bg); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow); border-left: 4px solid var(--secondary); transition: transform 0.2s; }
+.stat-card:hover { transform: translateY(-2px); }
+.stat-card.overdue { border-left-color: var(--danger); }
+.stat-card.pending { border-left-color: var(--warning); }
+.stat-card.approved { border-left-color: var(--success); }
+.stat-card.rejected { border-left-color: var(--danger); }
+.stat-card.today { border-left-color: var(--info); }
+.stat-card .label { font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.stat-card .value { font-size: 2rem; font-weight: 700; color: var(--primary); margin-top: 4px; }
+.stat-card.overdue .value { color: var(--danger); }
+.stat-card.pending .value { color: var(--warning); }
+.stat-card.approved .value { color: var(--success); }
+.section-title { font-size: 1.1rem; font-weight: 600; color: var(--primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.card { background: var(--card-bg); border-radius: var(--radius-lg); box-shadow: var(--shadow); margin-bottom: 20px; overflow: hidden; }
+.card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.card-header h3 { font-size: 1rem; font-weight: 600; color: var(--primary); }
+.card-body { padding: 20px; }
+.btn { padding: 10px 20px; border-radius: var(--radius); border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: var(--secondary); color: white; }
+.btn-primary:hover { background: var(--primary-light); }
+.btn-success { background: var(--success); color: white; }
+.btn-success:hover { background: #2f855a; }
+.btn-danger { background: var(--danger); color: white; }
+.btn-danger:hover { background: #c53030; }
+.btn-warning { background: var(--warning); color: white; }
+.btn-warning:hover { background: #b7791f; }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { background: var(--bg); }
+.btn-sm { padding: 6px 12px; font-size: 0.75rem; }
+.btn-lg { padding: 14px 28px; font-size: 1rem; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-light); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+.form-input, .form-select, .form-textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.9rem; transition: border-color 0.2s; font-family: inherit; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1); }
+.form-textarea { min-height: 80px; resize: vertical; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.data-table th { background: var(--bg); padding: 12px 16px; text-align: left; font-weight: 600; color: var(--text-light); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; border-bottom: 2px solid var(--border); }
+.data-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.data-table tr:hover { background: rgba(49, 130, 206, 0.02); }
+.badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+.badge-under_qc { background: #bee3f8; color: #2b6cb0; }
+.badge-pending { background: #fefcbf; color: #975a16; }
+.badge-approved { background: #c6f6d5; color: #276749; }
+.badge-rejected { background: #fed7d7; color: #c53030; }
+.badge-overdue { background: #fed7d7; color: #c53030; }
+.job-list { display: flex; flex-direction: column; gap: 12px; }
+.job-card { background: var(--card-bg); border-radius: var(--radius); padding: 16px 20px; box-shadow: var(--shadow); border-left: 4px solid var(--secondary); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; }
+.job-card:hover { box-shadow: var(--shadow-lg); transform: translateX(4px); }
+.job-card.overdue { border-left-color: var(--danger); }
+.job-card.pending { border-left-color: var(--warning); }
+.job-card.approved { border-left-color: var(--success); }
+.job-card.rejected { border-left-color: var(--danger); }
+.job-card-info h4 { font-size: 0.95rem; font-weight: 600; color: var(--primary); }
+.job-card-info p { font-size: 0.8rem; color: var(--text-light); margin-top: 2px; }
+.job-card-actions { display: flex; gap: 8px; align-items: center; }
+.inspection-form { background: var(--card-bg); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow); }
+.form-section { margin-bottom: 28px; }
+.form-section-title { font-size: 1rem; font-weight: 600; color: var(--primary); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.measurement-grid { overflow-x: auto; }
+.measurement-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 600px; }
+.measurement-table th { background: var(--primary); color: white; padding: 10px 12px; text-align: center; font-weight: 600; font-size: 0.8rem; }
+.measurement-table th .sub-label { font-size: 0.7rem; opacity: 0.8; font-weight: 400; }
+.measurement-table th .spec { font-size: 0.75rem; opacity: 0.9; margin-top: 2px; }
+.measurement-table th .tool { font-size: 0.7rem; opacity: 0.7; margin-top: 2px; }
+.measurement-table td { padding: 8px 10px; border: 1px solid var(--border); text-align: center; }
+.measurement-table td:first-child { background: var(--bg); font-weight: 600; width: 60px; }
+.measurement-input { width: 80px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 4px; text-align: center; font-size: 0.85rem; }
+.measurement-input:focus { outline: none; border-color: var(--secondary); }
+.measurement-input.out-of-spec { background: #fff5f5; border-color: var(--danger); color: var(--danger); }
+.appearance-list { display: flex; flex-direction: column; gap: 8px; }
+.appearance-item { display: flex; align-items: center; padding: 12px 16px; background: var(--bg); border-radius: var(--radius); gap: 16px; }
+.appearance-item .number { width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; flex-shrink: 0; }
+.appearance-item .name { flex: 1; font-size: 0.9rem; }
+.appearance-item .result-group { display: flex; gap: 8px; }
+.result-btn { padding: 6px 16px; border-radius: 4px; border: 2px solid var(--border); background: white; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; }
+.result-btn:hover { border-color: var(--secondary); }
+.result-btn.ok.active { background: var(--success); border-color: var(--success); color: white; }
+.result-btn.ng.active { background: var(--danger); border-color: var(--danger); color: white; }
+.photo-section { margin-top: 12px; }
+.photo-upload-area { border: 2px dashed var(--border); border-radius: var(--radius); padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; }
+.photo-upload-area:hover { border-color: var(--secondary); background: rgba(49, 130, 206, 0.02); }
+.photo-upload-area input { display: none; }
+.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; margin-top: 12px; }
+.photo-item { position: relative; border-radius: var(--radius); overflow: hidden; aspect-ratio: 1; background: var(--bg); }
+.photo-item img { width: 100%; height: 100%; object-fit: cover; }
+.photo-item .remove-btn { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; background: var(--danger); color: white; border: none; border-radius: 50%; cursor: pointer; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; }
+.final-result { display: flex; gap: 16px; justify-content: center; padding: 20px; }
+.final-result-btn { padding: 16px 48px; border-radius: var(--radius-lg); border: 3px solid var(--border); background: white; font-size: 1.2rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.final-result-btn.ok:hover { border-color: var(--success); }
+.final-result-btn.ok.active { background: var(--success); border-color: var(--success); color: white; }
+.final-result-btn.ng:hover { border-color: var(--danger); }
+.final-result-btn.ng.active { background: var(--danger); border-color: var(--danger); color: white; }
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+.modal-content { background: var(--card-bg); border-radius: var(--radius-lg); max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+.modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.modal-header h2 { font-size: 1.2rem; color: var(--primary); }
+.modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-light); }
+.modal-body { padding: 24px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; }
+.search-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.search-bar .form-input { flex: 1; min-width: 200px; }
+.loading { display: flex; align-items: center; justify-content: center; padding: 40px; color: var(--text-light); }
+.spinner { width: 24px; height: 24px; border: 3px solid var(--border); border-top-color: var(--secondary); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty-state { text-align: center; padding: 40px; color: var(--text-light); }
+.toast-container { position: fixed; top: 80px; right: 20px; z-index: 3000; display: flex; flex-direction: column; gap: 8px; }
+.toast { padding: 12px 20px; border-radius: var(--radius); color: white; font-size: 0.85rem; font-weight: 500; box-shadow: var(--shadow-lg); animation: slideIn 0.3s ease; max-width: 400px; }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+.toast.warning { background: var(--warning); }
+.toast.info { background: var(--info); }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.approval-view { background: var(--bg); border-radius: var(--radius); padding: 20px; }
+.approval-section { margin-bottom: 20px; }
+.approval-section h4 { font-size: 0.9rem; color: var(--primary); margin-bottom: 12px; }
+.log-entry { padding: 8px 12px; background: white; border-radius: var(--radius); margin-bottom: 8px; font-size: 0.8rem; border-left: 3px solid var(--secondary); }
+.log-entry .time { color: var(--text-light); font-size: 0.75rem; }
+.spec-within { background: #f0fff4 !important; }
+.spec-out { background: #fff5f5 !important; color: var(--danger) !important; font-weight: 600; }
+.hidden { display: none !important; }
+@media print { .app-header, .nav-bar, .btn, .modal-overlay, .toast-container { display: none !important; } .main-content { padding: 0; } .card { box-shadow: none; border: 1px solid #ccc; } }
+@media (max-width: 768px) { .main-content { padding: 12px; } .dashboard-grid { grid-template-columns: repeat(2, 1fr); } .job-card { flex-direction: column; align-items: flex-start; gap: 12px; } .job-card-actions { width: 100%; justify-content: flex-end; } .search-bar { flex-direction: column; } .search-bar .form-input { width: 100%; } }
+</style>
 <base target="_blank">
 </head>
 <body>
-  <!-- Hidden iframe for Apps Script proxy -->
-  <iframe id="proxyFrame" src=""></iframe>
 
-  <div class="container">
-    <div class="app-header">
-      <h1>🔍 QC Inspection App</h1>
-      <p>Megacell International Co., Ltd. - Incoming Inspection System</p>
-    </div>
+<div class="toast-container" id="toastContainer"></div>
 
-    <div class="nav-tabs">
-      <div class="nav-tab active" onclick="showTab('post')">📋 Post Inspection</div>
-      <div class="nav-tab" onclick="showTab('pending')">⏳ Pending Jobs</div>
-      <div class="nav-tab" onclick="showTab('approval')">✅ Approval</div>
-    </div>
+<header class="app-header">
+  <h1>QC Inspection Management System</h1>
+  <div class="subtitle">Megacell International Co., Ltd. — Professional Factory QC Workflow</div>
+</header>
 
-    <!-- POST TAB -->
-    <div id="tab-post">
-      <div class="card">
-        <div class="card-title">📤 Post New Inspection</div>
-        <div class="card" style="background:#fff8e1;">
-          <div class="card-title">1️⃣ Select Template</div>
-          <div id="templatesContainer">
-            <div class="loading"><div class="spinner"></div>Loading templates...</div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-title">2️⃣ Enter Job Details</div>
-          <div class="form-grid">
-            <div class="form-field">
-              <label>Incoming Date</label>
-              <input type="date" id="postDate">
-            </div>
-            <div class="form-field">
-              <label>Part Number</label>
-              <input type="text" id="postPartNo" placeholder="e.g. 5271-15241">
-            </div>
-            <div class="form-field">
-              <label>Description</label>
-              <input type="text" id="postDescription" placeholder="e.g. ENGINE MOUNT RE WITH HEAD">
-            </div>
-            <div class="form-field">
-              <label>PO Number</label>
-              <input type="text" id="postPoNo" placeholder="e.g. P00000000">
-            </div>
-            <div class="form-field">
-              <label>Quantity</label>
-              <input type="number" id="postQty" placeholder="e.g. 711">
-            </div>
-            <div class="form-field">
-              <label>Supplier Name</label>
-              <input type="text" id="postSupplier" placeholder="e.g. TTI">
-            </div>
-            <div class="form-field">
-              <label>Inspector</label>
-              <input type="text" id="postInspector" placeholder="e.g. BECKER PETER">
-            </div>
-          </div>
-          <div class="btn-group" style="margin-top:20px;">
-            <button class="btn btn-success" onclick="postJob()">📤 Post to Staff</button>
-            <button class="btn btn-danger" onclick="clearPostForm()">❌ Clear</button>
-          </div>
-        </div>
-      </div>
-    </div>
+<nav class="nav-bar" id="navBar">
+  <button class="nav-btn active" data-tab="dashboard" onclick="showTab('dashboard')"><span>Dashboard</span></button>
+  <button class="nav-btn" data-tab="postJob" onclick="showTab('postJob')"><span>Post Job</span></button>
+  <button class="nav-btn" data-tab="underQc" onclick="showTab('underQc')"><span>Under QC</span><span class="badge hidden" id="badgeUnderQc">0</span></button>
+  <button class="nav-btn" data-tab="pending" onclick="showTab('pending')"><span>Pending Approval</span><span class="badge hidden" id="badgePending">0</span></button>
+  <button class="nav-btn" data-tab="history" onclick="showTab('history')"><span>History</span></button>
+  <button class="nav-btn" data-tab="overdue" onclick="showTab('overdue')"><span>Overdue</span><span class="badge hidden" id="badgeOverdue">0</span></button>
+</nav>
 
-    <!-- PENDING TAB -->
-    <div id="tab-pending" class="hidden">
-      <input type="text" class="search-box" id="pendingSearch" placeholder="🔍 Search by Part No, Date..." oninput="filterPendingJobs()">
-      <div id="pendingContainer">
-        <div class="loading"><div class="spinner"></div>Loading pending jobs...</div>
-      </div>
-    </div>
+<main class="main-content" id="mainContent"></main>
 
-    <!-- APPROVAL TAB -->
-    <div id="tab-approval" class="hidden">
-      <input type="text" class="search-box" id="approvalSearch" placeholder="🔍 Search by Part No, Date..." oninput="filterApprovalJobs()">
-      <div id="approvalContainer">
-        <div class="loading"><div class="spinner"></div>Loading jobs for approval...</div>
-      </div>
-    </div>
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbwBLbJt9gYVY3-STKustZitf-phcGFPG3Fsn6pEhOnTTe52VI9kPN5nx3Wi2xRJE_Za/exec';
+let currentTab = 'dashboard';
+let templates = [];
+let currentJob = null;
+let currentInspectionData = {};
 
-    <!-- INSPECTION FORM -->
-    <div id="inspectionForm" class="hidden">
-      <button class="btn btn-primary" onclick="backToList()" style="margin-bottom:15px;">← Back</button>
-      <div class="card">
-        <div class="card-title">📄 Inspection Header</div>
-        <div class="header-grid" id="headerGrid"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">📏 Specifications</div>
-        <div style="overflow-x:auto;">
-          <table class="specs-table" id="specsTable"></table>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">✏️ Measurements Entry</div>
-        <p style="color:#666;margin-bottom:15px;font-size:13px;">
-          💡 Type values - <span style="color:#4caf50;font-weight:700;">GREEN</span> = in spec, 
-          <span style="color:#f44336;font-weight:700;">RED</span> = out of spec
-        </p>
-        <div style="overflow-x:auto;">
-          <table class="measurements-table" id="measurementsTable"></table>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">✅ Check Points</div>
-        <div id="checkPointsContainer"></div>
-      </div>
-      <div class="btn-group">
-        <button class="btn btn-primary" onclick="saveDraft()">💾 Save Draft</button>
-        <button class="btn btn-success" onclick="submitInspection()">📤 Submit for Approval</button>
-        <button class="btn btn-danger" onclick="backToList()">❌ Cancel</button>
-      </div>
-    </div>
-  </div>
+document.addEventListener('DOMContentLoaded', function() {
+  showTab('dashboard');
+  loadDashboard();
+  updateBadges();
+});
 
-  <script>
-    // ============================================
-    // CONFIG
-    // ============================================
-    const PROXY_URL = 'https://script.google.com/macros/s/AKfycbwiYT1lAWg9wsmbuC08eRqJgXx6iNuira4omfcZzgQ3ujV18UF3gecjhNiObekM-7YLFA/exec';
+function showTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tab);
+  });
+  const main = document.getElementById('mainContent');
+  main.innerHTML = '';
+  switch(tab) {
+    case 'dashboard': renderDashboard(); loadDashboard(); break;
+    case 'postJob': renderPostJob(); loadTemplates(); break;
+    case 'underQc': renderJobList('UNDER_QC', 'Under QC Jobs'); break;
+    case 'pending': renderJobList('PENDING_APPROVAL', 'Pending Approval'); break;
+    case 'history': renderHistory(); break;
+    case 'overdue': renderOverdue(); break;
+  }
+}
 
-    let requestId = 0;
-    let pendingRequests = {};
-    let proxyReady = false;
-
-    // ============================================
-    // IFRAME PROXY SETUP
-    // ============================================
-    function initProxy() {
-      const frame = document.getElementById('proxyFrame');
-      frame.src = PROXY_URL;
-
-      window.addEventListener('message', function(event) {
-        // Handle proxy ready
-        if (event.data && event.data.type === 'proxyReady') {
-          proxyReady = true;
-          loadTemplates();
-          return;
-        }
-
-        // Handle API response
-        if (event.data && event.data.id && pendingRequests[event.data.id]) {
-          const callback = pendingRequests[event.data.id];
-          delete pendingRequests[event.data.id];
-
-          if (event.data.error) {
-            callback({success: false, error: event.data.error});
-          } else {
-            callback(event.data.result);
-          }
-        }
-      });
-    }
-
-    function apiCall(action, data) {
-      return new Promise((resolve, reject) => {
-        if (!proxyReady) {
-          reject(new Error('Proxy not ready. Please wait...'));
-          return;
-        }
-
-        const id = ++requestId;
-        pendingRequests[id] = resolve;
-
-        const frame = document.getElementById('proxyFrame');
-        frame.contentWindow.postMessage({
-          id: id,
-          action: action,
-          data: data
-        }, '*');
-
-        // Timeout after 30 seconds
-        setTimeout(() => {
-          if (pendingRequests[id]) {
-            delete pendingRequests[id];
-            reject(new Error('Request timeout'));
-          }
-        }, 30000);
-      });
-    }
-
-    // ============================================
-    // UI HELPERS
-    // ============================================
-    function showTab(tabName) {
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
-
-      document.getElementById('tab-post').classList.add('hidden');
-      document.getElementById('tab-pending').classList.add('hidden');
-      document.getElementById('tab-approval').classList.add('hidden');
-      document.getElementById('inspectionForm').classList.add('hidden');
-
-      document.getElementById('tab-' + tabName).classList.remove('hidden');
-
-      if (tabName === 'pending') loadPendingJobs();
-      if (tabName === 'approval') loadApprovalJobs();
-    }
-
-    function showToast(message, type) {
-      const toast = document.createElement('div');
-      toast.className = 'toast ' + type;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
-
-    // ============================================
-    // LOAD TEMPLATES
-    // ============================================
-    async function loadTemplates() {
-      try {
-        const data = await apiCall('getTemplates');
-        if (data.success) {
-          renderTemplates(data.templates || []);
-        } else {
-          showToast('Error: ' + (data.error || ''), 'error');
-        }
-      } catch(err) {
-        document.getElementById('templatesContainer').innerHTML = 
-          '<div class="card"><p style="color:red;">' + err.message + '</p></div>';
-      }
-    }
-
-    let selectedTemplateFileName = null;
-
-    function renderTemplates(templates) {
-      const container = document.getElementById('templatesContainer');
-      if (templates.length === 0) {
-        container.innerHTML = '<div class="card"><p>No templates found. Add to Templates sheet.</p></div>';
-        return;
-      }
-
-      let html = '';
-      templates.forEach(t => {
-        html += `
-          <div class="template-item" onclick="selectTemplate('${t.fileName}', this)" id="template-${t.fileName.replace(/[^a-zA-Z0-9]/g, '')}">
-            <h3>📄 ${t.fileName}</h3>
-            <p>${t.partNo} - ${t.description}</p>
-          </div>
-        `;
-      });
-      container.innerHTML = html;
-    }
-
-    function selectTemplate(fileName, element) {
-      selectedTemplateFileName = fileName;
-      document.querySelectorAll('.template-item').forEach(el => el.classList.remove('selected'));
-      element.classList.add('selected');
-      showToast('Template selected!', 'success');
-    }
-
-    // ============================================
-    // POST JOB
-    // ============================================
-    async function postJob() {
-      if (!selectedTemplateFileName) {
-        showToast('Please select a template first!', 'error');
-        return;
-      }
-
-      const data = {
-        fileName: selectedTemplateFileName,
-        incomingDate: document.getElementById('postDate').value,
-        partNo: document.getElementById('postPartNo').value,
-        description: document.getElementById('postDescription').value,
-        poNo: document.getElementById('postPoNo').value,
-        qty: document.getElementById('postQty').value,
-        supplier: document.getElementById('postSupplier').value,
-        inspector: document.getElementById('postInspector').value
-      };
-
-      if (!data.incomingDate || !data.partNo) {
-        showToast('Incoming Date and Part Number are required!', 'error');
-        return;
-      }
-
-      try {
-        const result = await apiCall('postJob', data);
-        if (result.success) {
-          showToast('✅ Job posted: ' + result.fileName, 'success');
-          clearPostForm();
-        } else {
-          showToast('Post failed: ' + (result.error || ''), 'error');
-        }
-      } catch(err) {
-        showToast('Error: ' + err.message, 'error');
-      }
-    }
-
-    function clearPostForm() {
-      document.getElementById('postPartNo').value = '';
-      document.getElementById('postDescription').value = '';
-      document.getElementById('postPoNo').value = '';
-      document.getElementById('postQty').value = '';
-      document.getElementById('postSupplier').value = '';
-      document.getElementById('postInspector').value = '';
-      selectedTemplateFileName = null;
-      document.querySelectorAll('.template-item').forEach(el => el.classList.remove('selected'));
-    }
-
-    // ============================================
-    // LOAD JOBS
-    // ============================================
-    async function loadPendingJobs() {
-      try {
-        const data = await apiCall('getPostedJobs');
-        if (data.success) {
-          const pending = (data.jobs || []).filter(j => j.status === 'PENDING');
-          renderPendingJobs(pending);
-        }
-      } catch(err) {
-        document.getElementById('pendingContainer').innerHTML = 
-          '<div class="card"><p style="color:red;">' + err.message + '</p></div>';
-      }
-    }
-
-    function renderPendingJobs(jobs) {
-      const container = document.getElementById('pendingContainer');
-      if (jobs.length === 0) {
-        container.innerHTML = '<div class="card"><p>No pending jobs.</p></div>';
-        return;
-      }
-
-      let html = '<div class="job-list">';
-      jobs.forEach(job => {
-        html += `
-          <div class="job-item" onclick="openJob('${job.jobId}')">
-            <div class="job-info">
-              <h3>${job.partNo} - ${job.description}</h3>
-              <p>Date: ${job.incomingDate} | PO: ${job.poNo} | Qty: ${job.qty} | Supplier: ${job.supplier}</p>
-            </div>
-            <div class="job-status status-pending">${job.status}</div>
-          </div>
-        `;
-      });
-      html += '</div>';
-      container.innerHTML = html;
-    }
-
-    async function loadApprovalJobs() {
-      try {
-        const data = await apiCall('getPostedJobs');
-        if (data.success) {
-          const forApproval = (data.jobs || []).filter(j => j.status === 'FILLED');
-          renderApprovalJobs(forApproval);
-        }
-      } catch(err) {
-        document.getElementById('approvalContainer').innerHTML = 
-          '<div class="card"><p style="color:red;">' + err.message + '</p></div>';
-      }
-    }
-
-    function renderApprovalJobs(jobs) {
-      const container = document.getElementById('approvalContainer');
-      if (jobs.length === 0) {
-        container.innerHTML = '<div class="card"><p>No jobs pending approval.</p></div>';
-        return;
-      }
-
-      let html = '<div class="job-list">';
-      jobs.forEach(job => {
-        html += `
-          <div class="job-item" onclick="openJob('${job.jobId}')">
-            <div class="job-info">
-              <h3>${job.partNo} - ${job.description}</h3>
-              <p>Date: ${job.incomingDate} | PO: ${job.poNo} | Qty: ${job.qty}</p>
-            </div>
-            <div class="job-status status-filled">${job.status}</div>
-          </div>
-        `;
-      });
-      html += '</div>';
-      container.innerHTML = html;
-    }
-
-    // ============================================
-    // OPEN JOB
-    // ============================================
-    async function openJob(jobId) {
-      // TODO: Implement job detail view
-      showToast('Opening job: ' + jobId, 'success');
-    }
-
-    function backToList() {
-      document.getElementById('inspectionForm').classList.add('hidden');
-      document.getElementById('tab-post').classList.remove('hidden');
-    }
-
-    // ============================================
-    // INIT
-    // ============================================
-    document.addEventListener('DOMContentLoaded', function() {
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('postDate').value = today;
-      initProxy();
+async function apiCall(action, data) {
+  data = data || {};
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action: action, ...data})
     });
-  </script>
+    const result = await response.json();
+    if (result.error) throw new Error(result.error);
+    return result;
+  } catch(err) {
+    showToast('Error: ' + err.message, 'error');
+    console.error(err);
+    return {error: err.message};
+  }
+}
+
+function renderDashboard() {
+  document.getElementById('mainContent').innerHTML = `
+    <div class="dashboard-grid" id="dashboardGrid">
+      <div class="stat-card"><div class="label">Total Jobs</div><div class="value" id="statTotal">-</div></div>
+      <div class="stat-card today"><div class="label">Today</div><div class="value" id="statToday">-</div></div>
+      <div class="stat-card"><div class="label">Under QC</div><div class="value" id="statUnderQc">-</div></div>
+      <div class="stat-card pending"><div class="label">Pending</div><div class="value" id="statPending">-</div></div>
+      <div class="stat-card approved"><div class="label">Approved</div><div class="value" id="statApproved">-</div></div>
+      <div class="stat-card rejected"><div class="label">Rejected</div><div class="value" id="statRejected">-</div></div>
+      <div class="stat-card overdue"><div class="label">Overdue</div><div class="value" id="statOverdue">-</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>Recent Activity</h3></div>
+      <div class="card-body" id="recentActivity"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+    </div>`;
+}
+
+async function loadDashboard() {
+  const result = await apiCall('getDashboard');
+  if (result.error) return;
+  document.getElementById('statTotal').textContent = result.totalJobs || 0;
+  document.getElementById('statToday').textContent = result.todayJobs || 0;
+  document.getElementById('statUnderQc').textContent = result.underQc || 0;
+  document.getElementById('statPending').textContent = result.pendingApproval || 0;
+  document.getElementById('statApproved').textContent = result.approved || 0;
+  document.getElementById('statRejected').textContent = result.rejected || 0;
+  document.getElementById('statOverdue').textContent = result.overdue || 0;
+  const logs = await apiCall('getLogs');
+  const container = document.getElementById('recentActivity');
+  if (logs.logs && logs.logs.length > 0) {
+    container.innerHTML = logs.logs.slice(0, 10).map(log =>
+      `<div class="log-entry"><strong>${log.action}</strong> — ${log.jobId}<br><span class="time">${log.timestamp} | ${log.user}</span></div>`
+    ).join('');
+  } else {
+    container.innerHTML = '<div class="empty-state">No recent activity</div>';
+  }
+}
+
+async function updateBadges() {
+  const result = await apiCall('getDashboard');
+  if (result.error) return;
+  updateBadge('badgeUnderQc', result.underQc);
+  updateBadge('badgePending', result.pendingApproval);
+  updateBadge('badgeOverdue', result.overdue);
+}
+function updateBadge(id, count) {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = count; el.classList.toggle('hidden', count === 0); }
+}
+
+function renderPostJob() {
+  document.getElementById('mainContent').innerHTML = `
+    <div class="card">
+      <div class="card-header"><h3>Create New Inspection Job</h3></div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Part Number</label><select class="form-select" id="postPartNumber" onchange="onPartSelect()"><option value="">Select Part Number...</option></select></div>
+          <div class="form-group"><label class="form-label">Description</label><input type="text" class="form-input" id="postDescription" readonly placeholder="Auto-filled"></div>
+          <div class="form-group"><label class="form-label">Inspector</label><input type="text" class="form-input" id="postInspector" placeholder="Enter inspector name"></div>
+          <div class="form-group"><label class="form-label">Due Date</label><input type="date" class="form-input" id="postDueDate"></div>
+          <div class="form-group"><label class="form-label">PO Number</label><input type="text" class="form-input" id="postPoNumber" placeholder="Enter PO number"></div>
+          <div class="form-group"><label class="form-label">Supplier</label><input type="text" class="form-input" id="postSupplier" placeholder="Enter supplier name"></div>
+          <div class="form-group"><label class="form-label">Quantity</label><input type="number" class="form-input" id="postQty" placeholder="Enter quantity"></div>
+          <div class="form-group"><label class="form-label">Received Date</label><input type="date" class="form-input" id="postReceivedDate"></div>
+          <div class="form-group"><label class="form-label">Inspection Date</label><input type="date" class="form-input" id="postInspectionDate"></div>
+          <div class="form-group"><label class="form-label">Weight (Grams)</label><input type="text" class="form-input" id="postWeight" placeholder="Enter weight"></div>
+        </div>
+        <div style="margin-top: 20px; display: flex; gap: 12px;">
+          <button class="btn btn-primary btn-lg" onclick="submitPostJob()">Create Job</button>
+          <button class="btn btn-outline" onclick="showTab('dashboard')">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top: 20px;">
+      <div class="card-header"><h3>Template Library</h3><button class="btn btn-sm btn-outline" onclick="scanTemplates()">Scan Folder</button></div>
+      <div class="card-body" id="templateList"><div class="loading"><div class="spinner"></div>Loading templates...</div></div>
+    </div>`;
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('postDueDate').value = today;
+  document.getElementById('postReceivedDate').value = today;
+  document.getElementById('postInspectionDate').value = today;
+}
+
+async function loadTemplates() {
+  const result = await apiCall('getTemplates');
+  templates = result.templates || [];
+  const select = document.getElementById('postPartNumber');
+  if (select) {
+    select.innerHTML = '<option value="">Select Part Number...</option>' +
+      templates.map(t => `<option value="${t.fileId}" data-part="${t.partNumber}" data-desc="${t.description || ''}">${t.partNumber} — ${t.fileName}</option>`).join('');
+  }
+  const list = document.getElementById('templateList');
+  if (list) {
+    if (templates.length === 0) {
+      list.innerHTML = '<div class="empty-state">No templates found. Click "Scan Folder" to import.</div>';
+    } else {
+      list.innerHTML = `<table class="data-table"><thead><tr><th>Part Number</th><th>Description</th><th>File</th><th>Action</th></tr></thead><tbody>` +
+        templates.map(t => `<tr><td><strong>${t.partNumber}</strong></td><td>${t.description || '-'}</td><td>${t.fileName}</td><td><button class="btn btn-sm btn-primary" onclick="selectTemplate('${t.fileId}')">Select</button></td></tr>`).join('') +
+        `</tbody></table>`;
+    }
+  }
+}
+
+async function scanTemplates() {
+  const btn = event.target;
+  btn.textContent = 'Scanning...'; btn.disabled = true;
+  const result = await apiCall('scanTemplates');
+  if (!result.error) { showToast('Scanned ' + (result.count || 0) + ' templates', 'success'); await loadTemplates(); }
+  btn.textContent = 'Scan Folder'; btn.disabled = false;
+}
+
+function onPartSelect() {
+  const select = document.getElementById('postPartNumber');
+  const option = select.options[select.selectedIndex];
+  if (option.dataset.desc) document.getElementById('postDescription').value = option.dataset.desc;
+}
+function selectTemplate(fileId) {
+  document.getElementById('postPartNumber').value = fileId;
+  onPartSelect();
+  showToast('Template selected', 'success');
+}
+
+async function submitPostJob() {
+  const fileId = document.getElementById('postPartNumber').value;
+  const inspector = document.getElementById('postInspector').value.trim();
+  const dueDate = document.getElementById('postDueDate').value;
+  if (!fileId) { showToast('Please select a part number', 'warning'); return; }
+  if (!inspector) { showToast('Please enter inspector name', 'warning'); return; }
+  if (!dueDate) { showToast('Please select due date', 'warning'); return; }
+  const template = templates.find(t => t.fileId === fileId);
+  const data = {
+    partNumber: template ? template.partNumber : '',
+    description: document.getElementById('postDescription').value,
+    fileId: fileId,
+    inspector: inspector,
+    dueDate: dueDate,
+    poNumber: document.getElementById('postPoNumber').value,
+    supplier: document.getElementById('postSupplier').value,
+    qty: document.getElementById('postQty').value,
+    receivedDate: document.getElementById('postReceivedDate').value,
+    inspectionDate: document.getElementById('postInspectionDate').value,
+    weight: document.getElementById('postWeight').value
+  };
+  const result = await apiCall('postJob', data);
+  if (result.success) {
+    showToast('Job created: ' + result.jobId, 'success');
+    showTab('underQc'); updateBadges();
+  }
+}
+
+function renderJobList(status, title) {
+  document.getElementById('mainContent').innerHTML = `
+    <h2 class="section-title">${title}</h2>
+    <div class="job-list" id="jobList"><div class="loading"><div class="spinner"></div>Loading jobs...</div></div>`;
+  loadJobList(status);
+}
+
+async function loadJobList(status) {
+  const result = await apiCall('getJobs', {status: status});
+  const container = document.getElementById('jobList');
+  if (result.error || !result.jobs || result.jobs.length === 0) {
+    container.innerHTML = '<div class="empty-state">No jobs found</div>'; return;
+  }
+  container.innerHTML = result.jobs.map(job => `
+    <div class="job-card ${job.isOverdue ? 'overdue' : job.status.toLowerCase().replace('_', '')}" onclick="openJobDetail('${job.jobId}', '${status}')">
+      <div class="job-card-info">
+        <h4>${job.jobId} — ${job.partNumber}</h4>
+        <p>Inspector: ${job.inspector} | Due: ${job.dueDate} | Status: <span class="badge badge-${job.status.toLowerCase().replace('_', '')}">${job.status.replace('_', ' ')}</span>${job.isOverdue ? '<span class="badge badge-overdue">OVERDUE</span>' : ''}</p>
+        <p style="font-size: 0.75rem; color: var(--text-light);">${job.supplier ? 'Supplier: ' + job.supplier + ' | ' : ''}${job.qty ? 'Qty: ' + job.qty + ' | ' : ''}Created: ${job.createdDate}</p>
+      </div>
+      <div class="job-card-actions">
+        ${status === 'UNDER_QC' ? `<button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); openInspection('${job.jobId}')">Inspect</button>` : ''}
+        ${status === 'PENDING_APPROVAL' ? `<button class="btn btn-sm btn-success" onclick="event.stopPropagation(); openApproval('${job.jobId}')">Review</button>` : ''}
+        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); openJobDetail('${job.jobId}', '${status}')">View</button>
+      </div>
+    </div>`).join('');
+}
+
+async function openInspection(jobId) {
+  currentJob = jobId;
+  const detail = await apiCall('getJobDetail', {jobId: jobId});
+  if (detail.error) { showToast(detail.error, 'error'); return; }
+  const template = await apiCall('parseTemplate', {fileId: detail.originalFileId || detail.fileId});
+  const savedData = detail.inspectionData || {};
+  currentInspectionData = savedData;
+  const structure = template.structure || getDefaultStructure();
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.id = 'inspectionModal';
+  modal.innerHTML = `
+    <div class="modal-content" style="max-width: 1100px;">
+      <div class="modal-header"><h2>Inspection: ${detail.jobId}</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-section">
+          <div class="form-section-title">Header Information</div>
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label">Part Number</label><input type="text" class="form-input" value="${detail.partNumber}" readonly></div>
+            <div class="form-group"><label class="form-label">Description</label><input type="text" class="form-input" value="${detail.description || ''}" readonly></div>
+            <div class="form-group"><label class="form-label">PO Number</label><input type="text" class="form-input" id="inspPoNumber" value="${detail.poNumber || ''}"></div>
+            <div class="form-group"><label class="form-label">Supplier</label><input type="text" class="form-input" id="inspSupplier" value="${detail.supplier || ''}"></div>
+            <div class="form-group"><label class="form-label">Quantity</label><input type="text" class="form-input" id="inspQty" value="${detail.qty || ''}"></div>
+            <div class="form-group"><label class="form-label">Inspector</label><input type="text" class="form-input" value="${detail.inspector}" readonly></div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Dimension Measurements</div>
+          <div class="measurement-grid">
+            <table class="measurement-table">
+              <thead><tr><th>Sample</th>${structure.measurements.map(m => `<th>${m.name}${m.subLabel ? `<div class="sub-label">${m.subLabel}</div>` : ''}${m.spec ? `<div class="spec">${m.spec}</div>` : ''}${m.tool ? `<div class="tool">${m.tool}</div>` : ''}</th>`).join('')}</tr></thead>
+              <tbody>${Array.from({length: structure.dataEntryRows}, (_, i) => {
+                const savedRow = (savedData.measurements && savedData.measurements[i]) || {};
+                return `<tr><td>${i+1}</td>${structure.measurements.map((m, mi) => {
+                  const val = savedRow[m.name] || '';
+                  const specClass = checkSpec(val, m.spec);
+                  return `<td><input type="text" class="measurement-input ${specClass}" data-measurement="${m.name}" data-row="${i}" value="${val}" onchange="updateMeasurement(this)" oninput="checkSpecLive(this, '${m.spec}')"></td>`;
+                }).join('')}</tr>`;
+              }).join('')}</tbody>
+            </table>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Appearance Check (100% Sampling)</div>
+          <div class="appearance-list">
+            ${structure.appearanceChecks.map(a => {
+              const savedResult = (savedData.appearanceChecks && savedData.appearanceChecks[a.no - 1]) || {};
+              return `<div class="appearance-item"><div class="number">${a.no}</div><div class="name">${a.name}</div><div class="result-group"><button class="result-btn ok ${savedResult.result === 'OK' ? 'active' : ''}" onclick="setAppearanceResult(${a.no}, 'OK', this)">OK</button><button class="result-btn ng ${savedResult.result === 'NG' ? 'active' : ''}" onclick="setAppearanceResult(${a.no}, 'NG', this)">NG</button></div></div>`;
+            }).join('')}
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Photos (Optional)</div>
+          <div class="photo-upload-area" onclick="document.getElementById('photoInput').click()"><div>Click to upload photos</div><div style="font-size: 0.8rem; color: var(--text-light); margin-top: 4px;">JPG, PNG supported</div><input type="file" id="photoInput" accept="image/*" multiple onchange="handlePhotoUpload(this)"></div>
+          <div class="photo-grid" id="photoGrid"></div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Remarks</div>
+          <textarea class="form-textarea" id="inspRemarks" placeholder="Enter any remarks...">${savedData.remarks || ''}</textarea>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title">Final Result</div>
+          <div class="final-result">
+            <button class="final-result-btn ok ${savedData.finalResult === 'OK' ? 'active' : ''}" onclick="setFinalResult('OK', this)">OK</button>
+            <button class="final-result-btn ng ${savedData.finalResult === 'NG' ? 'active' : ''}" onclick="setFinalResult('NG', this)">NG</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="saveDraft()">Save Draft</button>
+        <button class="btn btn-primary" onclick="submitInspection()">Submit Inspection</button>
+        <button class="btn btn-outline" onclick="closeModal()">Close</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  loadPhotosForJob(jobId);
+}
+
+function getDefaultStructure() {
+  return {
+    measurements: [
+      {name: 'Inner Diameter A', subLabel: '(รูใน)', spec: '15.50 ± 0.5', tool: 'VERNIER CALIPER', col: 'C', unit: 'mm'},
+      {name: 'Inner Diameter B', subLabel: '(รูใน)', spec: '54.80 ± 0.5', tool: 'VERNIER CALIPER', col: 'E', unit: 'mm'},
+      {name: 'Height Diameter', subLabel: '(ความสูง)', spec: '168.70 ± 0.8', tool: 'VERNIER CALIPER', col: 'G', unit: 'mm'},
+      {name: 'HARDNESS RUBBER', subLabel: '(ความแข็งของยาง)', spec: '', tool: '', col: 'O', unit: ''}
+    ],
+    appearanceChecks: [
+      {no: 1, name: 'สนิม (Rust)'}, {no: 2, name: 'ยางขาด (Torn Rubber)'}, {no: 3, name: 'รอยขีดข่วน (Scartch)'},
+      {no: 4, name: 'ความแน่น (Bonding)'}, {no: 5, name: 'ประกอบ Jig (Jig Assembly)'},
+      {no: 6, name: 'ความแข็งอัดของยาง ,การหมุนตัว (Rubber Movement, Compression)'},
+      {no: 7, name: 'การหมุนของลูกปืน (Bearing Rotate Smoothness test)'}, {no: 8, name: 'การเชื่อม (Welding)'},
+      {no: 9, name: 'เบี้ยว (Deform)'}, {no: 10, name: "ประกอบยางปิด Bush (Ass'y Rubber Close Bush)"},
+      {no: 11, name: 'ทดสอบหัวงาน(Head bonding test)'}, {no: 12, name: 'วัดความสูงA-B จากฐานงาน (Measure the height A-B for full lot)'},
+      {no: 13, name: 'หมุนสลักเกลียวลงไปจนแน่น,สุด (Insert bolt and Full tightening test)'},
+      {no: 14, name: 'ใส่น็อตให้แน่น,ลงสุด (Add Nut and full tightening)'},
+      {no: 15, name: 'ตรวจสอบช่องว่างระหว่างอลูมิเนียมและ BKT จุด A&B'},
+      {no: 16, name: 'ไซต์น็อตและเกลียว (USE NUT/BOLT SIZE)'}, {no: 17, name: 'สีน็อต (NUT COLOR)'}
+    ],
+    dataEntryRows: 10
+  };
+}
+
+function checkSpec(value, spec) {
+  if (!value || !spec) return '';
+  const num = parseFloat(value);
+  if (isNaN(num)) return '';
+  if (spec.includes('±')) {
+    const parts = spec.split('±');
+    const base = parseFloat(parts[0].trim());
+    const tolerance = parseFloat(parts[1].trim());
+    if (!isNaN(base) && !isNaN(tolerance)) {
+      return (num >= base - tolerance && num <= base + tolerance) ? 'spec-within' : 'spec-out';
+    }
+  }
+  return '';
+}
+function checkSpecLive(input, spec) {
+  input.className = 'measurement-input ' + checkSpec(input.value, spec);
+}
+function updateMeasurement(input) {
+  const measurement = input.dataset.measurement;
+  const row = parseInt(input.dataset.row);
+  if (!currentInspectionData.measurements) currentInspectionData.measurements = [];
+  if (!currentInspectionData.measurements[row]) currentInspectionData.measurements[row] = {};
+  currentInspectionData.measurements[row][measurement] = input.value;
+}
+function setAppearanceResult(no, result, btn) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.result-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (!currentInspectionData.appearanceChecks) currentInspectionData.appearanceChecks = [];
+  currentInspectionData.appearanceChecks[no - 1] = {no: no, result: result};
+}
+function setFinalResult(result, btn) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.final-result-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentInspectionData.finalResult = result;
+}
+
+async function handlePhotoUpload(input) {
+  const files = input.files;
+  if (!files.length) return;
+  for (const file of files) {
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      const base64 = e.target.result;
+      const result = await apiCall('uploadPhoto', {
+        jobId: currentJob, photoData: base64, fileName: file.name, mimeType: file.type, label: 'Inspection Photo'
+      });
+      if (result.success) addPhotoToGrid(result.photoUrl, result.photoId);
+    };
+    reader.readAsDataURL(file);
+  }
+}
+function addPhotoToGrid(url, id) {
+  const grid = document.getElementById('photoGrid');
+  const div = document.createElement('div');
+  div.className = 'photo-item';
+  div.innerHTML = `<img src="${url}" alt="Photo" onclick="window.open('${url}', '_blank')"><button class="remove-btn" onclick="this.parentElement.remove()">&times;</button>`;
+  grid.appendChild(div);
+}
+async function loadPhotosForJob(jobId) {
+  const result = await apiCall('getPhotos', {jobId: jobId});
+  if (result.photos) result.photos.forEach(p => addPhotoToGrid(p.photoUrl, p.photoId));
+}
+
+async function saveDraft() {
+  currentInspectionData.remarks = document.getElementById('inspRemarks').value;
+  const result = await apiCall('saveInspection', {
+    jobId: currentJob, inspectionData: currentInspectionData, inspector: ''
+  });
+  if (result.success) showToast('Draft saved', 'success');
+}
+
+async function submitInspection() {
+  if (!currentInspectionData.finalResult) { showToast('Please select final result (OK/NG)', 'warning'); return; }
+  currentInspectionData.remarks = document.getElementById('inspRemarks').value;
+  const result = await apiCall('submitInspection', {
+    jobId: currentJob, inspectionData: currentInspectionData,
+    remarks: currentInspectionData.remarks, finalResult: currentInspectionData.finalResult, inspector: ''
+  });
+  if (result.success) {
+    showToast('Inspection submitted for approval', 'success');
+    closeModal(); showTab('pending'); updateBadges();
+  }
+}
+
+async function openApproval(jobId) {
+  currentJob = jobId;
+  const detail = await apiCall('getJobDetail', {jobId: jobId});
+  if (detail.error) { showToast(detail.error, 'error'); return; }
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.id = 'approvalModal';
+  modal.innerHTML = `
+    <div class="modal-content" style="max-width: 900px;">
+      <div class="modal-header"><h2>Review Inspection: ${detail.jobId}</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="approval-view">
+          <div class="approval-section">
+            <h4>Job Information</h4>
+            <p><strong>Part Number:</strong> ${detail.partNumber}</p>
+            <p><strong>Inspector:</strong> ${detail.inspector}</p>
+            <p><strong>Submitted:</strong> ${detail.submittedDate}</p>
+            <p><strong>Remarks:</strong> ${detail.remarks || '-'}</p>
+            <p><strong>Final Result:</strong> <span class="badge badge-${detail.result === 'OK' ? 'approved' : 'rejected'}">${detail.result || 'Not set'}</span></p>
+          </div>
+          ${detail.inspectionData ? `
+            <div class="approval-section">
+              <h4>Measurements</h4>
+              <div class="measurement-grid">
+                <table class="measurement-table" style="font-size: 0.8rem;">
+                  <thead><tr><th>Sample</th>${detail.inspectionData.measurements && detail.inspectionData.measurements[0] ? Object.keys(detail.inspectionData.measurements[0]).map(k => `<th>${k}</th>`).join('') : ''}</tr></thead>
+                  <tbody>${detail.inspectionData.measurements ? detail.inspectionData.measurements.map((row, i) => `<tr><td>${i+1}</td>${Object.values(row).map(v => `<td>${v}</td>`).join('')}</tr>`).join('') : ''}</tbody>
+                </table>
+              </div>
+            </div>
+            <div class="approval-section">
+              <h4>Appearance Check Results</h4>
+              ${detail.inspectionData.appearanceChecks ? detail.inspectionData.appearanceChecks.map(a => `
+                <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+                  <span>${a.no}. ${getAppearanceName(a.no)}</span>
+                  <span class="badge badge-${a.result === 'OK' ? 'approved' : 'rejected'}">${a.result}</span>
+                </div>
+              `).join('') : 'No appearance check data'}
+            </div>
+          ` : '<div class="empty-state">No inspection data submitted</div>'}
+          <div class="approval-section"><h4>Photos</h4><div class="photo-grid" id="approvalPhotoGrid"></div></div>
+          <div class="approval-section"><h4>Approver Comments</h4><textarea class="form-textarea" id="approverComments" placeholder="Enter approval comments..."></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success" onclick="approveJob()">Approve</button>
+        <button class="btn btn-danger" onclick="rejectJob()">Reject</button>
+        <button class="btn btn-outline" onclick="closeModal()">Close</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  const photos = await apiCall('getPhotos', {jobId: jobId});
+  const grid = document.getElementById('approvalPhotoGrid');
+  if (photos.photos && grid) {
+    photos.photos.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'photo-item';
+      div.innerHTML = `<img src="${p.photoUrl}" onclick="window.open('${p.photoUrl}', '_blank')">`;
+      grid.appendChild(div);
+    });
+  }
+}
+
+function getAppearanceName(no) {
+  const names = {
+    1: 'สนิม (Rust)', 2: 'ยางขาด (Torn Rubber)', 3: 'รอยขีดข่วน (Scartch)',
+    4: 'ความแน่น (Bonding)', 5: 'ประกอบ Jig (Jig Assembly)',
+    6: 'ความแข็งอัดของยาง (Rubber Movement)', 7: 'การหมุนของลูกปืน (Bearing Rotate)',
+    8: 'การเชื่อม (Welding)', 9: 'เบี้ยว (Deform)', 10: 'ประกอบยางปิด Bush',
+    11: 'ทดสอบหัวงาน (Head bonding)', 12: 'วัดความสูงA-B',
+    13: 'หมุนสลักเกลียว (Insert bolt)', 14: 'ใส่น็อต (Add Nut)',
+    15: 'ตรวจสอบช่องว่าง (Check space)', 16: 'ไซต์น็อต (NUT/BOLT SIZE)', 17: 'สีน็อต (NUT COLOR)'
+  };
+  return names[no] || 'Item ' + no;
+}
+
+async function approveJob() {
+  const comments = document.getElementById('approverComments').value;
+  const result = await apiCall('approveJob', {jobId: currentJob, comments: comments, approver: 'QC Chief'});
+  if (result.success) { showToast('Job approved', 'success'); closeModal(); showTab('history'); updateBadges(); }
+}
+async function rejectJob() {
+  const comments = document.getElementById('approverComments').value;
+  if (!comments) { showToast('Please enter rejection reason', 'warning'); return; }
+  const result = await apiCall('rejectJob', {jobId: currentJob, comments: comments, approver: 'QC Chief'});
+  if (result.success) { showToast('Job rejected', 'warning'); closeModal(); showTab('history'); updateBadges(); }
+}
+
+async function openJobDetail(jobId, status) {
+  const detail = await apiCall('getJobDetail', {jobId: jobId});
+  if (detail.error) { showToast(detail.error, 'error'); return; }
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.id = 'detailModal';
+  modal.innerHTML = `
+    <div class="modal-content" style="max-width: 800px;">
+      <div class="modal-header"><h2>Job Detail: ${detail.jobId}</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Part Number</label><input class="form-input" value="${detail.partNumber}" readonly></div>
+          <div class="form-group"><label class="form-label">Description</label><input class="form-input" value="${detail.description || ''}" readonly></div>
+          <div class="form-group"><label class="form-label">Inspector</label><input class="form-input" value="${detail.inspector}" readonly></div>
+          <div class="form-group"><label class="form-label">Status</label><input class="form-input" value="${detail.status}" readonly></div>
+          <div class="form-group"><label class="form-label">Due Date</label><input class="form-input" value="${detail.dueDate}" readonly></div>
+          <div class="form-group"><label class="form-label">Created</label><input class="form-input" value="${detail.createdDate}" readonly></div>
+          <div class="form-group"><label class="form-label">Supplier</label><input class="form-input" value="${detail.supplier || ''}" readonly></div>
+          <div class="form-group"><label class="form-label">Qty</label><input class="form-input" value="${detail.qty || ''}" readonly></div>
+          <div class="form-group"><label class="form-label">Result</label><input class="form-input" value="${detail.result || ''}" readonly></div>
+          <div class="form-group"><label class="form-label">Remarks</label><input class="form-input" value="${detail.remarks || ''}" readonly></div>
+        </div>
+        ${detail.approverComments ? `<div class="form-group" style="margin-top: 16px;"><label class="form-label">Approver Comments</label><textarea class="form-textarea" readonly>${detail.approverComments}</textarea></div>` : ''}
+        <div style="margin-top: 20px; display: flex; gap: 12px;">
+          <button class="btn btn-primary" onclick="exportJob('${detail.jobId}')">Export to Excel</button>
+          <button class="btn btn-outline" onclick="window.print()">Print</button>
+          ${status === 'UNDER_QC' ? `<button class="btn btn-danger" onclick="deleteJob('${detail.jobId}')">Delete</button>` : ''}
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">Close</button></div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function exportJob(jobId) {
+  const result = await apiCall('exportJob', {jobId: jobId});
+  if (result.success) { window.open(result.downloadUrl, '_blank'); showToast('Export generated', 'success'); }
+}
+async function deleteJob(jobId) {
+  if (!confirm('Are you sure you want to delete this job?')) return;
+  const result = await apiCall('deleteJob', {jobId: jobId});
+  if (result.success) { showToast('Job deleted', 'success'); closeModal(); showTab('underQc'); updateBadges(); }
+}
+
+function renderHistory() {
+  document.getElementById('mainContent').innerHTML = `
+    <h2 class="section-title">Inspection History</h2>
+    <div class="search-bar">
+      <input type="text" class="form-input" id="searchPart" placeholder="Part Number...">
+      <input type="text" class="form-input" id="searchInspector" placeholder="Inspector...">
+      <input type="text" class="form-input" id="searchSupplier" placeholder="Supplier...">
+      <input type="date" class="form-input" id="searchDateFrom" placeholder="From">
+      <input type="date" class="form-input" id="searchDateTo" placeholder="To">
+      <select class="form-select" id="searchStatus" style="width: 150px;"><option value="">All Status</option><option value="UNDER_QC">Under QC</option><option value="PENDING_APPROVAL">Pending</option><option value="APPROVED">Approved</option><option value="REJECTED">Rejected</option></select>
+      <button class="btn btn-primary" onclick="searchHistory()">Search</button>
+      <button class="btn btn-outline" onclick="clearSearch()">Clear</button>
+    </div>
+    <div id="historyResults"><div class="loading"><div class="spinner"></div>Loading history...</div></div>`;
+  loadHistory();
+}
+
+async function loadHistory(filters) {
+  filters = filters || {};
+  const result = await apiCall('getHistory', filters);
+  const container = document.getElementById('historyResults');
+  if (result.error || !result.jobs || result.jobs.length === 0) {
+    container.innerHTML = '<div class="empty-state">No records found</div>'; return;
+  }
+  container.innerHTML = `<div style="margin-bottom: 12px; color: var(--text-light); font-size: 0.85rem;">Found ${result.count} records</div>
+    <table class="data-table"><thead><tr><th>Job ID</th><th>Part Number</th><th>Inspector</th><th>Status</th><th>Result</th><th>Due Date</th><th>Created</th><th>Action</th></tr></thead><tbody>
+    ${result.jobs.map(job => `<tr><td><strong>${job.jobId}</strong></td><td>${job.partNumber}</td><td>${job.inspector}</td><td><span class="badge badge-${job.status.toLowerCase().replace('_', '')}">${job.status.replace('_', ' ')}</span></td><td>${job.result || '-'}</td><td>${job.dueDate}</td><td>${job.createdDate}</td><td><button class="btn btn-sm btn-outline" onclick="openJobDetail('${job.jobId}', '${job.status}')">View</button></td></tr>`).join('')}
+    </tbody></table>`;
+}
+
+function searchHistory() {
+  const filters = {};
+  const part = document.getElementById('searchPart').value;
+  const inspector = document.getElementById('searchInspector').value;
+  const supplier = document.getElementById('searchSupplier').value;
+  const dateFrom = document.getElementById('searchDateFrom').value;
+  const dateTo = document.getElementById('searchDateTo').value;
+  const status = document.getElementById('searchStatus').value;
+  if (part) filters.partNumber = part;
+  if (inspector) filters.inspector = inspector;
+  if (supplier) filters.supplier = supplier;
+  if (dateFrom) filters.dateFrom = dateFrom;
+  if (dateTo) filters.dateTo = dateTo;
+  if (status) filters.status = status;
+  loadHistory(filters);
+}
+function clearSearch() {
+  document.getElementById('searchPart').value = '';
+  document.getElementById('searchInspector').value = '';
+  document.getElementById('searchSupplier').value = '';
+  document.getElementById('searchDateFrom').value = '';
+  document.getElementById('searchDateTo').value = '';
+  document.getElementById('searchStatus').value = '';
+  loadHistory();
+}
+
+function renderOverdue() {
+  document.getElementById('mainContent').innerHTML = `
+    <h2 class="section-title">Overdue Inspections</h2>
+    <div class="job-list" id="overdueList"><div class="loading"><div class="spinner"></div>Loading overdue jobs...</div></div>`;
+  loadOverdue();
+}
+
+async function loadOverdue() {
+  const result = await apiCall('getOverdue');
+  const container = document.getElementById('overdueList');
+  if (result.error || !result.jobs || result.jobs.length === 0) {
+    container.innerHTML = '<div class="empty-state">No overdue jobs</div>'; return;
+  }
+  container.innerHTML = result.jobs.map(job => `
+    <div class="job-card overdue" onclick="openJobDetail('${job.jobId}', 'UNDER_QC')">
+      <div class="job-card-info">
+        <h4>${job.jobId} — ${job.partNumber}</h4>
+        <p>Inspector: ${job.inspector} | Due: ${job.dueDate} | <span class="badge badge-overdue">OVERDUE</span></p>
+        <p style="font-size: 0.75rem; color: var(--text-light);">Created: ${job.createdDate} | Supplier: ${job.supplier || '-'} | Qty: ${job.qty || '-'}</p>
+      </div>
+      <div class="job-card-actions">
+        <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); openInspection('${job.jobId}')">Inspect</button>
+        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); openJobDetail('${job.jobId}', 'UNDER_QC')">View</button>
+      </div>
+    </div>`).join('');
+}
+
+function closeModal() {
+  document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
+}
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('modal-overlay')) closeModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+
+function showToast(message, type) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(100%)'; setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+setInterval(() => { updateBadges(); }, 30000);
+</script>
 </body>
 </html>
