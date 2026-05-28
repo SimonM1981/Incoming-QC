@@ -554,8 +554,14 @@ td{padding:12px 14px;color:var(--gray-700);vertical-align:middle}
 
 <!-- ════════ JAVASCRIPT ════════ -->
 <script>
+// Declare global APP object BEFORE the IIFE so onclick handlers can reach it
+window.APP = {};
+
 (function(){
 "use strict";
+
+// Alias so all methods inside the IIFE write to window.APP
+var APP = window.APP;
 
 // ── State ─────────────────────────────────────────────────
 var STATE = {
@@ -1327,19 +1333,13 @@ function escHtml(s) {
   return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
-// ── Expose to global APP ──────────────────────────────────
-window.APP = window.APP || {};
-Object.assign(window.APP, {
-  refresh: function() {
-    loadStats();
-    loadCurrentTab();
-  }
-});
+// ── APP.refresh (used by topbar button) ───────────────────
+APP.refresh = function() {
+  loadStats();
+  loadCurrentTab();
+};
 
 // ── Bootstrap ─────────────────────────────────────────────
-window.APP = window.APP || {};
-// (Already defined above)
-
 loadConfig();
 if (STATE.gasUrl) {
   loadStats();
