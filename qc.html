@@ -577,7 +577,8 @@ var STATE = {
 
 // ── Config ────────────────────────────────────────────────
 function loadConfig() {
-  STATE.gasUrl    = localStorage.getItem("qc_gas_url") || "";
+  var DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycby_XurHoxzjKk2sTBDcodLLtwLTbQnAwtJnwNMPY46-qGLM2IkPEeBavGkb4dCYXiWz7g/exec";
+  STATE.gasUrl    = localStorage.getItem("qc_gas_url") || DEFAULT_GAS_URL;
   STATE.userName  = localStorage.getItem("qc_user")    || "QC User";
   STATE.role      = localStorage.getItem("qc_role")    || "staff";
   STATE.overdueDays = parseInt(localStorage.getItem("qc_overdue")||"3")||3;
