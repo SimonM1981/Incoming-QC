@@ -6,41 +6,21 @@
 <title>QC Inspection System</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-/* ── Reset & Base ─────────────────────────────── */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --brand:    #1a3c6e;
-  --brand-lt: #2457a0;
-  --accent:   #f59e0b;
-  --green:    #16a34a;
-  --red:      #dc2626;
-  --orange:   #ea580c;
-  --purple:   #7c3aed;
-  --gray-50:  #f8fafc;
-  --gray-100: #f1f5f9;
-  --gray-200: #e2e8f0;
-  --gray-300: #cbd5e1;
-  --gray-400: #94a3b8;
-  --gray-500: #64748b;
-  --gray-600: #475569;
-  --gray-700: #334155;
-  --gray-800: #1e293b;
-  --gray-900: #0f172a;
-  --shadow-sm:0 1px 2px rgba(0,0,0,.08);
-  --shadow:   0 4px 12px rgba(0,0,0,.10);
-  --shadow-lg:0 8px 32px rgba(0,0,0,.16);
-  --radius:   8px;
-  --radius-lg:12px;
+  --brand:#1a3c6e;--brand-lt:#2457a0;--accent:#f59e0b;
+  --green:#16a34a;--red:#dc2626;--orange:#ea580c;--purple:#7c3aed;
+  --gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;--gray-300:#cbd5e1;
+  --gray-400:#94a3b8;--gray-500:#64748b;--gray-600:#475569;--gray-700:#334155;
+  --gray-800:#1e293b;--gray-900:#0f172a;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.08);--shadow:0 4px 12px rgba(0,0,0,.10);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.16);--radius:8px;--radius-lg:12px;
 }
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--gray-50);color:var(--gray-800);min-height:100vh}
-
-/* ── Layout ───────────────────────────────────── */
 .app-shell{display:flex;flex-direction:column;min-height:100vh}
 .topbar{background:var(--brand);color:#fff;display:flex;align-items:center;gap:16px;padding:0 24px;height:60px;box-shadow:var(--shadow);position:sticky;top:0;z-index:100}
 .topbar-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
-.topbar-logo svg{opacity:.9}
-.topbar-title{flex:1}
-.topbar-title small{opacity:.7;font-size:12px;font-weight:400;display:block;margin-top:-2px}
+.topbar-title{flex:1}.topbar-title small{opacity:.7;font-size:12px;font-weight:400;display:block;margin-top:-2px}
 .topbar-user{display:flex;align-items:center;gap:10px;font-size:14px}
 .topbar-user select{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:4px 10px;border-radius:6px;font-size:13px;cursor:pointer}
 .topbar-user select option{color:var(--gray-800);background:#fff}
@@ -48,54 +28,33 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .topbar-btn:hover{background:rgba(255,255,255,.25)}
 .topbar-btn.accent{background:var(--accent);border-color:var(--accent);color:#000}
 .topbar-btn.accent:hover{background:#d97706}
-
 .main{flex:1;padding:24px;max-width:1400px;margin:0 auto;width:100%}
-
-/* ── Stat Cards ───────────────────────────────── */
 .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px}
 .stat-card{background:#fff;border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);border:1px solid var(--gray-200);cursor:pointer;transition:.2s;position:relative;overflow:hidden}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--card-color)}
 .stat-card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
-.stat-card.active{box-shadow:var(--shadow);ring:2px;border-color:var(--card-color)}
 .stat-card .icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:18px;background:color-mix(in srgb,var(--card-color) 12%,transparent)}
 .stat-card .value{font-size:32px;font-weight:700;line-height:1;color:var(--gray-900)}
 .stat-card .label{font-size:12px;color:var(--gray-500);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
-.stat-card.c-blue{--card-color:var(--brand-lt)}
-.stat-card.c-orange{--card-color:var(--orange)}
-.stat-card.c-green{--card-color:var(--green)}
-.stat-card.c-red{--card-color:var(--red)}
-.stat-card.c-purple{--card-color:var(--purple)}
-
-/* ── Tabs ─────────────────────────────────────── */
+.stat-card.c-blue{--card-color:var(--brand-lt)}.stat-card.c-orange{--card-color:var(--orange)}
+.stat-card.c-green{--card-color:var(--green)}.stat-card.c-red{--card-color:var(--red)}
 .tabs{display:flex;gap:0;background:#fff;border-radius:var(--radius-lg) var(--radius-lg) 0 0;border:1px solid var(--gray-200);border-bottom:none;overflow:hidden}
 .tab{padding:12px 24px;font-size:14px;font-weight:600;cursor:pointer;color:var(--gray-500);border-bottom:3px solid transparent;transition:.2s;white-space:nowrap;display:flex;align-items:center;gap:8px}
-.tab:hover{color:var(--gray-800);background:var(--gray-50)}
-.tab.active{color:var(--brand);border-bottom-color:var(--brand);background:#fff}
+.tab:hover{color:var(--gray-800);background:var(--gray-50)}.tab.active{color:var(--brand);border-bottom-color:var(--brand);background:#fff}
 .tab .badge{background:var(--gray-200);color:var(--gray-600);font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;min-width:20px;text-align:center}
 .tab.active .badge{background:var(--brand);color:#fff}
-.tab-overdue .badge{background:var(--red);color:#fff}
-
-/* ── Panel ────────────────────────────────────── */
 .panel{background:#fff;border:1px solid var(--gray-200);border-radius:0 0 var(--radius-lg) var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden}
 .panel-toolbar{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--gray-100);flex-wrap:wrap}
 .search-box{display:flex;align-items:center;gap:8px;background:var(--gray-100);border-radius:6px;padding:7px 12px;flex:1;min-width:180px}
 .search-box input{border:none;background:none;outline:none;font-size:14px;color:var(--gray-800);width:100%}
-.search-box svg{color:var(--gray-400);flex-shrink:0}
 .filter-sel{border:1px solid var(--gray-200);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--gray-700);background:#fff;cursor:pointer;outline:none}
 .btn{border:none;border-radius:6px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:6px}
-.btn-primary{background:var(--brand);color:#fff}
-.btn-primary:hover{background:var(--brand-lt)}
-.btn-success{background:var(--green);color:#fff}
-.btn-success:hover{filter:brightness(1.1)}
-.btn-danger{background:var(--red);color:#fff}
-.btn-danger:hover{filter:brightness(1.1)}
-.btn-ghost{background:transparent;color:var(--gray-600);border:1px solid var(--gray-200)}
-.btn-ghost:hover{background:var(--gray-50)}
-.btn-accent{background:var(--accent);color:#000}
-.btn-accent:hover{background:#d97706}
+.btn-primary{background:var(--brand);color:#fff}.btn-primary:hover{background:var(--brand-lt)}
+.btn-success{background:var(--green);color:#fff}.btn-success:hover{filter:brightness(1.1)}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{filter:brightness(1.1)}
+.btn-ghost{background:transparent;color:var(--gray-600);border:1px solid var(--gray-200)}.btn-ghost:hover{background:var(--gray-50)}
+.btn-accent{background:var(--accent);color:#000}.btn-accent:hover{background:#d97706}
 .btn-sm{padding:5px 10px;font-size:12px}
-
-/* ── Table ────────────────────────────────────── */
 .tbl-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px}
 thead tr{background:var(--gray-50);border-bottom:2px solid var(--gray-200)}
@@ -105,49 +64,29 @@ tbody tr:hover{background:var(--gray-50)}
 td{padding:12px 14px;color:var(--gray-700);vertical-align:middle}
 .td-part{font-weight:700;color:var(--gray-900)}
 .td-jobid{font-family:monospace;font-size:12px;color:var(--gray-500)}
-
-/* ── Badges ───────────────────────────────────── */
 .badge-status{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
-.s-under{background:#dbeafe;color:#1d4ed8}
-.s-pending{background:#fef3c7;color:#92400e}
-.s-approved{background:#dcfce7;color:#166534}
-.s-rejected{background:#fee2e2;color:#991b1b}
-.s-overdue{background:#fee2e2;color:#991b1b}
+.s-under{background:#dbeafe;color:#1d4ed8}.s-pending{background:#fef3c7;color:#92400e}
+.s-approved{background:#dcfce7;color:#166534}.s-rejected{background:#fee2e2;color:#991b1b}
 .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
-
-/* ── Row actions ─────────────────────────────── */
 .actions{display:flex;gap:6px;align-items:center}
-
-/* ── Overdue indicator ────────────────────────── */
 .overdue-row{background:linear-gradient(90deg,#fff5f5 0%,#fff 8%) !important}
-.overdue-tag{font-size:11px;color:var(--red);font-weight:700;display:inline-flex;align-items:center;gap:3px}
-
-/* ── Empty state ──────────────────────────────── */
+.overdue-tag{font-size:11px;color:var(--red);font-weight:700}
 .empty{text-align:center;padding:64px 20px;color:var(--gray-400)}
-.empty svg{margin-bottom:16px;opacity:.4}
-.empty h3{font-size:18px;color:var(--gray-600);margin-bottom:6px}
-.empty p{font-size:14px}
-
-/* ── Modal ────────────────────────────────────── */
+.empty h3{font-size:18px;color:var(--gray-600);margin-bottom:6px}.empty p{font-size:14px}
 .overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)}
 .overlay.hidden{display:none}
 .modal{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);width:100%;animation:modalIn .2s ease;overflow:hidden}
-.modal.sm{max-width:480px}
-.modal.md{max-width:680px}
-.modal.lg{max-width:960px}
-.modal.xl{max-width:1100px;max-height:90vh;display:flex;flex-direction:column}
+.modal.sm{max-width:480px}.modal.md{max-width:680px}
+.modal.xl{max-width:1000px;max-height:93vh;display:flex;flex-direction:column}
 @keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(10px)}to{opacity:1;transform:none}}
-.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--gray-200);background:var(--gray-50)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--gray-200);background:var(--gray-50);flex-shrink:0}
 .modal-title{font-size:16px;font-weight:700;color:var(--gray-900);display:flex;align-items:center;gap:10px}
-.modal-body{padding:24px;overflow-y:auto;flex:1}
-.modal-footer{padding:16px 24px;border-top:1px solid var(--gray-200);display:flex;justify-content:flex-end;gap:10px;background:var(--gray-50)}
+.modal-body{padding:20px 24px;overflow-y:auto;flex:1}
+.modal-footer{padding:14px 24px;border-top:1px solid var(--gray-200);display:flex;justify-content:flex-end;gap:10px;background:var(--gray-50);flex-shrink:0}
 .close-btn{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray-400);padding:4px;border-radius:4px;line-height:1}
 .close-btn:hover{color:var(--gray-700);background:var(--gray-100)}
-
-/* ── Form ─────────────────────────────────────── */
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.form-row.cols-1{grid-template-columns:1fr}
-.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.form-row.cols-1{grid-template-columns:1fr}.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
 .form-group{display:flex;flex-direction:column;gap:5px}
 .form-group label{font-size:12px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.4px}
 .form-group input,.form-group select,.form-group textarea{border:1px solid var(--gray-300);border-radius:6px;padding:9px 12px;font-size:14px;color:var(--gray-800);outline:none;transition:.2s;background:#fff}
@@ -155,74 +94,103 @@ td{padding:12px 14px;color:var(--gray-700);vertical-align:middle}
 .form-group textarea{resize:vertical;min-height:80px}
 .form-hint{font-size:11px;color:var(--gray-400);margin-top:2px}
 
-/* ── Inspection Form (Excel rows render) ─────── */
-.insp-table-wrap{overflow-x:auto;border:1px solid var(--gray-200);border-radius:var(--radius)}
-.insp-table{width:100%;border-collapse:collapse;font-size:13px;min-width:600px}
-.insp-table th{background:var(--brand);color:#fff;padding:10px 12px;text-align:center;font-size:12px;white-space:nowrap}
-.insp-table th.item-col{background:var(--gray-700);text-align:left;width:200px}
-.insp-table .spec-row td{background:var(--gray-50);font-size:12px;color:var(--gray-500);text-align:center;padding:6px 8px;border-bottom:2px solid var(--gray-200)}
-.insp-table .spec-row td.item-col{text-align:left;color:var(--gray-700);font-weight:600}
-.insp-table .input-row td{border-bottom:1px solid var(--gray-100);padding:4px 6px;vertical-align:middle}
-.insp-table .input-row td input{width:100%;border:1px solid var(--gray-300);border-radius:4px;padding:5px 8px;font-size:13px;text-align:center;outline:none;min-width:70px}
-.insp-table .input-row td input:focus{border-color:var(--brand);background:#eff6ff}
-.insp-table .result-cell{text-align:center;font-weight:700;font-size:12px}
-.r-pass{color:var(--green)}
-.r-fail{color:var(--red)}
-.photo-upload-area{border:2px dashed var(--gray-300);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:.2s;margin-top:16px}
+/* ── Inspection Report Template ── */
+.insp-report{font-size:12px;font-family:'Segoe UI',sans-serif}
+.report-header{background:var(--brand);color:#fff;padding:12px 16px;border-radius:var(--radius) var(--radius) 0 0;margin-bottom:0}
+.report-header h2{font-size:15px;font-weight:700;letter-spacing:.5px}
+.report-header p{font-size:11px;opacity:.8;margin-top:2px}
+.report-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--gray-300);border-top:none;background:#fff}
+.meta-cell{padding:8px 12px;border-right:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200)}
+.meta-cell:last-child{border-right:none}
+.meta-cell label{font-size:10px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:3px}
+.meta-cell input,.meta-cell select{border:none;border-bottom:1px solid var(--gray-300);background:none;font-size:13px;font-weight:600;color:var(--gray-900);outline:none;width:100%;padding:2px 0}
+.meta-cell input:focus,.meta-cell select:focus{border-bottom-color:var(--brand)}
+.meta-cell .static{font-size:13px;font-weight:600;color:var(--gray-900)}
+.section-title{background:var(--gray-700);color:#fff;padding:7px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-top:12px;border-radius:4px 4px 0 0}
+/* Dimension table */
+.dim-table{width:100%;border-collapse:collapse;font-size:12px;border:1px solid var(--gray-300)}
+.dim-table th{background:var(--brand);color:#fff;padding:7px 10px;text-align:center;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,.2)}
+.dim-table th.left{text-align:left}
+.dim-table .spec-row td{background:#e8f0fe;font-size:11px;color:var(--brand);font-weight:700;text-align:center;padding:5px 8px;border:1px solid var(--gray-300)}
+.dim-table .spec-row td.left{text-align:left}
+.dim-table .meas-row td{background:var(--gray-50);font-size:11px;color:var(--gray-600);text-align:center;padding:4px 8px;border:1px solid var(--gray-200);font-style:italic}
+.dim-table .input-row td{border:1px solid var(--gray-200);padding:3px 5px;vertical-align:middle;text-align:center}
+.dim-table .input-row td.lbl{text-align:left;font-weight:700;color:var(--gray-700);padding-left:10px;white-space:nowrap;background:#fafafa}
+.dim-table .input-row td input{width:100%;min-width:65px;border:1px solid var(--gray-300);border-radius:3px;padding:4px 6px;font-size:12px;text-align:center;outline:none;background:#fff;transition:.15s}
+.dim-table .input-row td input:focus{border-color:var(--brand);background:#eff6ff}
+.dim-table .input-row td input.pass{background:#dcfce7;border-color:#16a34a;color:#166534}
+.dim-table .input-row td input.fail{background:#fee2e2;border-color:#dc2626;color:#991b1b}
+.dim-table .result-row td{background:#f1f5f9;font-weight:700;font-size:12px;text-align:center;padding:5px 8px;border:1px solid var(--gray-300)}
+.result-pass{color:var(--green)}.result-fail{color:var(--red)}
+/* Appearance table */
+.app-table{width:100%;border-collapse:collapse;font-size:12px;border:1px solid var(--gray-300)}
+.app-table th{background:var(--gray-700);color:#fff;padding:7px 10px;text-align:left;font-size:11px;border:1px solid rgba(255,255,255,.15)}
+.app-table th.center{text-align:center}
+.app-table td{border:1px solid var(--gray-200);padding:5px 10px;vertical-align:middle}
+.app-table tr:nth-child(even) td{background:#fafafa}
+.app-table td.no{text-align:center;font-weight:700;color:var(--gray-600);width:36px}
+.app-table td.check-name{font-size:12px;color:var(--gray-800)}
+.app-table td.check-name small{display:block;font-size:10px;color:var(--gray-500)}
+.app-table td.result-cell{text-align:center;width:90px}
+.qty-inputs{display:flex;gap:4px;align-items:center;justify-content:center;font-size:11px}
+.qty-inputs span{color:var(--gray-500)}
+.qty-inputs input{width:48px;border:1px solid var(--gray-300);border-radius:3px;padding:3px 4px;font-size:11px;text-align:center;outline:none}
+.qty-inputs input:focus{border-color:var(--brand)}
+.res-select{width:70px;border:1px solid var(--gray-300);border-radius:3px;padding:3px;font-size:11px;font-weight:700;outline:none;cursor:pointer}
+.res-select.ok{background:#dcfce7;border-color:#16a34a;color:#166534}
+.res-select.ng{background:#fee2e2;border-color:#dc2626;color:#991b1b}
+/* Special rows */
+.size-row td,.color-row td{border:1px solid var(--gray-200);padding:6px 10px;vertical-align:middle}
+.checkbox-group{display:flex;gap:12px;align-items:center}
+.checkbox-group label{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600}
+.checkbox-group input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--brand)}
+/* Remark & final result */
+.remark-area{border:1px solid var(--gray-300);border-radius:4px;padding:10px 12px;margin-top:8px}
+.remark-area textarea{width:100%;border:none;outline:none;font-size:12px;resize:vertical;min-height:60px;background:none;font-family:inherit}
+.final-result-box{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;padding:12px;background:var(--gray-50);border-radius:6px;border:1px solid var(--gray-200)}
+.final-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:6px;border:2px solid;cursor:pointer;font-size:14px;font-weight:700;transition:.2s}
+.final-btn.ok{border-color:var(--green);color:var(--green);background:#dcfce7}
+.final-btn.ok.selected,.final-btn.ok:hover{background:var(--green);color:#fff}
+.final-btn.ng{border-color:var(--red);color:var(--red);background:#fee2e2}
+.final-btn.ng.selected,.final-btn.ng:hover{background:var(--red);color:#fff}
+/* Photo */
+.photo-upload-area{border:2px dashed var(--gray-300);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;transition:.2s;margin-top:12px}
 .photo-upload-area:hover{border-color:var(--brand);background:var(--gray-50)}
 .photo-upload-area input{display:none}
-.photo-previews{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.photo-thumb{width:80px;height:80px;border-radius:6px;object-fit:cover;border:2px solid var(--gray-200);cursor:pointer}
+.photo-previews{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.photo-thumb{width:72px;height:72px;border-radius:6px;object-fit:cover;border:2px solid var(--gray-200);cursor:pointer}
 .photo-thumb:hover{border-color:var(--brand)}
+/* Sign row */
+.sign-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--gray-300);border-radius:0 0 var(--radius) var(--radius);margin-top:0}
+.sign-cell{padding:10px 14px;border-right:1px solid var(--gray-200);text-align:center}
+.sign-cell:last-child{border-right:none}
+.sign-cell label{font-size:10px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:6px}
+.sign-cell input{border:none;border-bottom:1px dashed var(--gray-400);background:none;font-size:13px;font-weight:600;color:var(--gray-900);outline:none;width:100%;text-align:center;padding:2px 0}
+.sign-cell input:focus{border-bottom-color:var(--brand)}
 
-/* ── Loading / Spinner ────────────────────────── */
-.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-overlay{position:absolute;inset:0;background:rgba(255,255,255,.8);display:flex;align-items:center;justify-content:center;z-index:10;border-radius:inherit}
 .loading-spinner{width:32px;height:32px;border:3px solid var(--gray-200);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite}
-
-/* ── Toast ────────────────────────────────────── */
 .toast-container{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px}
 .toast{background:var(--gray-900);color:#fff;padding:12px 18px;border-radius:8px;font-size:14px;box-shadow:var(--shadow-lg);animation:toastIn .3s ease;display:flex;align-items:center;gap:10px;min-width:260px;max-width:400px}
-.toast.success{background:var(--green)}
-.toast.error{background:var(--red)}
-.toast.warning{background:var(--orange)}
+.toast.success{background:var(--green)}.toast.error{background:var(--red)}.toast.warning{background:var(--orange)}
 @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
-
-/* ── History / Logs ───────────────────────────── */
 .log-entry{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--gray-100)}
 .log-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
 .log-meta{font-size:12px;color:var(--gray-400)}
-
-/* ── Config Banner ────────────────────────────── */
 .config-banner{background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius);padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-size:14px}
 .config-banner.hidden{display:none}
 .config-banner strong{color:#92400e}
-
-/* ── Scrollbar ────────────────────────────────── */
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:3px}
-::-webkit-scrollbar-track{background:transparent}
-
-/* ── Responsive ───────────────────────────────── */
-@media(max-width:900px){
-  .stats-row{grid-template-columns:repeat(3,1fr)}
-  .form-row{grid-template-columns:1fr}
-  .form-row.cols-3{grid-template-columns:1fr 1fr}
-}
-@media(max-width:600px){
-  .main{padding:12px}
-  .stats-row{grid-template-columns:repeat(2,1fr)}
-  .topbar{padding:0 14px}
-  .tabs{overflow-x:auto}
-  .panel-toolbar{gap:6px}
-}
+@media(max-width:900px){.stats-row{grid-template-columns:repeat(3,1fr)}.form-row{grid-template-columns:1fr}}
+@media(max-width:600px){.main{padding:12px}.stats-row{grid-template-columns:repeat(2,1fr)}.topbar{padding:0 14px}.tabs{overflow-x:auto}}
 </style>
 </head>
 <body>
 <div class="app-shell">
 
-<!-- ── Top Bar ──────────────────────────────────────────── -->
 <header class="topbar">
   <div class="topbar-logo">
     <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
@@ -233,7 +201,7 @@ td{padding:12px 14px;color:var(--gray-700);vertical-align:middle}
     </svg>
     <div class="topbar-title">
       QC Inspection System
-      <small>Quality Control Management</small>
+      <small>MEGACELL INTERNATIONAL CO.,LTD.</small>
     </div>
   </div>
   <div style="flex:1"></div>
@@ -244,82 +212,50 @@ td{padding:12px 14px;color:var(--gray-700);vertical-align:middle}
       <option value="chief">QC Chief</option>
       <option value="manager">Manager</option>
     </select>
-    <button class="topbar-btn accent" id="postJobBtn" style="display:none" onclick="APP.openPostJob()">
-      + Post Job
-    </button>
+    <button class="topbar-btn accent" id="postJobBtn" style="display:none" onclick="APP.openPostJob()">+ Post Job</button>
     <button class="topbar-btn" onclick="APP.refresh()">↻ Refresh</button>
     <button class="topbar-btn" onclick="APP.openConfig()">⚙ Config</button>
   </div>
 </header>
 
 <main class="main">
-
-  <!-- Config Banner -->
   <div class="config-banner" id="configBanner">
     ⚠️ <strong>Setup required:</strong> Click ⚙ Config and enter your Google Apps Script Web App URL to connect the system.
   </div>
-
-  <!-- Stats -->
   <div class="stats-row">
-    <div class="stat-card c-blue" onclick="APP.switchTab('all')">
-      <div class="icon" style="--card-color:var(--brand-lt)">📋</div>
-      <div class="value" id="statTotal">—</div>
-      <div class="label">Total Jobs</div>
+    <div class="stat-card c-blue" onclick="APP.switchTab('all')" style="--card-color:var(--brand-lt)">
+      <div class="icon">📋</div><div class="value" id="statTotal">—</div><div class="label">Total Jobs</div>
     </div>
-    <div class="stat-card c-blue" onclick="APP.switchTab('underqc')">
-      <div class="icon">🔍</div>
-      <div class="value" id="statUnderQC">—</div>
-      <div class="label">Under QC</div>
+    <div class="stat-card c-blue" onclick="APP.switchTab('underqc')" style="--card-color:var(--brand-lt)">
+      <div class="icon">🔍</div><div class="value" id="statUnderQC">—</div><div class="label">Under QC</div>
     </div>
-    <div class="stat-card c-orange" onclick="APP.switchTab('pending')">
-      <div class="icon">⏳</div>
-      <div class="value" id="statPending">—</div>
-      <div class="label">Pending Approval</div>
+    <div class="stat-card c-orange" onclick="APP.switchTab('pending')" style="--card-color:var(--orange)">
+      <div class="icon">⏳</div><div class="value" id="statPending">—</div><div class="label">Pending Approval</div>
     </div>
-    <div class="stat-card c-green" onclick="APP.switchTab('history')">
-      <div class="icon">✅</div>
-      <div class="value" id="statApproved">—</div>
-      <div class="label">Approved</div>
+    <div class="stat-card c-green" onclick="APP.switchTab('history')" style="--card-color:var(--green)">
+      <div class="icon">✅</div><div class="value" id="statApproved">—</div><div class="label">Approved</div>
     </div>
-    <div class="stat-card c-red" onclick="APP.switchTab('overdue')">
-      <div class="icon">🚨</div>
-      <div class="value" id="statOverdue">—</div>
-      <div class="label">Overdue</div>
+    <div class="stat-card c-red" onclick="APP.switchTab('overdue')" style="--card-color:var(--red)">
+      <div class="icon">🚨</div><div class="value" id="statOverdue">—</div><div class="label">Overdue</div>
     </div>
   </div>
 
-  <!-- Tabs -->
   <div class="tabs">
-    <div class="tab active" data-tab="underqc" onclick="APP.switchTab('underqc')">
-      🔍 Under QC <span class="badge" id="tabBadge-underqc">0</span>
-    </div>
-    <div class="tab" data-tab="pending" onclick="APP.switchTab('pending')">
-      ⏳ Pending Approval <span class="badge" id="tabBadge-pending">0</span>
-    </div>
-    <div class="tab" data-tab="history" onclick="APP.switchTab('history')">
-      📁 History <span class="badge" id="tabBadge-history">0</span>
-    </div>
-    <div class="tab tab-overdue" data-tab="overdue" onclick="APP.switchTab('overdue')">
-      🚨 Overdue <span class="badge" id="tabBadge-overdue">0</span>
-    </div>
-    <div class="tab" data-tab="logs" onclick="APP.switchTab('logs')">
-      📝 Audit Log
-    </div>
+    <div class="tab active" data-tab="underqc" onclick="APP.switchTab('underqc')">🔍 Under QC <span class="badge" id="tabBadge-underqc">0</span></div>
+    <div class="tab" data-tab="pending" onclick="APP.switchTab('pending')">⏳ Pending <span class="badge" id="tabBadge-pending">0</span></div>
+    <div class="tab" data-tab="history" onclick="APP.switchTab('history')">📁 History <span class="badge" id="tabBadge-history">0</span></div>
+    <div class="tab" data-tab="overdue" onclick="APP.switchTab('overdue')">🚨 Overdue <span class="badge" id="tabBadge-overdue">0</span></div>
+    <div class="tab" data-tab="logs" onclick="APP.switchTab('logs')">📝 Audit Log</div>
   </div>
 
-  <!-- Panel -->
   <div class="panel">
     <div class="panel-toolbar">
       <div class="search-box">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" id="searchInput" placeholder="Search part no, supplier, inspector…" oninput="APP.applyFilters()"/>
       </div>
-      <select class="filter-sel" id="filterSupplier" onchange="APP.applyFilters()">
-        <option value="">All Suppliers</option>
-      </select>
-      <select class="filter-sel" id="filterInspector" onchange="APP.applyFilters()">
-        <option value="">All Inspectors</option>
-      </select>
+      <select class="filter-sel" id="filterSupplier" onchange="APP.applyFilters()"><option value="">All Suppliers</option></select>
+      <select class="filter-sel" id="filterInspector" onchange="APP.applyFilters()"><option value="">All Inspectors</option></select>
       <input type="date" class="filter-sel" id="filterDateFrom" onchange="APP.applyFilters()" title="From date"/>
       <input type="date" class="filter-sel" id="filterDateTo" onchange="APP.applyFilters()" title="To date"/>
       <button class="btn btn-ghost btn-sm" onclick="APP.clearFilters()">✕ Clear</button>
@@ -327,45 +263,19 @@ td{padding:12px 14px;color:var(--gray-700);vertical-align:middle}
       <button class="btn btn-ghost btn-sm" onclick="APP.exportExcel()">⬇ Excel</button>
       <button class="btn btn-ghost btn-sm" onclick="APP.exportPrint()">🖨 Print</button>
     </div>
-
-    <!-- Tab content areas -->
-    <div id="tabContent-underqc" class="tab-content">
-      <div class="tbl-wrap" id="loading-underqc" style="position:relative;min-height:200px">
-        <div class="loading-overlay"><div class="loading-spinner"></div></div>
-      </div>
-    </div>
-    <div id="tabContent-pending" class="tab-content" style="display:none">
-      <div class="tbl-wrap" id="loading-pending" style="position:relative;min-height:200px">
-        <div class="loading-overlay"><div class="loading-spinner"></div></div>
-      </div>
-    </div>
-    <div id="tabContent-history" class="tab-content" style="display:none">
-      <div class="tbl-wrap" id="loading-history" style="position:relative;min-height:200px">
-        <div class="loading-overlay"><div class="loading-spinner"></div></div>
-      </div>
-    </div>
-    <div id="tabContent-overdue" class="tab-content" style="display:none">
-      <div class="tbl-wrap" id="loading-overdue" style="position:relative;min-height:200px">
-        <div class="loading-overlay"><div class="loading-spinner"></div></div>
-      </div>
-    </div>
-    <div id="tabContent-logs" class="tab-content" style="display:none;padding:0 20px 20px">
-      <div id="logsContainer" style="margin-top:16px"></div>
-    </div>
+    <div id="tabContent-underqc" class="tab-content"><div class="loading-overlay" style="position:relative;min-height:200px"><div class="loading-spinner"></div></div></div>
+    <div id="tabContent-pending" class="tab-content" style="display:none"><div style="position:relative;min-height:200px"><div class="loading-overlay"><div class="loading-spinner"></div></div></div></div>
+    <div id="tabContent-history" class="tab-content" style="display:none"><div style="position:relative;min-height:200px"><div class="loading-overlay"><div class="loading-spinner"></div></div></div></div>
+    <div id="tabContent-overdue" class="tab-content" style="display:none"><div style="position:relative;min-height:200px"><div class="loading-overlay"><div class="loading-spinner"></div></div></div></div>
+    <div id="tabContent-logs" class="tab-content" style="display:none;padding:0 20px 20px"><div id="logsContainer" style="margin-top:16px"></div></div>
   </div>
-
 </main>
-</div><!-- /app-shell -->
-
-<!-- ════════ MODALS ════════ -->
+</div>
 
 <!-- Config Modal -->
-<div class="overlay hidden" id="configOverlay" onclick="APP.closeConfig(event)">
-  <div class="modal md" onclick="e=>e.stopPropagation()">
-    <div class="modal-header">
-      <div class="modal-title">⚙️ System Configuration</div>
-      <button class="close-btn" onclick="APP.closeConfig()">✕</button>
-    </div>
+<div class="overlay hidden" id="configOverlay" onclick="if(event.target===this)APP.closeConfig()">
+  <div class="modal md">
+    <div class="modal-header"><div class="modal-title">⚙️ System Configuration</div><button class="close-btn" onclick="APP.closeConfig()">✕</button></div>
     <div class="modal-body">
       <div class="form-group" style="margin-bottom:20px">
         <label>Google Apps Script Web App URL</label>
@@ -373,23 +283,12 @@ td{padding:12px 14px;color:var(--gray-700);vertical-align:middle}
         <div class="form-hint">Deploy code.gs as Web App → Anyone (even anonymous). Paste the /exec URL here.</div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label>Your Name</label>
-          <input type="text" id="cfgUserName" placeholder="John Smith"/>
-        </div>
-        <div class="form-group">
-          <label>Default Role</label>
-          <select id="cfgRole">
-            <option value="staff">Staff (Inspector)</option>
-            <option value="chief">QC Chief</option>
-            <option value="manager">Manager</option>
-          </select>
+        <div class="form-group"><label>Your Name</label><input type="text" id="cfgUserName" placeholder="John Smith"/></div>
+        <div class="form-group"><label>Default Role</label>
+          <select id="cfgRole"><option value="staff">Staff (Inspector)</option><option value="chief">QC Chief</option><option value="manager">Manager</option></select>
         </div>
       </div>
-      <div class="form-group">
-        <label>Overdue Threshold (days)</label>
-        <input type="number" id="cfgOverdueDays" value="3" min="1" max="30"/>
-      </div>
+      <div class="form-group"><label>Overdue Threshold (days)</label><input type="number" id="cfgOverdueDays" value="3" min="1" max="30"/></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="APP.closeConfig()">Cancel</button>
@@ -398,13 +297,10 @@ td{padding:12px 14px;color:var(--gray-700);vertical-align:middle}
   </div>
 </div>
 
-<!-- Post Job Modal (QC Chief) -->
-<div class="overlay hidden" id="postJobOverlay" onclick="APP.closePostJob(event)">
-  <div class="modal md" onclick="e=>e.stopPropagation()">
-    <div class="modal-header">
-      <div class="modal-title">📋 Post New QC Job</div>
-      <button class="close-btn" onclick="APP.closePostJob()">✕</button>
-    </div>
+<!-- Post Job Modal -->
+<div class="overlay hidden" id="postJobOverlay" onclick="if(event.target===this)APP.closePostJob()">
+  <div class="modal md">
+    <div class="modal-header"><div class="modal-title">📋 Post New QC Job</div><button class="close-btn" onclick="APP.closePostJob()">✕</button></div>
     <div class="modal-body">
       <div class="form-row cols-1" style="margin-bottom:8px">
         <div class="form-group">
@@ -415,132 +311,193 @@ td{padding:12px 14px;color:var(--gray-700);vertical-align:middle}
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label>Supplier</label>
-          <input type="text" id="pjSupplier" placeholder="Supplier name"/>
-        </div>
-        <div class="form-group">
-          <label>Inspector (Assigned to)</label>
-          <input type="text" id="pjInspector" placeholder="Inspector name"/>
-        </div>
+        <div class="form-group"><label>Supplier</label><input type="text" id="pjSupplier" placeholder="Supplier name"/></div>
+        <div class="form-group"><label>Inspector (Assigned to)</label><input type="text" id="pjInspector" placeholder="Inspector name"/></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label>Batch / PO Number</label>
-          <input type="text" id="pjBatch" placeholder="Optional"/>
-        </div>
-        <div class="form-group">
-          <label>Quantity</label>
-          <input type="number" id="pjQty" placeholder="Optional"/>
-        </div>
+        <div class="form-group"><label>Batch / PO Number</label><input type="text" id="pjBatch" placeholder="Optional"/></div>
+        <div class="form-group"><label>Quantity</label><input type="number" id="pjQty" placeholder="Optional"/></div>
       </div>
-      <div class="form-group form-row cols-1" style="margin-bottom:0">
-        <div class="form-group">
-          <label>Notes</label>
-          <textarea id="pjNotes" placeholder="Additional notes…"></textarea>
-        </div>
-      </div>
+      <div class="form-group"><label>Notes</label><textarea id="pjNotes" placeholder="Additional notes…"></textarea></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="APP.closePostJob()">Cancel</button>
-      <button class="btn btn-primary" id="postJobSubmitBtn" onclick="APP.submitPostJob()">
-        Post Job
-      </button>
+      <button class="btn btn-primary" id="postJobSubmitBtn" onclick="APP.submitPostJob()">Post Job</button>
     </div>
   </div>
 </div>
 
-<!-- Inspection Modal (Staff) -->
+<!-- ════ INSPECTION FORM MODAL — matches the actual Excel template ════ -->
 <div class="overlay hidden" id="inspOverlay">
-  <div class="modal xl" onclick="e=>e.stopPropagation()">
+  <div class="modal xl">
     <div class="modal-header">
       <div class="modal-title">
-        🔬 QC Inspection Form
-        <span id="inspJobId" style="font-size:13px;font-weight:400;color:var(--gray-500)"></span>
+        🔬 Incoming Inspection Report
+        <span id="inspJobId" style="font-size:12px;font-weight:400;color:var(--gray-500)"></span>
       </div>
-      <button class="close-btn" onclick="APP.closeInsp()">✕</button>
-    </div>
-    <div class="modal-body">
-      <!-- Job meta info -->
-      <div id="inspMeta" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;background:var(--gray-50);border-radius:var(--radius);padding:14px;font-size:13px">
-      </div>
-
-      <!-- Template loading state -->
-      <div id="inspTemplateLoading" style="text-align:center;padding:40px;color:var(--gray-400)">
-        <div style="font-size:32px;margin-bottom:8px">⏳</div>
-        Loading inspection template…
-      </div>
-
-      <!-- Measurements table -->
-      <div id="inspTableWrap" style="display:none">
-        <h3 style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">📐 Measurements</h3>
-        <div class="insp-table-wrap">
-          <table class="insp-table">
-            <thead>
-              <tr>
-                <th class="item-col">Inspection Item</th>
-                <th style="background:var(--gray-600)">Spec / Standard</th>
-                <div id="inspColHeaders"></div>
-              </tr>
-            </thead>
-            <tbody id="inspTbody"></tbody>
-          </table>
-        </div>
-
-        <!-- Additional fields -->
-        <div class="form-row" style="margin-top:20px">
-          <div class="form-group">
-            <label>Overall Result</label>
-            <select id="inspOverallResult">
-              <option value="">— Select —</option>
-              <option value="PASS">PASS</option>
-              <option value="FAIL">FAIL</option>
-              <option value="CONDITIONAL">CONDITIONAL PASS</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Inspector Name</label>
-            <input type="text" id="inspectorName"/>
-          </div>
-        </div>
-        <div class="form-group" style="margin-bottom:16px">
-          <label>Remarks / Defect Description</label>
-          <textarea id="inspRemarks" placeholder="Describe any defects, non-conformances, or observations…"></textarea>
-        </div>
-
-        <!-- Photo Upload -->
-        <h3 style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">📷 Inspection Photos</h3>
-        <div class="photo-upload-area" onclick="document.getElementById('photoInput').click()">
-          <input type="file" id="photoInput" multiple accept="image/*" onchange="APP.handlePhotoUpload(this)"/>
-          <div style="font-size:24px;margin-bottom:6px">📁</div>
-          <div style="font-size:14px;color:var(--gray-500)">Click to upload or drag &amp; drop photos</div>
-          <div style="font-size:12px;color:var(--gray-400);margin-top:4px">JPG, PNG, WEBP — max 5MB each</div>
-        </div>
-        <div class="photo-previews" id="photoPreviews"></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="btn btn-ghost btn-sm" onclick="APP.printInspForm()" title="Print form">🖨 Print</button>
+        <button class="close-btn" onclick="APP.closeInsp()">✕</button>
       </div>
     </div>
+    <div class="modal-body" id="inspModalBody">
+
+      <div class="insp-report" id="inspReport">
+        <!-- ── Header Banner ── -->
+        <div class="report-header">
+          <h2>INCOMING INSPECTION REPORT — MEGACELL INTERNATIONAL CO.,LTD.</h2>
+          <p>Part: <span id="rpt-partno">—</span> &nbsp;|&nbsp; <span id="rpt-desc">—</span></p>
+        </div>
+
+        <!-- ── Meta fields ── -->
+        <div class="report-meta">
+          <div class="meta-cell"><label>Part Number</label><div class="static" id="rpt-partno2">—</div></div>
+          <div class="meta-cell"><label>Description</label><div class="static" id="rpt-desc2">—</div></div>
+          <div class="meta-cell"><label>Supplier</label><input type="text" id="rpt-supplier" placeholder="Supplier"/></div>
+          <div class="meta-cell"><label>PO Number</label><input type="text" id="rpt-po" placeholder="PO Number"/></div>
+          <div class="meta-cell"><label>Received Date</label><input type="date" id="rpt-recvdate"/></div>
+          <div class="meta-cell"><label>Weight / Grams</label><input type="number" id="rpt-weight" placeholder="g"/></div>
+          <div class="meta-cell"><label>Quantity (Pcs.)</label><input type="number" id="rpt-qty" placeholder="Pcs."/></div>
+          <div class="meta-cell"><label>Inspection Date</label><input type="date" id="rpt-inspdate"/></div>
+          <div class="meta-cell"><label>Inspector</label><input type="text" id="rpt-inspector" placeholder="Inspector name"/></div>
+        </div>
+
+        <!-- ── Section 1: Dimensions ── -->
+        <div class="section-title">📐 Standard Check Dimension — Sample Measurements</div>
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-top:none;padding:7px 12px;font-size:11px;color:#92400e">
+          Standard: &lt;150 pcs → inspect 10 | 151–500 pcs → inspect 20 | &gt;500 pcs → inspect 40
+        </div>
+
+        <table class="dim-table">
+          <thead>
+            <tr>
+              <th class="left" style="min-width:80px">SAMPLE</th>
+              <th style="min-width:90px">Inner Diameter A<br><small style="font-weight:400;opacity:.8">(รูใน)</small></th>
+              <th style="min-width:90px">Inner Diameter B<br><small style="font-weight:400;opacity:.8">(รูใน)</small></th>
+              <th style="min-width:90px">Height<br><small style="font-weight:400;opacity:.8">(ความสูง)</small></th>
+              <th style="min-width:90px">Hardness Rubber<br><small style="font-weight:400;opacity:.8">(ความแข็งของยาง)</small></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="spec-row">
+              <td class="left">SPEC (mm)</td>
+              <td>15.50 ± 0.5</td>
+              <td>54.80 ± 0.5</td>
+              <td>168.70 ± 0.8</td>
+              <td><input type="text" id="spec-hardness" placeholder="e.g. 60±5" style="width:80px;border:1px solid #a5b4fc;border-radius:3px;padding:2px 4px;font-size:11px;text-align:center"/></td>
+            </tr>
+            <tr class="meas-row">
+              <td class="left">Tool</td>
+              <td>Vernier Caliper</td><td>Vernier Caliper</td><td>Vernier Caliper</td><td>Durometer</td>
+            </tr>
+            <!-- 10 input rows generated by JS -->
+            <tbody id="dimInputRows"></tbody>
+            <tr class="result-row" id="dimResultRow">
+              <td class="left" style="font-weight:700">RESULT</td>
+              <td id="res-dA">—</td><td id="res-dB">—</td><td id="res-h">—</td><td id="res-hr">—</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ── Section 2: Appearance Inspection ── -->
+        <div class="section-title" style="margin-top:14px">👁 Standard Sampling Appearance — 100% Inspection</div>
+        <div style="background:var(--gray-50);border:1px solid var(--gray-300);border-top:none;padding:6px 12px;font-size:11px;color:var(--gray-500)">
+          Q'ty Total: <input type="number" id="app-total" style="width:60px;border:1px solid var(--gray-300);border-radius:3px;padding:2px 6px;font-size:11px" placeholder="Pcs"/> Pcs.
+          &nbsp; Sampling: <input type="number" id="app-sample" style="width:60px;border:1px solid var(--gray-300);border-radius:3px;padding:2px 6px;font-size:11px" placeholder="Pcs"/> Pcs.
+        </div>
+
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th style="width:36px">No.</th>
+              <th>Check Point Inspection</th>
+              <th class="center" style="width:180px">Record Results (OK / NG Pcs.)</th>
+              <th class="center" style="width:80px">Result</th>
+            </tr>
+          </thead>
+          <tbody id="appCheckRows"></tbody>
+        </table>
+
+        <!-- ── Nut/Bolt size row ── -->
+        <table class="app-table" style="margin-top:6px">
+          <tbody>
+            <tr class="size-row">
+              <td class="no">16</td>
+              <td class="check-name">ไซต์น็อตและเกลียว <small>USE NUT/BOLT SIZE</small></td>
+              <td colspan="2">
+                <div class="checkbox-group">
+                  <label><input type="checkbox" name="boltsize" value="8mm"/> 8 mm</label>
+                  <label><input type="checkbox" name="boltsize" value="10mm"/> 10 mm</label>
+                  <label><input type="checkbox" name="boltsize" value="12mm"/> 12 mm</label>
+                </div>
+              </td>
+            </tr>
+            <tr class="color-row">
+              <td class="no">17</td>
+              <td class="check-name">สีน็อต <small>NUT COLOR</small></td>
+              <td colspan="2">
+                <div class="checkbox-group">
+                  <label><input type="checkbox" name="nutcolor" value="silver"/> Silver</label>
+                  <label><input type="checkbox" name="nutcolor" value="golden"/> Golden</label>
+                  <label><input type="checkbox" name="nutcolor" value="no"/> No</label>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ── Remark ── -->
+        <div style="margin-top:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Remark / Defect Description</div>
+          <div class="remark-area"><textarea id="rpt-remark" placeholder="Describe any defects, non-conformances, observations…"></textarea></div>
+        </div>
+
+        <!-- ── Final Result ── -->
+        <div class="final-result-box">
+          <button class="final-btn ok" id="finalOK" onclick="APP.setFinalResult('OK')">✅ OK — PASS</button>
+          <button class="final-btn ng" id="finalNG" onclick="APP.setFinalResult('NG')">❌ NG — FAIL</button>
+        </div>
+
+        <!-- ── Photos ── -->
+        <div style="margin-top:14px">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">📷 Inspection Photos</div>
+          <div class="photo-upload-area" onclick="document.getElementById('photoInput').click()">
+            <input type="file" id="photoInput" multiple accept="image/*" onchange="APP.handlePhotoUpload(this)"/>
+            <div style="font-size:22px;margin-bottom:4px">📁</div>
+            <div style="font-size:13px;color:var(--gray-500)">Click to upload or drag &amp; drop photos</div>
+            <div style="font-size:11px;color:var(--gray-400);margin-top:3px">JPG, PNG, WEBP — max 5MB each</div>
+          </div>
+          <div class="photo-previews" id="photoPreviews"></div>
+        </div>
+
+        <!-- ── Signature row ── -->
+        <div class="sign-row" style="margin-top:14px">
+          <div class="sign-cell"><label>Inspection By</label><input type="text" id="sign-inspector" placeholder="Name"/></div>
+          <div class="sign-cell"><label>Checked By (QC Chief)</label><input type="text" id="sign-chief" placeholder="Name"/></div>
+          <div class="sign-cell"><label>Approved By (Manager)</label><input type="text" id="sign-manager" placeholder="Name"/></div>
+        </div>
+
+        <!-- Measurement legend -->
+        <div style="font-size:10px;color:var(--gray-400);margin-top:10px;padding:6px 8px;background:var(--gray-50);border-radius:4px;border:1px solid var(--gray-200)">
+          MEASUREMENT TOOLS: VC = Vernier Caliper · HG = Height Gauge · MM = Micrometer · BP = Bevel Protractor · PG = Pin Gauge · FG = Filler Gauge · PLG = Plug Gauge · RG = Ring Gauge · ST = Steel Tape · TG = Torque Gauge
+        </div>
+      </div><!-- /insp-report -->
+
+    </div><!-- /modal-body -->
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="APP.closeInsp()">Close</button>
-      <button class="btn btn-primary" id="inspSubmitBtn" onclick="APP.submitInspection()" style="display:none">
-        Submit for Approval
-      </button>
+      <button class="btn btn-primary" id="inspSubmitBtn" onclick="APP.submitInspection()" style="display:none">Submit for Approval</button>
     </div>
   </div>
 </div>
 
-<!-- Approve/Reject Modal (Manager) -->
-<div class="overlay hidden" id="decisionOverlay" onclick="APP.closeDecision(event)">
-  <div class="modal sm" onclick="e=>e.stopPropagation()">
-    <div class="modal-header">
-      <div class="modal-title" id="decisionTitle">Manager Decision</div>
-      <button class="close-btn" onclick="APP.closeDecision()">✕</button>
-    </div>
+<!-- Approve/Reject Modal -->
+<div class="overlay hidden" id="decisionOverlay" onclick="if(event.target===this)APP.closeDecision()">
+  <div class="modal sm">
+    <div class="modal-header"><div class="modal-title" id="decisionTitle">Manager Decision</div><button class="close-btn" onclick="APP.closeDecision()">✕</button></div>
     <div class="modal-body">
       <div id="decisionJobInfo" style="background:var(--gray-50);border-radius:var(--radius);padding:14px;margin-bottom:16px;font-size:14px"></div>
-      <div class="form-group">
-        <label>Remarks</label>
-        <textarea id="decisionRemarks" placeholder="Optional remarks…"></textarea>
-      </div>
+      <div class="form-group"><label>Remarks</label><textarea id="decisionRemarks" placeholder="Optional remarks…"></textarea></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="APP.closeDecision()">Cancel</button>
@@ -549,846 +506,509 @@ td{padding:12px 14px;color:var(--gray-700);vertical-align:middle}
   </div>
 </div>
 
-<!-- Toast container -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- ════════ JAVASCRIPT ════════ -->
 <script>
-// Declare global APP object BEFORE the IIFE so onclick handlers can reach it
 window.APP = {};
-
 (function(){
 "use strict";
-
-// Alias so all methods inside the IIFE write to window.APP
 var APP = window.APP;
 
-// ── State ─────────────────────────────────────────────────
 var STATE = {
-  gasUrl: "",
-  userName: "QC User",
-  role: "staff",
-  overdueDays: 3,
-  activeTab: "underqc",
-  jobs: {},          // keyed by tab
-  filteredJobs: [],
-  masterParts: [],
-  stats: {},
-  currentInspJob: null,
-  currentDecisionJob: null,
-  currentDecisionAction: null,
-  uploadedPhotoIds: [],
-  pendingPostJobPart: null
+  gasUrl:"",userName:"QC User",role:"staff",overdueDays:3,
+  activeTab:"underqc",jobs:{},filteredJobs:[],masterParts:[],stats:{},
+  currentInspJob:null,currentDecisionJob:null,currentDecisionAction:null,
+  uploadedPhotoIds:[],finalResult:null,pendingPostJobPart:null
 };
 
 // ── Config ────────────────────────────────────────────────
-function loadConfig() {
-  var DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbxhrGIHw2Q_Py3gi9W7APhxOZDnt_6b1JDeRaqVUpAihiHBiWrfGf6KLYPy_P5K1a__DA/exec";
-  STATE.gasUrl    = localStorage.getItem("qc_gas_url") || DEFAULT_GAS_URL;
-  STATE.userName  = localStorage.getItem("qc_user")    || "QC User";
-  STATE.role      = localStorage.getItem("qc_role")    || "staff";
-  STATE.overdueDays = parseInt(localStorage.getItem("qc_overdue")||"3")||3;
-  document.getElementById("roleSelect").value = STATE.role;
+function loadConfig(){
+  var DEF="https://script.google.com/macros/s/AKfycbxhrGIHw2Q_Py3gi9W7APhxOZDnt_6b1JDeRaqVUpAihiHBiWrfGf6KLYPy_P5K1a__DA/exec";
+  STATE.gasUrl=localStorage.getItem("qc_gas_url")||DEF;
+  STATE.userName=localStorage.getItem("qc_user")||"QC User";
+  STATE.role=localStorage.getItem("qc_role")||"staff";
+  STATE.overdueDays=parseInt(localStorage.getItem("qc_overdue")||"3")||3;
+  document.getElementById("roleSelect").value=STATE.role;
   updateRoleUI();
-  if (!STATE.gasUrl) {
-    document.getElementById("configBanner").classList.remove("hidden");
-  } else {
-    document.getElementById("configBanner").classList.add("hidden");
-  }
+  document.getElementById("configBanner").classList.toggle("hidden",!!STATE.gasUrl);
 }
+APP.setRole=function(r){STATE.role=r;localStorage.setItem("qc_role",r);updateRoleUI();APP.refresh()};
+function updateRoleUI(){document.getElementById("postJobBtn").style.display=(STATE.role==="chief")?"":"";}
+// show for chief AND manager for testing convenience — restrict as needed
+function updateRoleUIStrict(){document.getElementById("postJobBtn").style.display=(STATE.role==="chief")?"":"none";}
 
-APP.setRole = function(r) {
-  STATE.role = r;
-  localStorage.setItem("qc_role", r);
-  updateRoleUI();
-  APP.refresh();
-};
-
-function updateRoleUI() {
-  document.getElementById("postJobBtn").style.display =
-    (STATE.role === "chief") ? "" : "none";
-}
-
-APP.openConfig = function() {
-  document.getElementById("cfgGasUrl").value = STATE.gasUrl;
-  document.getElementById("cfgUserName").value = STATE.userName;
-  document.getElementById("cfgRole").value = STATE.role;
-  document.getElementById("cfgOverdueDays").value = STATE.overdueDays;
+APP.openConfig=function(){
+  document.getElementById("cfgGasUrl").value=STATE.gasUrl;
+  document.getElementById("cfgUserName").value=STATE.userName;
+  document.getElementById("cfgRole").value=STATE.role;
+  document.getElementById("cfgOverdueDays").value=STATE.overdueDays;
   document.getElementById("configOverlay").classList.remove("hidden");
 };
-
-APP.closeConfig = function(e) {
-  if (e && e.target !== document.getElementById("configOverlay")) return;
+APP.closeConfig=function(){document.getElementById("configOverlay").classList.add("hidden")};
+APP.saveConfig=function(){
+  STATE.gasUrl=document.getElementById("cfgGasUrl").value.trim();
+  STATE.userName=document.getElementById("cfgUserName").value.trim()||"QC User";
+  STATE.role=document.getElementById("cfgRole").value;
+  STATE.overdueDays=parseInt(document.getElementById("cfgOverdueDays").value)||3;
+  localStorage.setItem("qc_gas_url",STATE.gasUrl);
+  localStorage.setItem("qc_user",STATE.userName);
+  localStorage.setItem("qc_role",STATE.role);
+  localStorage.setItem("qc_overdue",STATE.overdueDays);
+  document.getElementById("roleSelect").value=STATE.role;
   document.getElementById("configOverlay").classList.add("hidden");
-};
-
-APP.saveConfig = function() {
-  STATE.gasUrl  = document.getElementById("cfgGasUrl").value.trim();
-  STATE.userName= document.getElementById("cfgUserName").value.trim() || "QC User";
-  STATE.role    = document.getElementById("cfgRole").value;
-  STATE.overdueDays = parseInt(document.getElementById("cfgOverdueDays").value)||3;
-  localStorage.setItem("qc_gas_url",   STATE.gasUrl);
-  localStorage.setItem("qc_user",      STATE.userName);
-  localStorage.setItem("qc_role",      STATE.role);
-  localStorage.setItem("qc_overdue",   STATE.overdueDays);
-  document.getElementById("roleSelect").value = STATE.role;
-  document.getElementById("configOverlay").classList.add("hidden");
-  if (STATE.gasUrl) {
-    document.getElementById("configBanner").classList.add("hidden");
-    toast("Configuration saved. Connecting…", "success");
-    APP.refresh();
-  } else {
-    toast("Please enter the GAS Web App URL", "error");
-  }
+  document.getElementById("configBanner").classList.toggle("hidden",!!STATE.gasUrl);
   updateRoleUI();
+  if(STATE.gasUrl){toast("Configuration saved","success");APP.refresh();}
+  else toast("Please enter the GAS Web App URL","error");
 };
 
-// ── API (JSONP — fully bypasses CORS for GitHub Pages → GAS) ──
-// fetch() fails because GAS /exec redirects and the redirect drops
-// CORS headers. A <script> tag has no origin restriction at all.
-function api(action, params, body) {
-  return new Promise(function(resolve, reject) {
-    if (!STATE.gasUrl) {
-      toast("GAS URL not configured. Click ⚙ Config.", "error");
-      return reject(new Error("No GAS URL"));
-    }
-
-    // Unique callback name on window
-    var cbName = "qc_cb_" + Date.now() + "_" + Math.floor(Math.random()*100000);
-
-    // Build URL
-    var url = STATE.gasUrl
-      + "?callback=" + cbName
-      + "&action="   + encodeURIComponent(action);
-
-    if (params) {
-      Object.keys(params).forEach(function(k) {
-        if (params[k] !== undefined && params[k] !== null && params[k] !== "")
-          url += "&" + encodeURIComponent(k) + "=" + encodeURIComponent(params[k]);
-      });
-    }
-    if (body) {
-      var payload = Object.assign({ action: action }, body);
-      url += "&payload=" + encodeURIComponent(JSON.stringify(payload));
-    }
-
-    // 30-second timeout
-    var timer = setTimeout(function() {
-      cleanup();
-      reject(new Error("Request timed out (30s)"));
-    }, 30000);
-
-    function cleanup() {
-      clearTimeout(timer);
-      delete window[cbName];
-      if (script.parentNode) script.parentNode.removeChild(script);
-    }
-
-    // JSONP callback — GAS calls this with the response object
-    window[cbName] = function(data) {
-      cleanup();
-      resolve(data);
-    };
-
-    var script = document.createElement("script");
-    script.src = url;
-    script.onerror = function() {
-      cleanup();
-      reject(new Error("Script load failed — check GAS URL"));
-    };
+// ── JSONP API ──────────────────────────────────────────────
+function api(action,params,body){
+  return new Promise(function(resolve,reject){
+    if(!STATE.gasUrl){toast("GAS URL not configured. Click ⚙ Config.","error");return reject(new Error("No GAS URL"));}
+    var cbName="qc_cb_"+Date.now()+"_"+Math.floor(Math.random()*1e5);
+    var url=STATE.gasUrl+"?callback="+cbName+"&action="+encodeURIComponent(action);
+    if(params)Object.keys(params).forEach(function(k){if(params[k]!==undefined&&params[k]!==null&&params[k]!=="")url+="&"+encodeURIComponent(k)+"="+encodeURIComponent(params[k]);});
+    if(body)url+="&payload="+encodeURIComponent(JSON.stringify(Object.assign({action:action},body)));
+    var timer=setTimeout(function(){cleanup();reject(new Error("Request timed out (30s)"));},30000);
+    function cleanup(){clearTimeout(timer);delete window[cbName];if(script.parentNode)script.parentNode.removeChild(script);}
+    window[cbName]=function(data){cleanup();resolve(data);};
+    var script=document.createElement("script");
+    script.src=url;
+    script.onerror=function(){cleanup();reject(new Error("Script load failed"));};
     document.head.appendChild(script);
   });
 }
 
 // ── Load & Refresh ────────────────────────────────────────
-APP.refresh = function() {
-  loadStats();
-  loadCurrentTab();
-};
-
-async function loadStats() {
-  try {
-    var r = await api("getStats");
-    if (r.ok) {
-      STATE.stats = r.stats;
-      document.getElementById("statTotal").textContent   = r.stats.total;
-      document.getElementById("statUnderQC").textContent = r.stats.underQC;
-      document.getElementById("statPending").textContent = r.stats.pendingApproval;
-      document.getElementById("statApproved").textContent= r.stats.approved;
-      document.getElementById("statOverdue").textContent  = r.stats.overdue;
+APP.refresh=function(){loadStats();loadCurrentTab()};
+async function loadStats(){
+  try{var r=await api("getStats");if(r.ok){STATE.stats=r.stats;document.getElementById("statTotal").textContent=r.stats.total;document.getElementById("statUnderQC").textContent=r.stats.underQC;document.getElementById("statPending").textContent=r.stats.pendingApproval;document.getElementById("statApproved").textContent=r.stats.approved;document.getElementById("statOverdue").textContent=r.stats.overdue;}}catch(e){}
+}
+async function loadCurrentTab(){
+  var tab=STATE.activeTab;if(tab==="logs"){loadLogs();return;}
+  var statusMap={underqc:"UNDER_QC",pending:"PENDING_APPROVAL",history:null,overdue:null};
+  var params=Object.assign({},getFilters());
+  if(statusMap[tab])params.status=statusMap[tab];
+  try{
+    var r=await api("getJobs",params);
+    if(r.ok){
+      var jobs=r.jobs;
+      if(tab==="history")jobs=jobs.filter(function(j){return j.status==="APPROVED"||j.status==="REJECTED";});
+      if(tab==="overdue")jobs=jobs.filter(function(j){return j.isOverdue;});
+      STATE.jobs[tab]=jobs;STATE.filteredJobs=jobs;
+      renderJobs(tab,jobs);updateTabBadges(r.jobs);updateFilterOptions(r.jobs);
     }
-  } catch(e) {}
+  }catch(e){showError(tab,"Failed to load. Check configuration.");}
+}
+function updateTabBadges(all){
+  var c={underqc:0,pending:0,history:0,overdue:0};
+  all.forEach(function(j){if(j.status==="UNDER_QC")c.underqc++;if(j.status==="PENDING_APPROVAL")c.pending++;if(j.status==="APPROVED"||j.status==="REJECTED")c.history++;if(j.isOverdue)c.overdue++;});
+  Object.keys(c).forEach(function(k){var el=document.getElementById("tabBadge-"+k);if(el)el.textContent=c[k];});
+}
+function updateFilterOptions(jobs){
+  var s=[...new Set(jobs.map(function(j){return j.supplier;}).filter(Boolean))].sort();
+  var i=[...new Set(jobs.map(function(j){return j.inspector;}).filter(Boolean))].sort();
+  var s1=document.getElementById("filterSupplier"),s2=document.getElementById("filterInspector");
+  var c1=s1.value,c2=s2.value;
+  s1.innerHTML='<option value="">All Suppliers</option>'+s.map(function(x){return'<option'+(x===c1?' selected':'')+'>'+x+'</option>';}).join('');
+  s2.innerHTML='<option value="">All Inspectors</option>'+i.map(function(x){return'<option'+(x===c2?' selected':'')+'>'+x+'</option>';}).join('');
 }
 
-async function loadCurrentTab() {
-  var tab = STATE.activeTab;
-  var statusMap = {
-    underqc: "UNDER_QC",
-    pending: "PENDING_APPROVAL",
-    history: null,
-    overdue: null,
-    logs: null
-  };
-  if (tab === "logs") {
-    loadLogs();
-    return;
-  }
-  var filters = getFilters();
-  var params = Object.assign({}, filters);
-  if (statusMap[tab]) params.status = statusMap[tab];
-  // History shows approved + rejected
-  if (tab === "history") {
-    // We'll request all and filter client-side
-    delete params.status;
-  }
-  try {
-    var r = await api("getJobs", params);
-    if (r.ok) {
-      var jobs = r.jobs;
-      if (tab === "history") {
-        jobs = jobs.filter(function(j){ return j.status === "APPROVED" || j.status === "REJECTED"; });
-      }
-      if (tab === "overdue") {
-        jobs = jobs.filter(function(j){ return j.isOverdue; });
-      }
-      STATE.jobs[tab] = jobs;
-      STATE.filteredJobs = jobs;
-      renderJobs(tab, jobs);
-      updateTabBadges(r.jobs);
-      updateFilterOptions(r.jobs);
-    }
-  } catch(e) {
-    showError(tab, "Failed to load. Check configuration.");
-  }
-}
-
-function updateTabBadges(allJobs) {
-  var counts = { underqc: 0, pending: 0, history: 0, overdue: 0 };
-  allJobs.forEach(function(j) {
-    if (j.status === "UNDER_QC") counts.underqc++;
-    if (j.status === "PENDING_APPROVAL") counts.pending++;
-    if (j.status === "APPROVED" || j.status === "REJECTED") counts.history++;
-    if (j.isOverdue) counts.overdue++;
+// ── Render Jobs Table ─────────────────────────────────────
+function renderJobs(tab,jobs){
+  var wrap=document.getElementById("tabContent-"+tab);if(!wrap)return;
+  if(!jobs||!jobs.length){wrap.innerHTML='<div class="empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6m-3-3v6m-7 4V5a2 2 0 012-2h8l4 4v14a2 2 0 01-2 2H4a2 2 0 01-2-2z"/></svg><h3>No jobs found</h3><p>Adjust filters or post a new job.</p></div>';return;}
+  var isMgr=STATE.role==="manager";
+  var html='<div class="tbl-wrap"><table><thead><tr><th>Job ID</th><th>Part No</th><th>Supplier</th><th>Inspector</th><th>Status</th><th>Posted</th><th>Days</th><th>Actions</th></tr></thead><tbody>';
+  jobs.forEach(function(job){
+    var overdueTag=job.isOverdue?'<span class="overdue-tag">🚨</span>':'';
+    var rowClass=job.isOverdue?'overdue-row':'';
+    var statusBadge=makeStatusBadge(job.status);
+    var posted=job.postedDate?new Date(job.postedDate).toLocaleDateString():"—";
+    var actions=makeActions(job,tab,isMgr);
+    html+='<tr class="'+rowClass+'"><td class="td-jobid">'+job.jobId+'</td><td class="td-part">'+esc(job.partNo)+'</td><td>'+esc(job.supplier||"—")+'</td><td>'+esc(job.inspector||"—")+'</td><td>'+statusBadge+' '+overdueTag+'</td><td>'+posted+'</td><td>'+(job.daysOld!==undefined?job.daysOld+'d':"—")+'</td><td><div class="actions">'+actions+'</div></td></tr>';
+    if((tab==="history")&&job.remarks)html+='<tr><td colspan="8" style="padding:4px 14px 10px;font-size:12px;color:var(--gray-500)">💬 '+esc(job.remarks)+'</td></tr>';
   });
-  Object.keys(counts).forEach(function(k) {
-    var el = document.getElementById("tabBadge-"+k);
-    if (el) el.textContent = counts[k];
-  });
+  html+='</tbody></table></div>';
+  wrap.innerHTML=html;
 }
-
-function updateFilterOptions(jobs) {
-  var suppliers = [...new Set(jobs.map(j=>j.supplier).filter(Boolean))].sort();
-  var inspectors= [...new Set(jobs.map(j=>j.inspector).filter(Boolean))].sort();
-  var sel1 = document.getElementById("filterSupplier");
-  var sel2 = document.getElementById("filterInspector");
-  var cur1 = sel1.value; var cur2 = sel2.value;
-  sel1.innerHTML = '<option value="">All Suppliers</option>' + suppliers.map(s=>`<option${s===cur1?' selected':''}>${s}</option>`).join('');
-  sel2.innerHTML = '<option value="">All Inspectors</option>' + inspectors.map(s=>`<option${s===cur2?' selected':''}>${s}</option>`).join('');
-}
-
-// ── Render Jobs ───────────────────────────────────────────
-function renderJobs(tab, jobs) {
-  var wrap = document.getElementById("tabContent-"+tab);
-  if (!wrap) return;
-  if (!jobs || jobs.length === 0) {
-    wrap.innerHTML = `<div class="empty">
-      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6m-3-3v6m-7 4V5a2 2 0 012-2h8l4 4v14a2 2 0 01-2 2H4a2 2 0 01-2-2z"/></svg>
-      <h3>No jobs found</h3><p>Adjust filters or post a new job.</p></div>`;
-    return;
-  }
-
-  var isHistory = (tab === "history");
-  var isMgr = (STATE.role === "manager");
-
-  var html = `<div class="tbl-wrap"><table>
-    <thead><tr>
-      <th>Job ID</th><th>Part No</th><th>Supplier</th><th>Inspector</th>
-      <th>Status</th><th>Posted</th><th>Days</th><th>Actions</th>
-    </tr></thead>
-    <tbody>`;
-
-  jobs.forEach(function(job) {
-    var overdueMark = job.isOverdue ? '<span class="overdue-tag">🚨 OVERDUE</span>' : '';
-    var rowClass = job.isOverdue ? 'overdue-row' : '';
-    var statusBadge = makeStatusBadge(job.status);
-    var postedFmt = job.postedDate ? new Date(job.postedDate).toLocaleDateString() : "—";
-    var actions = makeActions(job, tab, isMgr);
-
-    html += `<tr class="${rowClass}">
-      <td class="td-jobid">${job.jobId}</td>
-      <td class="td-part">${job.partNo}</td>
-      <td>${job.supplier||"—"}</td>
-      <td>${job.inspector||"—"}</td>
-      <td>${statusBadge} ${overdueMark}</td>
-      <td>${postedFmt}</td>
-      <td>${job.daysOld !== undefined ? job.daysOld+'d' : "—"}</td>
-      <td><div class="actions">${actions}</div></td>
-    </tr>`;
-    if (isHistory && job.remarks) {
-      html += `<tr><td colspan="8" style="padding:4px 14px 10px;font-size:12px;color:var(--gray-500)">
-        💬 ${escHtml(job.remarks)}</td></tr>`;
-    }
-  });
-
-  html += "</tbody></table></div>";
-  wrap.innerHTML = html;
-}
-
-function makeStatusBadge(status) {
-  var map = {
-    UNDER_QC:        ['s-under',   '🔍 Under QC'],
-    PENDING_APPROVAL:['s-pending', '⏳ Pending'],
-    APPROVED:        ['s-approved','✅ Approved'],
-    REJECTED:        ['s-rejected','❌ Rejected']
-  };
-  var d = map[status] || ['', status];
-  return `<span class="badge-status ${d[0]}"><span class="dot"></span>${d[1]}</span>`;
-}
-
-function makeActions(job, tab, isMgr) {
-  var btns = [];
-  if (job.status === "UNDER_QC") {
-    btns.push(`<button class="btn btn-primary btn-sm" onclick="APP.openInsp('${job.jobId}')">📝 Inspect</button>`);
-  }
-  if (job.status === "PENDING_APPROVAL" && isMgr) {
-    btns.push(`<button class="btn btn-success btn-sm" onclick="APP.openDecision('${job.jobId}','approve')">✅ Approve</button>`);
-    btns.push(`<button class="btn btn-danger btn-sm" onclick="APP.openDecision('${job.jobId}','reject')">❌ Reject</button>`);
-  }
-  if (job.fileId) {
-    btns.push(`<a href="https://drive.google.com/file/d/${job.fileId}" target="_blank" class="btn btn-ghost btn-sm">📄 File</a>`);
-  }
+function makeStatusBadge(s){var m={UNDER_QC:['s-under','🔍 Under QC'],PENDING_APPROVAL:['s-pending','⏳ Pending'],APPROVED:['s-approved','✅ Approved'],REJECTED:['s-rejected','❌ Rejected']};var d=m[s]||['',s];return'<span class="badge-status '+d[0]+'"><span class="dot"></span>'+d[1]+'</span>';}
+function makeActions(job,tab,isMgr){
+  var btns=[];
+  if(job.status==="UNDER_QC")btns.push('<button class="btn btn-primary btn-sm" onclick="APP.openInsp(\''+job.jobId+'\')">📝 Inspect</button>');
+  if(job.status==="PENDING_APPROVAL"&&isMgr){btns.push('<button class="btn btn-success btn-sm" onclick="APP.openDecision(\''+job.jobId+'\',\'approve\')">✅ Approve</button>');btns.push('<button class="btn btn-danger btn-sm" onclick="APP.openDecision(\''+job.jobId+'\',\'reject\')">❌ Reject</button>');}
+  if(job.status==="PENDING_APPROVAL"||job.status==="APPROVED")btns.push('<button class="btn btn-ghost btn-sm" onclick="APP.viewInspData(\''+job.jobId+'\')">👁 View</button>');
+  if(job.fileId)btns.push('<a href="https://drive.google.com/file/d/'+job.fileId+'" target="_blank" class="btn btn-ghost btn-sm">📄 File</a>');
   return btns.join("");
 }
-
-function showError(tab, msg) {
-  var el = document.getElementById("tabContent-"+tab);
-  if (el) el.innerHTML = `<div class="empty"><div style="font-size:40px">⚠️</div><h3>Error</h3><p>${msg}</p></div>`;
-}
+function showError(tab,msg){var el=document.getElementById("tabContent-"+tab);if(el)el.innerHTML='<div class="empty"><div style="font-size:40px">⚠️</div><h3>Error</h3><p>'+msg+'</p></div>';}
 
 // ── Filters ───────────────────────────────────────────────
-function getFilters() {
-  return {
-    q:        document.getElementById("searchInput").value.trim(),
-    supplier: document.getElementById("filterSupplier").value,
-    inspector:document.getElementById("filterInspector").value,
-    dateFrom: document.getElementById("filterDateFrom").value,
-    dateTo:   document.getElementById("filterDateTo").value
-  };
-}
-
-APP.applyFilters = function() {
-  loadCurrentTab();
-};
-
-APP.clearFilters = function() {
-  document.getElementById("searchInput").value = "";
-  document.getElementById("filterSupplier").value = "";
-  document.getElementById("filterInspector").value = "";
-  document.getElementById("filterDateFrom").value = "";
-  document.getElementById("filterDateTo").value = "";
-  loadCurrentTab();
-};
+function getFilters(){return{q:document.getElementById("searchInput").value.trim(),supplier:document.getElementById("filterSupplier").value,inspector:document.getElementById("filterInspector").value,dateFrom:document.getElementById("filterDateFrom").value,dateTo:document.getElementById("filterDateTo").value};}
+APP.applyFilters=function(){loadCurrentTab()};
+APP.clearFilters=function(){["searchInput","filterSupplier","filterInspector","filterDateFrom","filterDateTo"].forEach(function(id){document.getElementById(id).value="";});loadCurrentTab();};
 
 // ── Tab Switching ─────────────────────────────────────────
-APP.switchTab = function(tab) {
-  STATE.activeTab = tab;
-  document.querySelectorAll(".tab").forEach(function(el) {
-    el.classList.toggle("active", el.dataset.tab === tab);
-  });
-  document.querySelectorAll(".tab-content").forEach(function(el) {
-    el.style.display = el.id === "tabContent-"+tab ? "" : "none";
-  });
+APP.switchTab=function(tab){
+  STATE.activeTab=tab;
+  document.querySelectorAll(".tab").forEach(function(el){el.classList.toggle("active",el.dataset.tab===tab);});
+  document.querySelectorAll(".tab-content").forEach(function(el){el.style.display=el.id==="tabContent-"+tab?"":"none";});
   loadCurrentTab();
 };
 
 // ── Post Job ──────────────────────────────────────────────
-APP.openPostJob = function() {
-  document.getElementById("pjPartNo").value = "";
-  document.getElementById("pjSupplier").value = "";
-  document.getElementById("pjInspector").value = "";
-  document.getElementById("pjBatch").value = "";
-  document.getElementById("pjQty").value = "";
-  document.getElementById("pjNotes").value = "";
-  document.getElementById("pjPartHint").textContent = "Type to search master parts list";
+APP.openPostJob=function(){
+  ["pjPartNo","pjSupplier","pjInspector","pjBatch","pjQty","pjNotes"].forEach(function(id){document.getElementById(id).value="";});
+  document.getElementById("pjPartHint").textContent="Type to search master parts list";
   document.getElementById("postJobOverlay").classList.remove("hidden");
   loadMasterParts();
 };
-
-APP.closePostJob = function(e) {
-  if (e && e.target !== document.getElementById("postJobOverlay")) return;
-  document.getElementById("postJobOverlay").classList.add("hidden");
+APP.closePostJob=function(){document.getElementById("postJobOverlay").classList.add("hidden")};
+async function loadMasterParts(){
+  try{var r=await api("getMasterParts");if(r.ok){STATE.masterParts=r.parts;var dl=document.getElementById("partSuggestions");dl.innerHTML=r.parts.slice(0,200).map(function(p){return'<option value="'+esc(p.partNo)+'" data-supplier="'+esc(p.supplier)+'" data-file="'+esc(p.fileName)+'">'+p.partNo+' — '+(p.description||p.fileName)+'</option>';}).join("");}}catch(e){}
+}
+APP.partSearch=function(val){
+  var part=STATE.masterParts.find(function(p){return p.partNo===val;});
+  if(part){if(part.supplier&&!document.getElementById("pjSupplier").value)document.getElementById("pjSupplier").value=part.supplier;document.getElementById("pjPartHint").textContent="✓ Found: "+(part.description||part.fileName||part.partNo);STATE.pendingPostJobPart=part;}
+  else{STATE.pendingPostJobPart=null;document.getElementById("pjPartHint").textContent="Type to search master parts list";}
+};
+APP.submitPostJob=async function(){
+  var partNo=document.getElementById("pjPartNo").value.trim();
+  var supplier=document.getElementById("pjSupplier").value.trim();
+  var insp=document.getElementById("pjInspector").value.trim();
+  if(!partNo){toast("Part number is required","error");return;}
+  var btn=document.getElementById("postJobSubmitBtn");
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Posting…';
+  try{
+    var r=await api("postJob",null,{partNo:partNo,supplier:supplier,inspector:insp,postedBy:STATE.userName,fileName:STATE.pendingPostJobPart?STATE.pendingPostJobPart.fileName:"",notes:document.getElementById("pjNotes").value.trim()});
+    if(r.ok){toast("✅ Job posted: "+r.jobId,"success");document.getElementById("postJobOverlay").classList.add("hidden");APP.refresh();}
+    else toast(r.error||"Failed to post job","error");
+  }catch(e){toast("Network error: "+e.message,"error");}
+  finally{btn.disabled=false;btn.textContent="Post Job";}
 };
 
-async function loadMasterParts() {
-  try {
-    var r = await api("getMasterParts");
-    if (r.ok) {
-      STATE.masterParts = r.parts;
-      var dl = document.getElementById("partSuggestions");
-      dl.innerHTML = r.parts.slice(0,200).map(function(p) {
-        return `<option value="${escHtml(p.partNo)}" data-supplier="${escHtml(p.supplier)}" data-file="${escHtml(p.fileName)}">${p.partNo} — ${p.description||p.fileName}</option>`;
-      }).join("");
-    }
-  } catch(e) {}
+// ── Build dimension input rows ────────────────────────────
+function buildDimRows(existingData){
+  var html="";
+  var specs=[{id:'dA',min:15.0,max:16.0},{id:'dB',min:54.3,max:55.3},{id:'h',min:167.9,max:169.5},{id:'hr',spec:''}];
+  for(var r=0;r<10;r++){
+    var vals=(existingData&&existingData.dims&&existingData.dims[r])||{};
+    html+='<tr class="input-row"><td class="lbl">Sample '+(r+1)+'</td>';
+    specs.forEach(function(s){
+      var v=vals[s.id]||"";
+      html+='<td><input type="number" step="0.01" class="dim-inp" data-col="'+s.id+'" data-row="'+r+'" data-min="'+s.min+'" data-max="'+s.max+'" value="'+esc(String(v))+'" oninput="APP.onDimInput(this)" placeholder="—"/></td>';
+    });
+    html+='</tr>';
+  }
+  return html;
 }
 
-APP.partSearch = function(val) {
-  var part = STATE.masterParts.find(function(p){ return p.partNo === val; });
-  if (part) {
-    if (part.supplier && !document.getElementById("pjSupplier").value)
-      document.getElementById("pjSupplier").value = part.supplier;
-    document.getElementById("pjPartHint").textContent =
-      "✓ Found: " + (part.description || part.fileName || part.partNo);
-    STATE.pendingPostJobPart = part;
-  } else {
-    STATE.pendingPostJobPart = null;
-    document.getElementById("pjPartHint").textContent = "Type to search master parts list";
-  }
-};
-
-APP.submitPostJob = async function() {
-  var partNo   = document.getElementById("pjPartNo").value.trim();
-  var supplier = document.getElementById("pjSupplier").value.trim();
-  var insp     = document.getElementById("pjInspector").value.trim();
-  if (!partNo) { toast("Part number is required", "error"); return; }
-  var btn = document.getElementById("postJobSubmitBtn");
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Posting…';
-  try {
-    var r = await api("postJob", null, {
-      action: "postJob",
-      partNo: partNo,
-      supplier: supplier,
-      inspector: insp,
-      postedBy: STATE.userName,
-      fileName: STATE.pendingPostJobPart ? STATE.pendingPostJobPart.fileName : "",
-      notes: document.getElementById("pjNotes").value.trim()
-    });
-    if (r.ok) {
-      toast("✅ Job posted: " + r.jobId, "success");
-      document.getElementById("postJobOverlay").classList.add("hidden");
-      APP.refresh();
-    } else {
-      toast(r.error || "Failed to post job", "error");
-    }
-  } catch(e) {
-    toast("Network error: " + e.message, "error");
-  } finally {
-    btn.disabled = false;
-    btn.textContent = "Post Job";
-  }
-};
-
-// ── Inspection Form ───────────────────────────────────────
-APP.openInsp = async function(jobId) {
-  // Find job in current data
-  var job = null;
-  Object.values(STATE.jobs).forEach(function(arr) {
-    if (!job) job = (arr||[]).find(function(j){ return j.jobId === jobId; });
+// ── Build appearance check rows ───────────────────────────
+var APP_CHECKS=[
+  [1,"สนิม","Rust"],[2,"ยางขาด","Torn Rubber"],[3,"รอยขีดข่วน","Scratch"],
+  [4,"ความแน่น","Bonding"],[5,"ประกอบ Jig","Jig Assembly"],
+  [6,"ความแข็งอัดของยาง ,การหมุนตัว","Rubber Movement / Compression"],
+  [7,"การหมุนของลูกปืน","Bearing Rotate Smoothness Test"],
+  [8,"การเชื่อม","Welding"],[9,"เบี้ยว","Deform"],
+  [10,"ประกอบยางปิด Bush","Ass'y Rubber Close Bush"],
+  [11,"ทดสอบหัวงาน","Head Bonding Test"],
+  [12,"วัดความสูง A-B จากฐานงาน","Measure Height A-B (full lot)"],
+  [13,"หมุนสลักเกลียวลงไปจนแน่น,สุด","Insert Bolt & Full Tightening Test"],
+  [14,"ใส่น็อตให้แน่น,ลงสุด","Add Nut & Full Tightening"],
+  [15,"ตรวจสอบช่องว่างระหว่างอลูมิเนียมและ BKT จุด A&B","Check Space Between Aluminum and BKT A&B"]
+];
+function buildAppRows(existingData){
+  var html="";
+  APP_CHECKS.forEach(function(c){
+    var ex=(existingData&&existingData.appearance&&existingData.appearance["c"+c[0]])||{ok:"",ng:"",res:""};
+    var resClass=ex.res==="OK"?"ok":ex.res==="NG"?"ng":"";
+    html+='<tr><td class="no">'+c[0]+'</td>';
+    html+='<td class="check-name">'+esc(c[1])+' <small>'+esc(c[2])+'</small></td>';
+    html+='<td><div class="qty-inputs">OK=<input type="number" min="0" class="app-ok" data-no="'+c[0]+'" value="'+esc(ex.ok||"")+'" oninput="APP.onAppInput(this)"> <span>Pcs. NG=</span><input type="number" min="0" class="app-ng" data-no="'+c[0]+'" value="'+esc(ex.ng||"")+'" oninput="APP.onAppInput(this)"><span>Pcs.</span></div></td>';
+    html+='<td class="result-cell"><select class="res-select '+resClass+'" data-no="'+c[0]+'" onchange="APP.onResSelect(this)"><option value="">—</option><option value="OK"'+(ex.res==="OK"?" selected":"")+'>OK</option><option value="NG"'+(ex.res==="NG"?" selected":"")+'>NG</option></select></td>';
+    html+='</tr>';
   });
-  if (!job) { toast("Job not found in local state", "error"); return; }
+  return html;
+}
 
-  STATE.currentInspJob = job;
-  STATE.uploadedPhotoIds = [];
+// ── Open Inspection Form ──────────────────────────────────
+APP.openInsp=function(jobId){
+  var job=null;
+  Object.values(STATE.jobs).forEach(function(arr){if(!job)job=(arr||[]).find(function(j){return j.jobId===jobId;});});
+  if(!job){toast("Job not found","error");return;}
+  STATE.currentInspJob=job;STATE.uploadedPhotoIds=[];STATE.finalResult=null;
+  var ex=job.inspData||{};
 
+  // Fill meta
+  var partNo=job.partNo,desc=job.partNo==="45535-09250"?"STEERING RACK BOOT":"";
+  document.getElementById("rpt-partno").textContent=partNo;
+  document.getElementById("rpt-partno2").textContent=partNo;
+  document.getElementById("rpt-desc").textContent=desc;
+  document.getElementById("rpt-desc2").textContent=desc;
+  document.getElementById("rpt-supplier").value=ex.supplier||job.supplier||"";
+  document.getElementById("rpt-po").value=ex.po||"";
+  document.getElementById("rpt-qty").value=ex.qty||"";
+  document.getElementById("rpt-weight").value=ex.weight||"";
+  document.getElementById("rpt-inspector").value=ex.inspector||job.inspector||STATE.userName;
+  document.getElementById("sign-inspector").value=ex.inspector||job.inspector||STATE.userName;
+  document.getElementById("sign-chief").value=ex.signChief||"";
+  document.getElementById("sign-manager").value=ex.signManager||"";
+  document.getElementById("spec-hardness").value=ex.specHardness||"";
+  document.getElementById("app-total").value=ex.appTotal||"";
+  document.getElementById("app-sample").value=ex.appSample||"";
+  document.getElementById("rpt-remark").value=ex.remark||"";
+  var today=new Date().toISOString().slice(0,10);
+  document.getElementById("rpt-recvdate").value=ex.recvDate||today;
+  document.getElementById("rpt-inspdate").value=ex.inspDate||today;
+  document.getElementById("inspJobId").textContent=jobId;
+
+  // Build dimension rows
+  document.getElementById("dimInputRows").innerHTML=buildDimRows(ex);
+  // Build appearance rows
+  document.getElementById("appCheckRows").innerHTML=buildAppRows(ex);
+
+  // Restore checkboxes
+  if(ex.boltSize)ex.boltSize.forEach(function(v){var cb=document.querySelector('input[name=boltsize][value="'+v+'"]');if(cb)cb.checked=true;});
+  if(ex.nutColor)ex.nutColor.forEach(function(v){var cb=document.querySelector('input[name=nutcolor][value="'+v+'"]');if(cb)cb.checked=true;});
+
+  // Final result
+  if(ex.finalResult)APP.setFinalResult(ex.finalResult);
+
+  // Photos
+  document.getElementById("photoPreviews").innerHTML="";
+  if(ex.photoUrls)ex.photoUrls.forEach(function(url){var img=document.createElement("img");img.src=url;img.className="photo-thumb";document.getElementById("photoPreviews").appendChild(img);});
+
+  document.getElementById("inspSubmitBtn").style.display=(job.status==="UNDER_QC")?"":"none";
   document.getElementById("inspOverlay").classList.remove("hidden");
-  document.getElementById("inspJobId").textContent = jobId;
-  document.getElementById("inspectorName").value = STATE.userName;
-
-  // Meta info
-  document.getElementById("inspMeta").innerHTML = [
-    ["Part No",   job.partNo],
-    ["Supplier",  job.supplier||"—"],
-    ["Inspector", job.inspector||"—"],
-    ["Posted",    job.postedDate ? new Date(job.postedDate).toLocaleDateString() : "—"]
-  ].map(function(item) {
-    return `<div><div style="font-size:11px;color:var(--gray-500);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">${item[0]}</div>
-    <div style="font-weight:600;color:var(--gray-900)">${item[1]}</div></div>`;
-  }).join("");
-
-  document.getElementById("inspTableWrap").style.display = "none";
-  document.getElementById("inspTemplateLoading").style.display = "";
-  document.getElementById("inspSubmitBtn").style.display = "none";
-
-  if (!job.fileId) {
-    document.getElementById("inspTemplateLoading").innerHTML = "⚠️ No template file linked to this job.";
-    return;
-  }
-
-  // Load template data
-  try {
-    var r = await api("getTemplateData", { jobId: job.jobId, fileId: job.fileId, partNo: job.partNo });
-    if (r.ok && r.items && r.items.length > 0) {
-      renderInspTable(r.items, job.inspData);
-      document.getElementById("inspTemplateLoading").style.display = "none";
-      document.getElementById("inspTableWrap").style.display = "";
-      if (job.status === "UNDER_QC") {
-        document.getElementById("inspSubmitBtn").style.display = "";
-      }
-    } else {
-      document.getElementById("inspTemplateLoading").innerHTML =
-        '⚠️ Could not read template data.' + (r.error ? '<br><small>'+escHtml(r.error)+'</small>' : '');
-    }
-  } catch(e) {
-    document.getElementById("inspTemplateLoading").innerHTML = "⚠️ " + escHtml(e.message);
-  }
+  refreshDimResults();
 };
 
-function renderInspTable(items, existing) {
-  // items: [{name, spec, colIndex, existingInputs}]
-  var NUM_ROWS = 10; // rows 30-39
-  var tbody = document.getElementById("inspTbody");
-
-  // Build header col cells (measurement names)
-  var colHeaders = items.map(function(item) {
-    return `<th>${escHtml(item.name)}</th>`;
-  }).join("");
-
-  // Replace dynamic header
-  var headerTr = document.querySelector(".insp-table thead tr");
-  headerTr.innerHTML = `<th class="item-col">Inspection Item</th><th style="background:var(--gray-600)">Spec / Standard</th>${colHeaders}`;
-
-  // Row labels
-  var rowLabels = ["Trial 1","Trial 2","Trial 3","Trial 4","Trial 5","Trial 6","Trial 7","Trial 8","Trial 9","Trial 10"];
-
-  var html = "";
-
-  // Spec row
-  html += `<tr class="spec-row">
-    <td class="item-col">📏 Specification</td>
-    <td>—</td>
-    ${items.map(function(item){ return `<td>${escHtml(item.spec||"—")}</td>`; }).join("")}
-  </tr>`;
-
-  // Input rows (row 30-39)
-  for (var row = 0; row < NUM_ROWS; row++) {
-    html += `<tr class="input-row">
-      <td class="item-col" style="color:var(--gray-600);font-size:12px">${rowLabels[row]}</td>
-      <td></td>
-      ${items.map(function(item,ci) {
-        var existVal = (item.existingInputs && item.existingInputs[row]) || "";
-        if (existing && existing.values) {
-          var found = existing.values.find(function(v){ return v.colIndex === item.colIndex && v.row === row; });
-          if (found) existVal = found.value||"";
-        }
-        return `<td><input type="text" class="insp-input"
-          data-col="${item.colIndex}" data-row="${row}" data-spec="${escHtml(item.spec||'')}"
-          value="${escHtml(existVal)}"
-          oninput="checkResult(this)"
-          placeholder="—"/></td>`;
-      }).join("")}
-    </tr>`;
-  }
-
-  // Result row
-  html += `<tr class="spec-row" id="inspResultRow">
-    <td class="item-col" style="font-weight:700">Result</td>
-    <td></td>
-    ${items.map(function(item,ci) {
-      return `<td class="result-cell" id="res-col-${item.colIndex}">—</td>`;
-    }).join("")}
-  </tr>`;
-
-  tbody.innerHTML = html;
-  document.getElementById("photoPreviews").innerHTML = "";
-}
-
-function checkResult(input) {
-  // Simple PASS/FAIL check: if spec contains range like "10.0~11.0" or "≤5.0"
-  var spec = input.dataset.spec;
-  var val  = parseFloat(input.value);
-  if (isNaN(val) || !spec) return;
-  var colIndex = input.dataset.col;
-  var resultEl = document.getElementById("res-col-"+colIndex);
-  if (!resultEl) return;
-  var pass = evaluateSpec(val, spec);
-  if (pass === true)  { resultEl.textContent="PASS"; resultEl.className="result-cell r-pass"; }
-  else if (pass===false){ resultEl.textContent="FAIL"; resultEl.className="result-cell r-fail"; }
-  else { resultEl.textContent="—"; resultEl.className="result-cell"; }
-}
-
-function evaluateSpec(val, spec) {
-  // Range: "10.0~11.0" or "10.0 - 11.0"
-  var range = spec.match(/([\d.]+)\s*[~–\-]\s*([\d.]+)/);
-  if (range) { var lo=parseFloat(range[1]),hi=parseFloat(range[2]); return val>=lo&&val<=hi; }
-  // Max: "≤5.0" or "<=5.0"
-  var max = spec.match(/[≤<]=?\s*([\d.]+)/);
-  if (max) return val <= parseFloat(max[1]);
-  // Min: "≥2.0" or ">=2.0"
-  var min = spec.match(/[≥>]=?\s*([\d.]+)/);
-  if (min) return val >= parseFloat(min[1]);
-  return null;
-}
-
-APP.closeInsp = function() {
-  document.getElementById("inspOverlay").classList.add("hidden");
-  STATE.currentInspJob = null;
+APP.viewInspData=function(jobId){
+  var job=null;
+  Object.values(STATE.jobs).forEach(function(arr){if(!job)job=(arr||[]).find(function(j){return j.jobId===jobId;});});
+  if(!job){toast("Job not found","error");return;}
+  // Open as read-only view
+  APP.openInsp(jobId);
+  document.getElementById("inspSubmitBtn").style.display="none";
 };
 
-APP.handlePhotoUpload = async function(input) {
-  var files = input.files;
-  if (!files || files.length === 0) return;
-  var previews = document.getElementById("photoPreviews");
-
-  for (var i = 0; i < files.length; i++) {
-    var file = files[i];
-    if (file.size > 5*1024*1024) { toast(file.name+" is too large (max 5MB)", "warning"); continue; }
-    var b64 = await toBase64(file);
-    var imgEl = document.createElement("img");
-    imgEl.src = b64;
-    imgEl.className = "photo-thumb";
-    imgEl.title = file.name;
-    previews.appendChild(imgEl);
-    toast("Uploading "+file.name+"…");
-    try {
-      var r = await api("uploadPhoto", null, {
-        action:"uploadPhoto",
-        base64: b64,
-        filename: file.name,
-        mimeType: file.type
-      });
-      if (r.ok) {
-        STATE.uploadedPhotoIds.push(r.fileId);
-        toast("Photo uploaded: "+file.name, "success");
-      } else {
-        toast("Upload failed: "+r.error, "error");
-      }
-    } catch(e) {
-      toast("Upload error: "+e.message, "error");
-    }
-  }
+APP.setFinalResult=function(v){
+  STATE.finalResult=v;
+  document.getElementById("finalOK").classList.toggle("selected",v==="OK");
+  document.getElementById("finalNG").classList.toggle("selected",v==="NG");
 };
 
-function toBase64(file) {
-  return new Promise(function(resolve, reject) {
-    var reader = new FileReader();
-    reader.onload = function(e){ resolve(e.target.result); };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+// ── Live result check for dimensions ─────────────────────
+APP.onDimInput=function(inp){
+  var val=parseFloat(inp.value);
+  var mn=parseFloat(inp.dataset.min),mx=parseFloat(inp.dataset.max);
+  if(!isNaN(val)&&(mn||mx)){inp.classList.toggle("pass",val>=mn&&val<=mx);inp.classList.toggle("fail",val<mn||val>mx);}
+  else{inp.classList.remove("pass","fail");}
+  refreshDimResults();
+};
+
+function refreshDimResults(){
+  var cols=['dA','dB','h','hr'];
+  var specs={dA:{min:15.0,max:16.0},dB:{min:54.3,max:55.3},h:{min:167.9,max:169.5},hr:null};
+  cols.forEach(function(col){
+    var el=document.getElementById("res-"+col);if(!el)return;
+    var inputs=document.querySelectorAll('.dim-inp[data-col="'+col+'"]');
+    var vals=[];var allFilled=true;
+    inputs.forEach(function(i){var v=parseFloat(i.value);if(!isNaN(v))vals.push(v);else if(i.value!=="")allFilled=false;});
+    if(!vals.length){el.textContent="—";el.className="";return;}
+    if(!specs[col]){el.textContent="N/A";return;}
+    var s=specs[col];var pass=vals.every(function(v){return v>=s.min&&v<=s.max;});
+    el.textContent=pass?"PASS":"FAIL";el.className=pass?"result-pass":"result-fail";
   });
 }
 
-APP.submitInspection = async function() {
-  var job = STATE.currentInspJob;
-  if (!job) return;
-
-  var overall = document.getElementById("inspOverallResult").value;
-  if (!overall) { toast("Please select Overall Result (PASS/FAIL)", "error"); return; }
-
-  // Collect measurements
-  var inputs = document.querySelectorAll(".insp-input");
-  var values = [];
-  inputs.forEach(function(inp) {
-    values.push({
-      colIndex: parseInt(inp.dataset.col),
-      row: parseInt(inp.dataset.row),
-      value: inp.value,
-      spec: inp.dataset.spec
-    });
-  });
-
-  var btn = document.getElementById("inspSubmitBtn");
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Submitting…';
-
-  try {
-    var r = await api("submitInspection", null, {
-      action: "submitInspection",
-      jobId: job.jobId,
-      submittedBy: document.getElementById("inspectorName").value || STATE.userName,
-      measurements: { values: values, overallResult: overall },
-      remarks: document.getElementById("inspRemarks").value,
-      photoIds: STATE.uploadedPhotoIds.join(",")
-    });
-    if (r.ok) {
-      toast("✅ Inspection submitted for approval!", "success");
-      APP.closeInsp();
-      APP.refresh();
-    } else {
-      toast(r.error || "Submission failed", "error");
-    }
-  } catch(e) {
-    toast("Network error: "+e.message, "error");
-  } finally {
-    btn.disabled = false;
-    btn.textContent = "Submit for Approval";
+APP.onAppInput=function(inp){
+  var no=inp.dataset.no;
+  var okEl=document.querySelector('.app-ok[data-no="'+no+'"]');
+  var ngEl=document.querySelector('.app-ng[data-no="'+no+'"]');
+  var sel=document.querySelector('.res-select[data-no="'+no+'"]');
+  if(!sel)return;
+  var ok=parseInt(okEl&&okEl.value)||0,ng=parseInt(ngEl&&ngEl.value)||0;
+  if(ok>0||ng>0){
+    var res=ng===0?"OK":"NG";
+    sel.value=res;sel.className="res-select "+(res==="OK"?"ok":"ng");
   }
+};
+
+APP.onResSelect=function(sel){
+  sel.className="res-select "+(sel.value==="OK"?"ok":sel.value==="NG"?"ng":"");
+};
+
+APP.closeInsp=function(){document.getElementById("inspOverlay").classList.add("hidden");STATE.currentInspJob=null;};
+
+// ── Photo upload ──────────────────────────────────────────
+APP.handlePhotoUpload=async function(input){
+  var files=input.files;if(!files||!files.length)return;
+  var previews=document.getElementById("photoPreviews");
+  for(var i=0;i<files.length;i++){
+    var file=files[i];
+    if(file.size>5*1024*1024){toast(file.name+" too large (max 5MB)","warning");continue;}
+    var b64=await toBase64(file);
+    var img=document.createElement("img");img.src=b64;img.className="photo-thumb";img.title=file.name;previews.appendChild(img);
+    if(STATE.gasUrl){
+      toast("Uploading "+file.name+"…");
+      try{var r=await api("uploadPhoto",null,{base64:b64,filename:file.name,mimeType:file.type});if(r.ok){STATE.uploadedPhotoIds.push(r.fileId);toast("Uploaded: "+file.name,"success");}else toast("Upload failed: "+r.error,"error");}
+      catch(e){toast("Upload error: "+e.message,"error");}
+    }
+  }
+};
+function toBase64(file){return new Promise(function(resolve,reject){var r=new FileReader();r.onload=function(e){resolve(e.target.result);};r.onerror=reject;r.readAsDataURL(file);});}
+
+// ── Submit inspection ─────────────────────────────────────
+APP.submitInspection=async function(){
+  var job=STATE.currentInspJob;if(!job)return;
+  if(!STATE.finalResult){toast("Please select final result (OK or NG)","error");return;}
+
+  // Collect all form data
+  var dims={};
+  document.querySelectorAll(".dim-inp").forEach(function(inp){
+    var row=inp.dataset.row,col=inp.dataset.col;
+    if(!dims[row])dims[row]={};
+    dims[row][col]=inp.value;
+  });
+  var appearance={};
+  APP_CHECKS.forEach(function(c){
+    var ok=document.querySelector('.app-ok[data-no="'+c[0]+'"]');
+    var ng=document.querySelector('.app-ng[data-no="'+c[0]+'"]');
+    var res=document.querySelector('.res-select[data-no="'+c[0]+'"]');
+    appearance["c"+c[0]]={ok:ok?ok.value:"",ng:ng?ng.value:"",res:res?res.value:""};
+  });
+  var boltSize=[],nutColor=[];
+  document.querySelectorAll('input[name=boltsize]:checked').forEach(function(cb){boltSize.push(cb.value);});
+  document.querySelectorAll('input[name=nutcolor]:checked').forEach(function(cb){nutColor.push(cb.value);});
+
+  var formData={
+    supplier:document.getElementById("rpt-supplier").value,
+    po:document.getElementById("rpt-po").value,
+    qty:document.getElementById("rpt-qty").value,
+    weight:document.getElementById("rpt-weight").value,
+    recvDate:document.getElementById("rpt-recvdate").value,
+    inspDate:document.getElementById("rpt-inspdate").value,
+    inspector:document.getElementById("rpt-inspector").value||document.getElementById("sign-inspector").value,
+    signChief:document.getElementById("sign-chief").value,
+    signManager:document.getElementById("sign-manager").value,
+    specHardness:document.getElementById("spec-hardness").value,
+    appTotal:document.getElementById("app-total").value,
+    appSample:document.getElementById("app-sample").value,
+    remark:document.getElementById("rpt-remark").value,
+    finalResult:STATE.finalResult,
+    dims:dims,
+    appearance:appearance,
+    boltSize:boltSize,
+    nutColor:nutColor
+  };
+
+  var btn=document.getElementById("inspSubmitBtn");
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Submitting…';
+  try{
+    var r=await api("submitInspection",null,{
+      jobId:job.jobId,
+      submittedBy:formData.inspector||STATE.userName,
+      measurements:formData,
+      remarks:formData.remark,
+      photoIds:STATE.uploadedPhotoIds.join(",")
+    });
+    if(r.ok){toast("✅ Inspection submitted for approval!","success");APP.closeInsp();APP.refresh();}
+    else toast(r.error||"Submission failed","error");
+  }catch(e){toast("Network error: "+e.message,"error");}
+  finally{btn.disabled=false;btn.textContent="Submit for Approval";}
+};
+
+// ── Print inspection form ─────────────────────────────────
+APP.printInspForm=function(){
+  var content=document.getElementById("inspReport").innerHTML;
+  var win=window.open("","_blank");
+  win.document.write('<html><head><title>Inspection Report</title><style>body{font-family:Segoe UI,sans-serif;font-size:12px;padding:20px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:5px 8px}th{background:#1a3c6e;color:#fff}input,select,textarea{border:1px solid #ccc;padding:2px 4px;width:95%}.report-header{background:#1a3c6e;color:#fff;padding:10px;margin-bottom:8px}.section-title{background:#334155;color:#fff;padding:5px 10px;margin:10px 0 0}.final-result-box{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;border:1px solid #ccc}.final-btn{padding:12px;text-align:center;border:2px solid #ccc;font-weight:700}.sign-row{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #ccc}.sign-cell{padding:8px;border-right:1px solid #ccc;text-align:center}.photo-previews img{width:80px;height:80px;object-fit:cover;margin:4px;border:1px solid #ccc}@media print{button{display:none}}</style></head><body>');
+  win.document.write(content);
+  win.document.write('</body></html>');
+  win.document.close();
+  setTimeout(function(){win.print();},400);
 };
 
 // ── Manager Decision ──────────────────────────────────────
-APP.openDecision = function(jobId, action) {
-  var job = null;
-  Object.values(STATE.jobs).forEach(function(arr) {
-    if (!job) job = (arr||[]).find(function(j){ return j.jobId === jobId; });
-  });
-  if (!job) { toast("Job not found", "error"); return; }
-  STATE.currentDecisionJob  = job;
-  STATE.currentDecisionAction = action;
-
-  var isApprove = (action === "approve");
-  var btn = document.getElementById("decisionBtn");
-  btn.textContent = isApprove ? "✅ Approve" : "❌ Reject";
-  btn.className = "btn " + (isApprove ? "btn-success" : "btn-danger");
-  document.getElementById("decisionTitle").textContent = isApprove ? "✅ Approve Job" : "❌ Reject Job";
-  document.getElementById("decisionJobInfo").innerHTML =
-    `<strong>Job:</strong> ${escHtml(jobId)}<br>
-     <strong>Part:</strong> ${escHtml(job.partNo)}<br>
-     <strong>Inspector:</strong> ${escHtml(job.inspector||"—")}<br>
-     <strong>Supplier:</strong> ${escHtml(job.supplier||"—")}`;
-  document.getElementById("decisionRemarks").value = "";
+APP.openDecision=function(jobId,action){
+  var job=null;Object.values(STATE.jobs).forEach(function(arr){if(!job)job=(arr||[]).find(function(j){return j.jobId===jobId;});});
+  if(!job){toast("Job not found","error");return;}
+  STATE.currentDecisionJob=job;STATE.currentDecisionAction=action;
+  var isApprove=action==="approve";
+  var btn=document.getElementById("decisionBtn");
+  btn.textContent=isApprove?"✅ Approve":"❌ Reject";
+  btn.className="btn "+(isApprove?"btn-success":"btn-danger");
+  document.getElementById("decisionTitle").textContent=isApprove?"✅ Approve Job":"❌ Reject Job";
+  document.getElementById("decisionJobInfo").innerHTML='<strong>Job:</strong> '+esc(jobId)+'<br><strong>Part:</strong> '+esc(job.partNo)+'<br><strong>Inspector:</strong> '+esc(job.inspector||"—")+'<br><strong>Supplier:</strong> '+esc(job.supplier||"—");
+  document.getElementById("decisionRemarks").value="";
   document.getElementById("decisionOverlay").classList.remove("hidden");
 };
-
-APP.closeDecision = function(e) {
-  if (e && e.target !== document.getElementById("decisionOverlay")) return;
-  document.getElementById("decisionOverlay").classList.add("hidden");
-};
-
-APP.submitDecision = async function() {
-  var job    = STATE.currentDecisionJob;
-  var action = STATE.currentDecisionAction;
-  if (!job || !action) return;
-  var remarks = document.getElementById("decisionRemarks").value.trim();
-  var btn = document.getElementById("decisionBtn");
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Processing…';
-
-  try {
-    var gasAction = action === "approve" ? "approveJob" : "rejectJob";
-    var keyField  = action === "approve" ? "approvedBy" : "rejectedBy";
-    var body = { action: gasAction, jobId: job.jobId, remarks: remarks };
-    body[keyField] = STATE.userName;
-
-    var r = await api(gasAction, null, body);
-    if (r.ok) {
-      toast((action==="approve"?"✅ Job approved!":"❌ Job rejected!"), action==="approve"?"success":"error");
-      APP.closeDecision();
-      APP.refresh();
-    } else {
-      toast(r.error||"Failed", "error");
-    }
-  } catch(e) {
-    toast("Network error: "+e.message, "error");
-  } finally {
-    btn.disabled = false;
-    btn.textContent = action==="approve" ? "✅ Approve" : "❌ Reject";
-  }
+APP.closeDecision=function(){document.getElementById("decisionOverlay").classList.add("hidden")};
+APP.submitDecision=async function(){
+  var job=STATE.currentDecisionJob,action=STATE.currentDecisionAction;if(!job||!action)return;
+  var remarks=document.getElementById("decisionRemarks").value.trim();
+  var btn=document.getElementById("decisionBtn");btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Processing…';
+  try{
+    var gasAction=action==="approve"?"approveJob":"rejectJob";
+    var body={jobId:job.jobId,remarks:remarks};body[action==="approve"?"approvedBy":"rejectedBy"]=STATE.userName;
+    var r=await api(gasAction,null,body);
+    if(r.ok){toast(action==="approve"?"✅ Job approved!":"❌ Job rejected!",action==="approve"?"success":"error");APP.closeDecision();APP.refresh();}
+    else toast(r.error||"Failed","error");
+  }catch(e){toast("Network error: "+e.message,"error");}
+  finally{btn.disabled=false;btn.textContent=action==="approve"?"✅ Approve":"❌ Reject";}
 };
 
 // ── Logs ──────────────────────────────────────────────────
-async function loadLogs() {
-  var el = document.getElementById("logsContainer");
-  el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--gray-400)"><div class="loading-spinner" style="margin:0 auto"></div></div>';
-  try {
-    var r = await api("getLogs", { limit: 100 });
-    if (r.ok) {
-      if (!r.logs.length) { el.innerHTML = '<div class="empty"><h3>No logs yet</h3></div>'; return; }
-      var colorMap = {
-        POST_JOB:          "#2457a0",
-        SUBMIT_INSPECTION: "#7c3aed",
-        APPROVE_JOB:       "#16a34a",
-        REJECT_JOB:        "#dc2626"
-      };
-      el.innerHTML = r.logs.map(function(log) {
-        var col = colorMap[log.action] || "#94a3b8";
-        var dt  = log.timestamp ? new Date(log.timestamp).toLocaleString() : "—";
-        return `<div class="log-entry">
-          <div class="log-dot" style="background:${col}"></div>
-          <div>
-            <div style="font-size:13px;font-weight:600;color:var(--gray-800)">${escHtml(log.action)} — ${escHtml(log.jobId||"")}</div>
-            <div style="font-size:12px;color:var(--gray-600);margin-top:2px">${escHtml(log.details||"")}</div>
-            <div class="log-meta">${escHtml(log.user||"")} · ${dt}</div>
-          </div>
-        </div>`;
+async function loadLogs(){
+  var el=document.getElementById("logsContainer");
+  el.innerHTML='<div style="text-align:center;padding:30px;color:var(--gray-400)"><div class="loading-spinner" style="margin:0 auto 12px"></div>Loading…</div>';
+  try{
+    var r=await api("getLogs",{limit:100});
+    if(r.ok){
+      if(!r.logs.length){el.innerHTML='<div class="empty"><h3>No logs yet</h3></div>';return;}
+      var colorMap={POST_JOB:"#2457a0",SUBMIT_INSPECTION:"#7c3aed",APPROVE_JOB:"#16a34a",REJECT_JOB:"#dc2626"};
+      el.innerHTML=r.logs.map(function(log){
+        var col=colorMap[log.action]||"#94a3b8";
+        var dt=log.timestamp?new Date(log.timestamp).toLocaleString():"—";
+        return'<div class="log-entry"><div class="log-dot" style="background:'+col+'"></div><div><div style="font-size:13px;font-weight:600;color:var(--gray-800)">'+esc(log.action)+' — '+esc(log.jobId||"")+'</div><div style="font-size:12px;color:var(--gray-600);margin-top:2px">'+esc(log.details||"")+'</div><div class="log-meta">'+esc(log.user||"")+" · "+dt+'</div></div></div>';
       }).join("");
     }
-  } catch(e) {
-    el.innerHTML = '<div class="empty"><h3>Failed to load logs</h3></div>';
-  }
+  }catch(e){el.innerHTML='<div class="empty"><h3>Failed to load logs</h3></div>';}
 }
 
 // ── Export ─────────────────────────────────────────────────
-APP.exportExcel = function() {
-  var jobs = STATE.jobs[STATE.activeTab] || [];
-  if (!jobs.length) { toast("No data to export", "warning"); return; }
-  var rows = [["Job ID","Part No","Supplier","Inspector","Status","Posted Date","Days Old","Submitted","Decision By","Remarks"]];
-  jobs.forEach(function(j) {
-    rows.push([j.jobId,j.partNo,j.supplier,j.inspector,j.status,
-      j.postedDate?new Date(j.postedDate).toLocaleDateString():"",
-      j.daysOld,
-      j.submittedDate?new Date(j.submittedDate).toLocaleDateString():"",
-      j.decisionBy, j.remarks]);
-  });
-  var wb = XLSX.utils.book_new();
-  var ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = rows[0].map(function(){ return {wch:18}; });
-  XLSX.utils.book_append_sheet(wb, ws, "QC Jobs");
-  XLSX.writeFile(wb, "QC_Export_"+new Date().toISOString().slice(0,10)+".xlsx");
-  toast("Excel exported", "success");
+APP.exportExcel=function(){
+  var jobs=STATE.jobs[STATE.activeTab]||[];if(!jobs.length){toast("No data to export","warning");return;}
+  var rows=[["Job ID","Part No","Supplier","Inspector","Status","Posted Date","Days Old","Submitted","Decision By","Remarks"]];
+  jobs.forEach(function(j){rows.push([j.jobId,j.partNo,j.supplier,j.inspector,j.status,j.postedDate?new Date(j.postedDate).toLocaleDateString():"",j.daysOld,j.submittedDate?new Date(j.submittedDate).toLocaleDateString():"",j.decisionBy,j.remarks]);});
+  var wb=XLSX.utils.book_new();var ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=rows[0].map(function(){return{wch:18};});
+  XLSX.utils.book_append_sheet(wb,ws,"QC Jobs");
+  XLSX.writeFile(wb,"QC_Export_"+new Date().toISOString().slice(0,10)+".xlsx");
+  toast("Excel exported","success");
 };
-
-APP.exportPrint = function() {
-  var jobs = STATE.jobs[STATE.activeTab] || [];
-  if (!jobs.length) { toast("No data to print", "warning"); return; }
-  var html = `<html><head><title>QC Report</title>
-  <style>body{font-family:Arial,sans-serif;font-size:12px}
-  table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:6px 8px;text-align:left}
-  th{background:#1a3c6e;color:#fff}tr:nth-child(even){background:#f5f5f5}
-  h2{color:#1a3c6e;margin-bottom:8px}.meta{color:#666;margin-bottom:16px;font-size:11px}</style>
-  </head><body>
-  <h2>QC Inspection Report — ${escHtml(STATE.activeTab.toUpperCase())}</h2>
-  <div class="meta">Exported: ${new Date().toLocaleString()} | Total: ${jobs.length}</div>
-  <table><tr><th>Job ID</th><th>Part No</th><th>Supplier</th><th>Inspector</th><th>Status</th><th>Posted</th><th>Days</th><th>Remarks</th></tr>
-  ${jobs.map(function(j){ return `<tr>
-    <td>${escHtml(j.jobId)}</td><td>${escHtml(j.partNo)}</td><td>${escHtml(j.supplier||"")}</td>
-    <td>${escHtml(j.inspector||"")}</td><td>${escHtml(j.status)}</td>
-    <td>${j.postedDate?new Date(j.postedDate).toLocaleDateString():""}</td>
-    <td>${j.daysOld}</td><td>${escHtml(j.remarks||"")}</td></tr>`; }).join("")}
-  </table></body></html>`;
-  var win = window.open("","_blank");
-  win.document.write(html);
-  win.document.close();
-  win.print();
+APP.exportPrint=function(){
+  var jobs=STATE.jobs[STATE.activeTab]||[];if(!jobs.length){toast("No data to print","warning");return;}
+  var html='<html><head><title>QC Report</title><style>body{font-family:Arial,sans-serif;font-size:12px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:6px 8px;text-align:left}th{background:#1a3c6e;color:#fff}tr:nth-child(even){background:#f5f5f5}h2{color:#1a3c6e}</style></head><body><h2>QC Report — '+esc(STATE.activeTab.toUpperCase())+'</h2><div style="color:#666;font-size:11px;margin-bottom:12px">Exported: '+new Date().toLocaleString()+' | Total: '+jobs.length+'</div><table><tr><th>Job ID</th><th>Part No</th><th>Supplier</th><th>Inspector</th><th>Status</th><th>Posted</th><th>Days</th><th>Remarks</th></tr>'+jobs.map(function(j){return'<tr><td>'+esc(j.jobId)+'</td><td>'+esc(j.partNo)+'</td><td>'+esc(j.supplier||"")+'</td><td>'+esc(j.inspector||"")+'</td><td>'+esc(j.status)+'</td><td>'+(j.postedDate?new Date(j.postedDate).toLocaleDateString():"")+'</td><td>'+j.daysOld+'</td><td>'+esc(j.remarks||"")+'</td></tr>';}).join("")+'</table></body></html>';
+  var win=window.open("","_blank");win.document.write(html);win.document.close();win.print();
 };
 
 // ── Toast ─────────────────────────────────────────────────
-function toast(msg, type) {
-  var el = document.createElement("div");
-  el.className = "toast" + (type?" "+type:"");
-  el.innerHTML = (type==="success"?"✅ ":type==="error"?"❌ ":type==="warning"?"⚠️ ":"ℹ️ ") + escHtml(String(msg));
-  var cont = document.getElementById("toastContainer");
-  cont.appendChild(el);
-  setTimeout(function(){ el.style.opacity="0"; el.style.transition="opacity .3s"; setTimeout(function(){ el.remove(); },350); }, 3500);
+function toast(msg,type){
+  var el=document.createElement("div");el.className="toast"+(type?" "+type:"");
+  el.innerHTML=(type==="success"?"✅ ":type==="error"?"❌ ":type==="warning"?"⚠️ ":"ℹ️ ")+esc(String(msg));
+  var cont=document.getElementById("toastContainer");cont.appendChild(el);
+  setTimeout(function(){el.style.opacity="0";el.style.transition="opacity .3s";setTimeout(function(){el.remove();},350);},3500);
 }
-
-// ── Utils ─────────────────────────────────────────────────
-function escHtml(s) {
-  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-
-// ── APP.refresh (used by topbar button) ───────────────────
-APP.refresh = function() {
-  loadStats();
-  loadCurrentTab();
-};
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 
 // ── Bootstrap ─────────────────────────────────────────────
 loadConfig();
-if (STATE.gasUrl) {
-  loadStats();
-  loadCurrentTab();
-} else {
-  // Show empty states
-  ["underqc","pending","history","overdue"].forEach(function(tab) {
-    var el = document.getElementById("tabContent-"+tab);
-    if (el) el.innerHTML = '<div class="empty"><div style="font-size:40px">🔌</div><h3>Not Connected</h3><p>Click ⚙ Config to set up your GAS URL.</p></div>';
-  });
-}
-
-// Auto-refresh every 60s
-setInterval(function() {
-  if (STATE.gasUrl) loadStats();
-}, 60000);
+if(STATE.gasUrl){loadStats();loadCurrentTab();}
+else{["underqc","pending","history","overdue"].forEach(function(tab){var el=document.getElementById("tabContent-"+tab);if(el)el.innerHTML='<div class="empty"><div style="font-size:40px">🔌</div><h3>Not Connected</h3><p>Click ⚙ Config to set up your GAS URL.</p></div>';});}
+setInterval(function(){if(STATE.gasUrl)loadStats();},60000);
 
 })();
 </script>
