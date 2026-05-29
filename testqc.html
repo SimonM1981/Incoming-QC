@@ -381,24 +381,16 @@ table.list-tbl td{padding:12px 14px;color:var(--gray-700);vertical-align:middle}
           <div class="meta-cell"><label>Q'ty (Pcs.)</label><input type="number" id="rQty" placeholder="60"/></div>
         </div>
 
-        <!-- Part reference images (rows 9-19 from Excel) -->
-        <div class="part-images-box">
-          <div style="font-size:11px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.5px">
-            📐 Part Reference Diagrams — 45535-09250 STEERING RACK BOOT
+        <!-- Part reference images — loaded from the Excel file in Drive via GAS -->
+        <div class="part-images-box" id="partImagesBox">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">
+            📐 Part Reference Diagrams — <span id="imgBoxTitle">Loading…</span>
           </div>
-          <div class="images-row">
-            <div class="part-img-card">
-              <img src="data:image/jpeg;base64,""" + inner_a + r"""" alt="Inner A"/>
-              <div class="img-label">Inner Diameter A (รูใน)</div>
-            </div>
-            <div class="part-img-card">
-              <img src="data:image/jpeg;base64,""" + inner_b + r"""" alt="Inner B"/>
-              <div class="img-label">Inner Diameter B (รูใน)</div>
-            </div>
-            <div class="part-img-card">
-              <img src="data:image/jpeg;base64,""" + height + r"""" alt="Height"/>
-              <div class="img-label">Height Diameter (ความสูง)</div>
-            </div>
+          <div class="images-row" id="partImagesRow">
+            <!-- Skeleton placeholders while loading -->
+            <div class="part-img-card"><div style="height:160px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;color:var(--gray-400);font-size:12px">Loading…</div><div class="img-label">Inner Diameter A (รูใน)</div></div>
+            <div class="part-img-card"><div style="height:160px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;color:var(--gray-400);font-size:12px">Loading…</div><div class="img-label">Inner Diameter B (รูใน)</div></div>
+            <div class="part-img-card"><div style="height:160px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;color:var(--gray-400);font-size:12px">Loading…</div><div class="img-label">Height (ความสูง)</div></div>
           </div>
         </div>
 
@@ -586,7 +578,7 @@ var DIM_SPECS = {
 
 // ── Config ────────────────────────────────────────────────
 function loadConfig(){
-  var DEF = "https://script.google.com/macros/s/AKfycbxhrGIHw2Q_Py3gi9W7APhxOZDnt_6b1JDeRaqVUpAihiHBiWrfGf6KLYPy_P5K1a__DA/exec";
+  var DEF = "https://script.google.com/macros/s/AKfycbxF_Fgwp3E9mSn7GkDuDVBH7LD0ED4SDjO4RpAus7PSk6RWcPOhOq00tn_GXf3lGRj3YA/exec";
   S.gasUrl      = localStorage.getItem("qc_gas_url") || DEF;
   S.userName    = localStorage.getItem("qc_user")    || "QC User";
   S.role        = localStorage.getItem("qc_role")    || "staff";
@@ -874,7 +866,46 @@ APP.openInsp = function(jobId){
 
   refreshDimResults();
   document.getElementById("inspOverlay").classList.remove("hidden");
+
+  // Load images from the Excel file in Drive via GAS
+  var partLabel = partNo + (desc ? " — "+desc : "");
+  document.getElementById("imgBoxTitle").textContent = partLabel;
+  loadPartImages(job.fileId, partNo);
 };
+
+// ── Load part images from Drive Excel via GAS ─────────────
+async function loadPartImages(fileId, partNo){
+  var row = document.getElementById("partImagesRow");
+  var labels = ["Inner Diameter A (รูใน)","Inner Diameter B (รูใน)","Height (ความสูง)"];
+
+  // Show skeletons
+  row.innerHTML = labels.map(function(lbl){
+    return '<div class="part-img-card"><div style="height:160px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;color:var(--gray-400);font-size:12px;flex-direction:column"><div class="loading-spinner" style="margin-bottom:8px;width:20px;height:20px;border-width:2px"></div>Loading…</div><div class="img-label">'+lbl+'</div></div>';
+  }).join("");
+
+  if(!S.gasUrl){ renderFallbackImages(row,labels); return; }
+
+  try{
+    var r = await api("getFileImages", {fileId: fileId, partNo: partNo});
+    if(r.ok && r.images && r.images.length){
+      row.innerHTML = r.images.map(function(img, idx){
+        var lbl = labels[idx] || img.name || ("Image "+(idx+1));
+        return '<div class="part-img-card"><img src="data:'+img.mime+';base64,'+img.data+'" alt="'+lbl+'" style="width:100%;height:160px;object-fit:contain;padding:6px;background:#fff"/><div class="img-label">'+lbl+'</div></div>';
+      }).join("");
+    } else {
+      renderFallbackImages(row, labels);
+    }
+  }catch(e){
+    renderFallbackImages(row, labels);
+  }
+}
+
+function renderFallbackImages(row, labels){
+  // Show the Drive thumbnail URLs as fallback (no auth needed for xlsx preview)
+  row.innerHTML = labels.map(function(lbl,i){
+    return '<div class="part-img-card"><div style="height:160px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;color:var(--gray-500);font-size:11px;padding:8px;text-align:center">📷<br>'+lbl+'<br><small style='color:var(--gray-400)'>Images loaded from Drive file</small></div><div class="img-label">'+lbl+'</div></div>';
+  }).join("");
+}
 
 APP.closeInsp = function(){ document.getElementById("inspOverlay").classList.add("hidden"); S.currentInspJob=null; };
 
