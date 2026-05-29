@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QC Inspection System</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --brand:#1a3c6e;--brand-lt:#2457a0;--accent:#f59e0b;
+  --green:#16a34a;--red:#dc2626;--orange:#ea580c;--purple:#7c3aed;
+  --gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;--gray-300:#cbd5e1;
+  --gray-400:#94a3b8;--gray-500:#64748b;--gray-600:#475569;--gray-700:#334155;
+  --gray-800:#1e293b;--gray-900:#0f172a;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.08);--shadow:0 4px 12px rgba(0,0,0,.10);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.16);--radius:8px;--radius-lg:12px;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--gray-50);color:var(--gray-800);min-height:100vh}
+.app-shell{display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--brand);color:#fff;display:flex;align-items:center;gap:16px;padding:0 24px;height:60px;box-shadow:var(--shadow);position:sticky;top:0;z-index:100}
+.topbar-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
+.topbar-title{flex:1}.topbar-title small{opacity:.7;font-size:12px;font-weight:400;display:block;margin-top:-2px}
+.topbar-user{display:flex;align-items:center;gap:10px;font-size:14px}
+.topbar-user select{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:4px 10px;border-radius:6px;font-size:13px;cursor:pointer}
+.topbar-user select option{color:var(--gray-800);background:#fff}
+.topbar-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:.2s}
+.topbar-btn:hover{background:rgba(255,255,255,.25)}
+.topbar-btn.accent{background:var(--accent);border-color:var(--accent);color:#000}
+.topbar-btn.accent:hover{background:#d97706}
+.main{flex:1;padding:24px;max-width:1400px;margin:0 auto;width:100%}
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);border:1px solid var(--gray-200);cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c)}
+.stat-card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+.stat-card .icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:18px}
+.stat-card .value{font-size:32px;font-weight:700;line-height:1;color:var(--gray-900)}
+.stat-card .label{font-size:12px;color:var(--gray-500);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.tabs{display:flex;background:#fff;border-radius:var(--radius-lg) var(--radius-lg) 0 0;border:1px solid var(--gray-200);border-bottom:none;overflow:hidden}
+.tab{padding:12px 22px;font-size:14px;font-weight:600;cursor:pointer;color:var(--gray-500);border-bottom:3px solid transparent;transition:.2s;white-space:nowrap;display:flex;align-items:center;gap:7px}
+.tab:hover{color:var(--gray-800);background:var(--gray-50)}.tab.active{color:var(--brand);border-bottom-color:var(--brand);background:#fff}
+.tab .badge{background:var(--gray-200);color:var(--gray-600);font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px}
+.tab.active .badge{background:var(--brand);color:#fff}
+.panel{background:#fff;border:1px solid var(--gray-200);border-radius:0 0 var(--radius-lg) var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden}
+.panel-toolbar{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--gray-100);flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--gray-100);border-radius:6px;padding:7px 12px;flex:1;min-width:180px}
+.search-box input{border:none;background:none;outline:none;font-size:14px;color:var(--gray-800);width:100%}
+.filter-sel{border:1px solid var(--gray-200);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--gray-700);background:#fff;cursor:pointer;outline:none}
+.btn{border:none;border-radius:6px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--brand);color:#fff}.btn-primary:hover{background:var(--brand-lt)}
+.btn-success{background:var(--green);color:#fff}.btn-success:hover{filter:brightness(1.1)}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{filter:brightness(1.1)}
+.btn-ghost{background:transparent;color:var(--gray-600);border:1px solid var(--gray-200)}.btn-ghost:hover{background:var(--gray-50)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.tbl-wrap{overflow-x:auto}
+table.list-tbl{width:100%;border-collapse:collapse;font-size:13px}
+table.list-tbl thead tr{background:var(--gray-50);border-bottom:2px solid var(--gray-200)}
+table.list-tbl th{padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+table.list-tbl tbody tr{border-bottom:1px solid var(--gray-100);transition:.15s}
+table.list-tbl tbody tr:hover{background:var(--gray-50)}
+table.list-tbl td{padding:12px 14px;color:var(--gray-700);vertical-align:middle}
+.td-part{font-weight:700;color:var(--gray-900)}
+.td-jobid{font-family:monospace;font-size:12px;color:var(--gray-500)}
+.badge-status{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase}
+.s-under{background:#dbeafe;color:#1d4ed8}.s-pending{background:#fef3c7;color:#92400e}
+.s-approved{background:#dcfce7;color:#166534}.s-rejected{background:#fee2e2;color:#991b1b}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.actions{display:flex;gap:6px;align-items:center}
+.overdue-row{background:linear-gradient(90deg,#fff5f5,#fff 8%) !important}
+.overdue-tag{font-size:11px;color:var(--red);font-weight:700}
+.empty{text-align:center;padding:60px 20px;color:var(--gray-400)}
+.empty h3{font-size:18px;color:var(--gray-600);margin-bottom:6px}.empty p{font-size:14px}
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
+.overlay.hidden{display:none}
+.modal{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);width:100%;animation:modalIn .2s ease;overflow:hidden}
+.modal.sm{max-width:480px}.modal.md{max-width:680px}
+.modal.xl{max-width:1020px;max-height:94vh;display:flex;flex-direction:column}
+@keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:15px 22px;border-bottom:1px solid var(--gray-200);background:var(--gray-50);flex-shrink:0}
+.modal-title{font-size:15px;font-weight:700;color:var(--gray-900);display:flex;align-items:center;gap:9px}
+.modal-body{padding:20px 22px;overflow-y:auto;flex:1}
+.modal-footer{padding:13px 22px;border-top:1px solid var(--gray-200);display:flex;justify-content:flex-end;gap:10px;background:var(--gray-50);flex-shrink:0}
+.close-btn{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray-400);padding:4px;border-radius:4px;line-height:1}
+.close-btn:hover{color:var(--gray-700);background:var(--gray-100)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-row.cols-1{grid-template-columns:1fr}.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group label{font-size:11px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.4px}
+.form-group input,.form-group select,.form-group textarea{border:1px solid var(--gray-300);border-radius:6px;padding:8px 11px;font-size:14px;color:var(--gray-800);outline:none;transition:.2s;background:#fff}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(26,60,110,.1)}
+.form-group textarea{resize:vertical;min-height:72px}
+.form-hint{font-size:11px;color:var(--gray-400)}
+/* ═══ INSPECTION REPORT ═══ */
+.insp-report{font-size:12px;font-family:'Segoe UI',sans-serif;color:#1e293b}
+.rpt-banner{background:var(--brand);color:#fff;padding:11px 16px;display:flex;align-items:center;justify-content:space-between;border-radius:var(--radius) var(--radius) 0 0}
+.rpt-banner h2{font-size:14px;font-weight:700;letter-spacing:.4px}
+.rpt-banner p{font-size:11px;opacity:.8;margin-top:2px}
+.rpt-meta{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--gray-300);border-top:none;background:#fff}
+.meta-cell{padding:7px 11px;border-right:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200)}
+.meta-cell:nth-child(4n){border-right:none}
+.meta-cell label{font-size:10px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:2px}
+.meta-cell input,.meta-cell select{border:none;border-bottom:1px solid var(--gray-300);background:none;font-size:13px;font-weight:600;color:var(--gray-900);outline:none;width:100%;padding:1px 0}
+.meta-cell input:focus{border-bottom-color:var(--brand)}
+.meta-cell .static{font-size:13px;font-weight:700;color:var(--gray-900)}
+.part-images-box{border:1px solid var(--gray-300);border-top:none;background:#f8fafc;padding:12px 16px}
+.part-images-box .images-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
+.part-img-card{background:#fff;border:1px solid var(--gray-200);border-radius:6px;overflow:hidden;text-align:center}
+.part-img-card img{width:100%;height:160px;object-fit:contain;padding:6px;background:#fff}
+.part-img-card .img-label{font-size:11px;font-weight:700;color:var(--brand);padding:5px 8px;background:var(--gray-50);border-top:1px solid var(--gray-200);text-transform:uppercase;letter-spacing:.5px}
+.sampling-box{border:1px solid var(--gray-300);border-top:none;background:#fffbeb;padding:9px 16px;font-size:11px;color:#78350f}
+.sampling-box ul{list-style:none;display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:4px}
+.sampling-box ul li::before{content:"▸ "}
+.sec-title{background:var(--gray-700);color:#fff;padding:6px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin-top:12px}
+/* dimension table */
+.dim-tbl{width:100%;border-collapse:collapse;font-size:12px;border:1px solid var(--gray-300)}
+.dim-tbl th{background:var(--brand);color:#fff;padding:7px 9px;text-align:center;font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,.2)}
+.dim-tbl th.left{text-align:left;min-width:80px}
+.dim-tbl .spec-row td{background:#e8f0fe;font-size:11px;color:#1d4ed8;font-weight:700;text-align:center;padding:5px 8px;border:1px solid var(--gray-300)}
+.dim-tbl .spec-row td.left{text-align:left}
+.dim-tbl .tool-row td{background:var(--gray-50);font-size:10px;color:var(--gray-500);text-align:center;padding:4px 6px;border:1px solid var(--gray-200);font-style:italic}
+.dim-tbl .tool-row td.left{text-align:left;font-weight:600;color:var(--gray-600)}
+.dim-tbl .input-row td{border:1px solid var(--gray-200);padding:3px 4px;vertical-align:middle;text-align:center}
+.dim-tbl .input-row td.lbl{text-align:left;font-weight:700;color:var(--gray-700);padding-left:9px;background:#fafafa;white-space:nowrap;font-size:11px}
+.dim-tbl .input-row input{width:100%;min-width:62px;border:1px solid var(--gray-300);border-radius:3px;padding:4px 5px;font-size:12px;text-align:center;outline:none;background:#fff;transition:.15s}
+.dim-tbl .input-row input:focus{border-color:var(--brand);background:#eff6ff}
+.dim-tbl .input-row input.pass{background:#dcfce7;border-color:#16a34a;color:#166534;font-weight:700}
+.dim-tbl .input-row input.fail{background:#fee2e2;border-color:#dc2626;color:#991b1b;font-weight:700}
+.dim-tbl .result-row td{background:#f1f5f9;font-weight:700;font-size:12px;text-align:center;padding:6px 8px;border:1px solid var(--gray-300)}
+.result-pass{color:var(--green)}.result-fail{color:var(--red)}.result-na{color:var(--gray-400)}
+/* appearance table */
+.app-tbl{width:100%;border-collapse:collapse;font-size:12px;border:1px solid var(--gray-300)}
+.app-tbl th{background:var(--gray-700);color:#fff;padding:7px 10px;text-align:left;font-size:11px;border:1px solid rgba(255,255,255,.15)}
+.app-tbl th.center{text-align:center}
+.app-tbl td{border:1px solid var(--gray-200);padding:5px 9px;vertical-align:middle}
+.app-tbl tr:nth-child(even) td{background:#fafafa}
+.app-tbl td.no{text-align:center;font-weight:700;color:var(--gray-600);width:32px}
+.app-tbl td.check-name{font-size:12px;color:var(--gray-800)}
+.app-tbl td.check-name small{display:block;font-size:10px;color:var(--gray-500)}
+.app-tbl td.result-cell{text-align:center;width:80px}
+.qty-row{display:flex;gap:6px;align-items:center;justify-content:center;font-size:11px}
+.qty-row input{width:44px;border:1px solid var(--gray-300);border-radius:3px;padding:3px 4px;font-size:11px;text-align:center;outline:none}
+.qty-row input:focus{border-color:var(--brand)}
+.res-sel{width:64px;border:1px solid var(--gray-300);border-radius:3px;padding:3px;font-size:11px;font-weight:700;outline:none;cursor:pointer}
+.res-sel.ok{background:#dcfce7;border-color:#16a34a;color:#166534}
+.res-sel.ng{background:#fee2e2;border-color:#dc2626;color:#991b1b}
+.ck-row td{border:1px solid var(--gray-200);padding:7px 10px;vertical-align:middle}
+.ck-group{display:flex;gap:14px;flex-wrap:wrap}
+.ck-group label{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600}
+.ck-group input[type=checkbox]{width:14px;height:14px;accent-color:var(--brand)}
+.remark-wrap textarea{width:100%;border:1px solid var(--gray-300);border-radius:4px;padding:8px 10px;font-size:12px;resize:vertical;min-height:54px;outline:none;font-family:inherit}
+.remark-wrap textarea:focus{border-color:var(--brand)}
+.final-box{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;padding:10px;background:var(--gray-50);border-radius:6px;border:1px solid var(--gray-200)}
+.final-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:6px;border:2px solid;cursor:pointer;font-size:14px;font-weight:700;transition:.2s;background:#fff}
+.final-btn.ok{border-color:var(--green);color:var(--green)}
+.final-btn.ok.sel,.final-btn.ok:hover{background:var(--green);color:#fff}
+.final-btn.ng{border-color:var(--red);color:var(--red)}
+.final-btn.ng.sel,.final-btn.ng:hover{background:var(--red);color:#fff}
+.photo-drop{border:2px dashed var(--gray-300);border-radius:var(--radius);padding:14px;text-align:center;cursor:pointer;transition:.2s;margin-top:10px}
+.photo-drop:hover{border-color:var(--brand);background:var(--gray-50)}
+.photo-drop input{display:none}
+.photo-previews{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.photo-thumb{width:70px;height:70px;border-radius:5px;object-fit:cover;border:2px solid var(--gray-200);cursor:pointer}
+.photo-thumb:hover{border-color:var(--brand)}
+.sign-row{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--gray-300);border-top:none}
+.sign-cell{padding:9px 13px;border-right:1px solid var(--gray-200);text-align:center}
+.sign-cell:last-child{border-right:none}
+.sign-cell label{font-size:10px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:5px}
+.sign-cell input{border:none;border-bottom:1px dashed var(--gray-400);background:none;font-size:13px;font-weight:600;color:var(--gray-900);outline:none;width:100%;text-align:center;padding:2px 0}
+.sign-cell input:focus{border-bottom-color:var(--brand)}
+.spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:5px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-wrap{position:relative;min-height:200px}
+.loading-overlay{position:absolute;inset:0;background:rgba(255,255,255,.8);display:flex;align-items:center;justify-content:center;z-index:10;border-radius:inherit}
+.loading-spinner{width:30px;height:30px;border:3px solid var(--gray-200);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite}
+.toast-container{position:fixed;bottom:22px;right:22px;z-index:999;display:flex;flex-direction:column;gap:7px}
+.toast{background:var(--gray-900);color:#fff;padding:11px 16px;border-radius:8px;font-size:14px;box-shadow:var(--shadow-lg);animation:toastIn .3s ease;display:flex;align-items:center;gap:9px;min-width:250px;max-width:380px}
+.toast.success{background:var(--green)}.toast.error{background:var(--red)}.toast.warning{background:var(--orange)}
+@keyframes toastIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+.log-entry{display:flex;gap:13px;padding:9px 0;border-bottom:1px solid var(--gray-100)}
+.log-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.config-banner{background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius);padding:13px 16px;margin-bottom:18px;font-size:14px}
+.config-banner.hidden{display:none}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:3px}
+@media(max-width:900px){.stats-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.main{padding:12px}.stats-row{grid-template-columns:repeat(2,1fr)}.tabs{overflow-x:auto}}
+@media print{.modal-header button,.modal-footer,.topbar,.stats-row,.tabs,.panel-toolbar{display:none!important}.overlay{position:static!important;background:none!important;padding:0!important}.modal.xl{max-height:none!important;box-shadow:none!important}}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+<header class="topbar">
+  <div class="topbar-logo">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <rect width="28" height="28" rx="6" fill="rgba(255,255,255,.15)"/>
+      <path d="M7 9h14M7 14h10M7 19h12" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="21" cy="19" r="4" fill="#f59e0b"/>
+      <path d="M19.5 19l1 1 2-2" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="topbar-title">QC Inspection System<small>MEGACELL INTERNATIONAL CO.,LTD.</small></div>
+  </div>
+  <div style="flex:1"></div>
+  <div class="topbar-user">
+    <span style="font-size:13px;opacity:.7">Role:</span>
+    <select id="roleSelect" onchange="APP.setRole(this.value)">
+      <option value="staff">Staff (Inspector)</option>
+      <option value="chief">QC Chief</option>
+      <option value="manager">Manager</option>
+    </select>
+    <button class="topbar-btn accent" id="postJobBtn" style="display:none" onclick="APP.openPostJob()">+ Post Job</button>
+    <button class="topbar-btn" onclick="APP.refresh()">↻ Refresh</button>
+    <button class="topbar-btn" onclick="APP.openConfig()">⚙ Config</button>
+  </div>
+</header>
+
+<main class="main">
+  <div class="config-banner hidden" id="configBanner">
+    ⚠️ <strong>Setup required:</strong> Click ⚙ Config and enter your Google Apps Script Web App URL.
+  </div>
+  <div class="stats-row">
+    <div class="stat-card" style="--c:var(--brand-lt)" onclick="APP.switchTab('underqc')">
+      <div class="icon">📋</div><div class="value" id="statTotal">—</div><div class="label">Total Jobs</div>
+    </div>
+    <div class="stat-card" style="--c:var(--brand-lt)" onclick="APP.switchTab('underqc')">
+      <div class="icon">🔍</div><div class="value" id="statUnderQC">—</div><div class="label">Under QC</div>
+    </div>
+    <div class="stat-card" style="--c:var(--orange)" onclick="APP.switchTab('pending')">
+      <div class="icon">⏳</div><div class="value" id="statPending">—</div><div class="label">Pending Approval</div>
+    </div>
+    <div class="stat-card" style="--c:var(--green)" onclick="APP.switchTab('history')">
+      <div class="icon">✅</div><div class="value" id="statApproved">—</div><div class="label">Approved</div>
+    </div>
+    <div class="stat-card" style="--c:var(--red)" onclick="APP.switchTab('overdue')">
+      <div class="icon">🚨</div><div class="value" id="statOverdue">—</div><div class="label">Overdue</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="underqc" onclick="APP.switchTab('underqc')">🔍 Under QC <span class="badge" id="tb-underqc">0</span></div>
+    <div class="tab" data-tab="pending" onclick="APP.switchTab('pending')">⏳ Pending <span class="badge" id="tb-pending">0</span></div>
+    <div class="tab" data-tab="history" onclick="APP.switchTab('history')">📁 History <span class="badge" id="tb-history">0</span></div>
+    <div class="tab" data-tab="overdue" onclick="APP.switchTab('overdue')">🚨 Overdue <span class="badge" id="tb-overdue">0</span></div>
+    <div class="tab" data-tab="logs" onclick="APP.switchTab('logs')">📝 Audit Log</div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-toolbar">
+      <div class="search-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="Search part no, supplier, inspector…" oninput="APP.applyFilters()"/>
+      </div>
+      <select class="filter-sel" id="filterSupplier" onchange="APP.applyFilters()"><option value="">All Suppliers</option></select>
+      <select class="filter-sel" id="filterInspector" onchange="APP.applyFilters()"><option value="">All Inspectors</option></select>
+      <input type="date" class="filter-sel" id="filterDateFrom" onchange="APP.applyFilters()"/>
+      <input type="date" class="filter-sel" id="filterDateTo" onchange="APP.applyFilters()"/>
+      <button class="btn btn-ghost btn-sm" onclick="APP.clearFilters()">✕ Clear</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost btn-sm" onclick="APP.exportExcel()">⬇ Excel</button>
+      <button class="btn btn-ghost btn-sm" onclick="APP.exportPrint()">🖨 Print</button>
+    </div>
+    <div id="tabContent-underqc" class="tab-content load-wrap"><div class="loading-overlay"><div class="loading-spinner"></div></div></div>
+    <div id="tabContent-pending"  class="tab-content" style="display:none"></div>
+    <div id="tabContent-history"  class="tab-content" style="display:none"></div>
+    <div id="tabContent-overdue"  class="tab-content" style="display:none"></div>
+    <div id="tabContent-logs"     class="tab-content" style="display:none;padding:0 20px 20px"><div id="logsContainer" style="margin-top:14px"></div></div>
+  </div>
+</main>
+</div>
+
+<!-- ══ CONFIG MODAL ══ -->
+<div class="overlay hidden" id="configOverlay" onclick="if(event.target===this)APP.closeConfig()">
+  <div class="modal md">
+    <div class="modal-header"><div class="modal-title">⚙️ Configuration</div><button class="close-btn" onclick="APP.closeConfig()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Google Apps Script Web App URL</label>
+        <input type="url" id="cfgGasUrl" placeholder="https://script.google.com/macros/s/…/exec"/>
+        <div class="form-hint">Deploy as Web App → Execute as Me → Anyone (even anonymous)</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Your Name</label><input type="text" id="cfgUserName" placeholder="John Smith"/></div>
+        <div class="form-group"><label>Default Role</label>
+          <select id="cfgRole">
+            <option value="staff">Staff (Inspector)</option>
+            <option value="chief">QC Chief</option>
+            <option value="manager">Manager</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label>Overdue Threshold (days)</label><input type="number" id="cfgOverdueDays" value="3" min="1" max="30"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="APP.closeConfig()">Cancel</button>
+      <button class="btn btn-primary" onclick="APP.saveConfig()">Save &amp; Connect</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ POST JOB MODAL ══ -->
+<div class="overlay hidden" id="postJobOverlay" onclick="if(event.target===this)APP.closePostJob()">
+  <div class="modal md">
+    <div class="modal-header"><div class="modal-title">📋 Post New QC Job</div><button class="close-btn" onclick="APP.closePostJob()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row cols-1">
+        <div class="form-group">
+          <label>Part Number *</label>
+          <input type="text" id="pjPartNo" placeholder="e.g. 48815-AD030" list="partSuggestions" oninput="APP.partSearch(this.value)" autocomplete="off"/>
+          <datalist id="partSuggestions"></datalist>
+          <div class="form-hint" id="pjPartHint">Type to search master parts list</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Supplier</label><input type="text" id="pjSupplier" placeholder="Supplier name"/></div>
+        <div class="form-group"><label>Inspector</label><input type="text" id="pjInspector" placeholder="Inspector name"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Batch / Lot No.</label><input type="text" id="pjBatch" placeholder="Optional"/></div>
+        <div class="form-group"><label>Quantity (pcs)</label><input type="number" id="pjQty" placeholder="e.g. 500"/></div>
+      </div>
+      <div class="form-row cols-1">
+        <div class="form-group"><label>Notes</label><textarea id="pjNotes" placeholder="Optional notes…"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="APP.closePostJob()">Cancel</button>
+      <button class="btn btn-primary" id="postJobSubmitBtn" onclick="APP.submitPostJob()">Post Job</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ INSPECTION FORM MODAL ══ -->
+<div class="overlay hidden" id="inspOverlay">
+  <div class="modal xl">
+    <div class="modal-header">
+      <div class="modal-title">🔬 Incoming Inspection Report
+        <span id="inspJobId" style="font-size:12px;font-weight:400;color:var(--gray-500)"></span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="APP.printInspForm()">🖨 Print</button>
+        <button class="close-btn" onclick="APP.closeInsp()">✕</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="insp-report" id="inspReport">
+
+        <!-- Banner -->
+        <div class="rpt-banner">
+          <div>
+            <h2>INCOMING INSPECTION REPORT</h2>
+            <p>MEGACELL INTERNATIONAL CO.,LTD. &nbsp;|&nbsp; Part: <span id="rBanner"></span></p>
+          </div>
+          <div style="font-size:11px;opacity:.8;text-align:right">Doc No: QC-IIR-001</div>
+        </div>
+
+        <!-- Meta fields -->
+        <div class="rpt-meta">
+          <div class="meta-cell"><label>Part Number</label><div class="static" id="rPartNo">—</div></div>
+          <div class="meta-cell"><label>Description</label><div class="static" id="rDesc">—</div></div>
+          <div class="meta-cell"><label>Supplier Name</label><input type="text" id="rSupplier"/></div>
+          <div class="meta-cell"><label>PO Number</label><input type="text" id="rPO"/></div>
+          <div class="meta-cell"><label>Received Date</label><input type="date" id="rRecvDate"/></div>
+          <div class="meta-cell"><label>Inspection Date</label><input type="date" id="rInspDate"/></div>
+          <div class="meta-cell"><label>Weight (grams)</label><input type="number" id="rWeight" placeholder="128"/></div>
+          <div class="meta-cell"><label>Q'ty (Pcs.)</label><input type="number" id="rQty" placeholder="60"/></div>
+        </div>
+
+        <!-- Part reference diagrams -->
+        <div class="part-images-box" id="partImagesBox">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">
+            📐 Part Reference Diagrams — <span id="imgBoxTitle"></span>
+          </div>
+          <div class="images-row" id="partImagesRow">
+            <div class="part-img-card" id="imgCard0">
+              <div style="height:180px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;color:var(--gray-400);font-size:11px">Loading…</div>
+              <div class="img-label" id="imgLabel0">Inner Diameter A (รูใน)</div>
+            </div>
+            <div class="part-img-card" id="imgCard1">
+              <div style="height:180px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;color:var(--gray-400);font-size:11px">Loading…</div>
+              <div class="img-label" id="imgLabel1">Inner Diameter B (รูใน)</div>
+            </div>
+            <div class="part-img-card" id="imgCard2">
+              <div style="height:180px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;color:var(--gray-400);font-size:11px">Loading…</div>
+              <div class="img-label" id="imgLabel2">Height (ความสูง)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sampling standard -->
+        <div class="sampling-box">
+          <strong>STANDARD CHECK DIMENSION — Sampling Rules:</strong>
+          <ul>
+            <li>Q'ty &lt; 150 pcs → Inspect <strong>10</strong> pcs</li>
+            <li>Q'ty 151–500 pcs → Inspect <strong>20</strong> pcs</li>
+            <li>Q'ty &gt; 500 pcs → Inspect <strong>40</strong> pcs</li>
+            <li>บูชยาง: Q'ty &lt; 1,000 → Inspect 10 / Q'ty &gt; 1,000 → Inspect 20</li>
+            <li>Part No. VD50020001, VD40010002, VD50010032, VD50010045 → Inspect <strong>40</strong> pcs</li>
+          </ul>
+          <div style="margin-top:7px;display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+            <span>STANDARD SAMPLING APPEARANCE: <strong>100%</strong> inspection</span>
+            <span>Q'ty Total: <input type="number" id="appTotal" style="width:55px;border:1px solid #d97706;border-radius:3px;padding:2px 5px;font-size:11px;font-weight:700"/> Pcs.</span>
+            <span>Sampling: <input type="number" id="appSample" style="width:55px;border:1px solid #d97706;border-radius:3px;padding:2px 5px;font-size:11px;font-weight:700"/> Pcs.</span>
+          </div>
+        </div>
+
+        <!--
+          FIXED: Dimension table is now fully dynamic.
+          Headers, SPEC row, TOOL row, and RESULT row are all built from
+          the part's xlsx template via getTemplateData(). No more hardcoded
+          specs for a single part number.
+        -->
+        <div class="sec-title">📐 Standard Check Dimension — Sample Measurements</div>
+        <table class="dim-tbl" id="dimTable">
+          <thead id="dimThead">
+            <tr>
+              <th class="left">SAMPLE</th>
+              <th style="font-weight:400;opacity:.6" colspan="6">Loading part template…</th>
+            </tr>
+          </thead>
+          <tbody id="dimBody">
+            <tr>
+              <td colspan="7" style="text-align:center;padding:20px;color:var(--gray-400)">
+                <div class="loading-spinner" style="display:inline-block;width:18px;height:18px;border-width:2px;margin:0 6px -4px 0"></div>
+                Fetching dimension specs from template…
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Appearance checks -->
+        <div class="sec-title" style="margin-top:14px">👁 Standard Sampling Appearance — 100% Inspection</div>
+        <table class="app-tbl">
+          <thead>
+            <tr>
+              <th style="width:34px">No.</th>
+              <th>Check Point Inspection</th>
+              <th class="center" style="width:170px">Record Results (OK / NG Pcs.)</th>
+              <th class="center" style="width:72px">Result</th>
+            </tr>
+          </thead>
+          <tbody id="appRows"></tbody>
+        </table>
+
+        <!-- Nut/bolt rows -->
+        <table class="app-tbl" style="margin-top:6px">
+          <tbody>
+            <tr class="ck-row">
+              <td class="no">16</td>
+              <td>ไซต์น็อตและเกลียว <small>USE NUT/BOLT SIZE</small></td>
+              <td colspan="2"><div class="ck-group">
+                <label><input type="checkbox" name="boltsize" value="8mm"/> 8 mm</label>
+                <label><input type="checkbox" name="boltsize" value="10mm"/> 10 mm</label>
+                <label><input type="checkbox" name="boltsize" value="12mm"/> 12 mm</label>
+              </div></td>
+            </tr>
+            <tr class="ck-row">
+              <td class="no">17</td>
+              <td>สีน็อต <small>NUT COLOR</small></td>
+              <td colspan="2"><div class="ck-group">
+                <label><input type="checkbox" name="nutcolor" value="silver"/> Silver</label>
+                <label><input type="checkbox" name="nutcolor" value="golden"/> Golden</label>
+                <label><input type="checkbox" name="nutcolor" value="no"/> No</label>
+              </div></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Remark -->
+        <div style="margin-top:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">REMARK / Defect Description</div>
+          <div class="remark-wrap"><textarea id="rRemark" placeholder="Describe defects, non-conformances, observations…"></textarea></div>
+        </div>
+
+        <!-- Final result -->
+        <div class="final-box">
+          <button class="final-btn ok" id="finalOK" onclick="APP.setFinalResult('OK')">✅ OK — PASS</button>
+          <button class="final-btn ng" id="finalNG" onclick="APP.setFinalResult('NG')">❌ NG — FAIL</button>
+        </div>
+
+        <!-- Photos -->
+        <div style="margin-top:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">📷 Inspection Photos</div>
+          <div class="photo-drop" onclick="document.getElementById('photoInput').click()">
+            <input type="file" id="photoInput" multiple accept="image/*" onchange="APP.handlePhotoUpload(this)"/>
+            <div style="font-size:20px;margin-bottom:3px">📁</div>
+            <div style="font-size:13px;color:var(--gray-500)">Click to upload photos (JPG/PNG, max 5MB each)</div>
+          </div>
+          <div class="photo-previews" id="photoPreviews"></div>
+        </div>
+
+        <!-- Signatures -->
+        <div class="sign-row" style="margin-top:12px">
+          <div class="sign-cell"><label>Inspection By (Staff)</label><input type="text" id="signInspector" placeholder="Name"/></div>
+          <div class="sign-cell"><label>Checked &amp; Approved By (QC Chief)</label><input type="text" id="signChief" placeholder="Name"/></div>
+          <div class="sign-cell"><label>Approved By (Manager)</label><input type="text" id="signManager" placeholder="Name"/></div>
+        </div>
+
+        <!-- Legend -->
+        <div style="font-size:10px;color:var(--gray-400);margin-top:8px;padding:5px 8px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:4px">
+          MEASUREMENT TOOLS: VC=Vernier Caliper · HG=Height Gauge · MM=Micrometer · BP=Bevel Protractor · PG=Pin Gauge · FG=Filler Gauge · PLG=Plug Gauge · RG=Ring Gauge · ST=Steel Tape · TG=Torque Gauge
+        </div>
+      </div><!-- /insp-report -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="APP.closeInsp()">Close</button>
+      <button class="btn btn-primary" id="inspSubmitBtn" onclick="APP.submitInspection()" style="display:none">Submit for Approval</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APPROVE / REJECT MODAL ══ -->
+<div class="overlay hidden" id="decisionOverlay" onclick="if(event.target===this)APP.closeDecision()">
+  <div class="modal sm">
+    <div class="modal-header"><div class="modal-title" id="decisionTitle">Decision</div><button class="close-btn" onclick="APP.closeDecision()">✕</button></div>
+    <div class="modal-body">
+      <div id="decisionJobInfo" style="background:var(--gray-50);border-radius:var(--radius);padding:13px;margin-bottom:14px;font-size:14px"></div>
+      <div class="form-group"><label>Remarks</label><textarea id="decisionRemarks" placeholder="Optional remarks…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="APP.closeDecision()">Cancel</button>
+      <button class="btn" id="decisionBtn" onclick="APP.submitDecision()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+window.APP = {};
+(function(){
+"use strict";
+var APP = window.APP;
+
+var S = {
+  gasUrl:"", userName:"QC User", role:"staff", overdueDays:3,
+  activeTab:"underqc", jobs:{}, masterParts:[],
+  currentInspJob:null, currentDecisionJob:null, currentDecisionAction:null,
+  uploadedPhotoIds:[], finalResult:null, pendingPart:null
+};
+
+// ── Appearance check definitions ──────────────────────────
+var APP_CHECKS = [
+  [1,"สนิม","Rust"],[2,"ยางขาด","Torn Rubber"],[3,"รอยขีดข่วน","Scratch"],
+  [4,"ความแน่น","Bonding"],[5,"ประกอบ Jig","Jig Assembly"],
+  [6,"ความแข็งอัดของยาง ,การหมุนตัว","Rubber Movement / Compression"],
+  [7,"การหมุนของลูกปืน","Bearing Rotate Smoothness Test"],
+  [8,"การเชื่อม","Welding"],[9,"เบี้ยว","Deform"],
+  [10,"ประกอบยางปิด Bush","Ass'y Rubber Close Bush"],
+  [11,"ทดสอบหัวงาน","Head Bonding Test"],
+  [12,"วัดความสูง A-B จากฐานงาน","Measure Height A-B (full lot)"],
+  [13,"หมุนสลักเกลียวลงไปจนแน่น,สุด","Insert Bolt & Full Tightening Test"],
+  [14,"ใส่น็อตให้แน่น,ลงสุด","Add Nut & Full Tightening"],
+  [15,"ตรวจสอบช่องว่างระหว่างอลูมิเนียมและ BKT จุด A&B","Check Space Between Aluminum and BKT A&B"]
+];
+
+// ── FIXED: DIM_SPECS is now dynamic — loaded from each part's xlsx template.
+//    Old hardcoded values (15.0/16.0, 54.3/55.3, 167.9/169.5) applied to
+//    every part regardless of its actual tolerances. Now it is populated by
+//    buildDimTable() using specs parsed from the template file.
+var DIM_SPECS    = {};   // {colId: {min, max, label}} — rebuilt per inspection
+var CURRENT_DIMS = [];   // dimension definitions for the currently open form
+
+// Fallback when getTemplateData fails or returns no dimensions
+var FALLBACK_DIMS = [
+  {colIndex:0,id:"col0",name:"Dimension A",subLabel:"",spec:"",tool:"Vernier Caliper",isHardness:false},
+  {colIndex:1,id:"col1",name:"Dimension B",subLabel:"",spec:"",tool:"Vernier Caliper",isHardness:false},
+  {colIndex:2,id:"col2",name:"Dimension C",subLabel:"",spec:"",tool:"Vernier Caliper",isHardness:false},
+  {colIndex:3,id:"col3",name:"Hardness Rubber",subLabel:"ความแข็งของยาง",spec:"",tool:"Durometer",isHardness:true}
+];
+
+// Legacy key map: old inspections saved dims with keys dA/dB/h/hr (4-col template).
+// When loading old data, try these keys at the matching column index.
+var LEGACY_DIM_KEYS = ["dA","dB","h","hr"];
+
+// ── parseSpec ─────────────────────────────────────────────
+// Converts a spec string from the xlsx (e.g. "15.50 ± 0.5", "60±5", "10~12")
+// into a {min, max, label} object used for pass/fail colouring.
+function parseSpec(specStr) {
+  var s = String(specStr||"").trim().replace(/\s+/g,"");
+  if (!s) return null;
+
+  // "X±Y" or "X ± Y"
+  var pm = s.match(/^([+-]?\d+(?:\.\d+)?)(?:±|\+\-)(\d+(?:\.\d+)?)$/);
+  if (pm) {
+    var nom = parseFloat(pm[1]), tol = parseFloat(pm[2]);
+    return { min: nom-tol, max: nom+tol, label: specStr.trim() };
+  }
+
+  // "X~Y" range
+  var rng = s.match(/^([+-]?\d+(?:\.\d+)?)~(\d+(?:\.\d+)?)$/);
+  if (rng) return { min: parseFloat(rng[1]), max: parseFloat(rng[2]), label: specStr.trim() };
+
+  // "X-Y" numeric range (only when both sides are positive numbers, e.g. "55.0-56.0")
+  var dash = s.match(/^(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)$/);
+  if (dash) return { min: parseFloat(dash[1]), max: parseFloat(dash[2]), label: specStr.trim() };
+
+  return null; // unrecognised format — no pass/fail colouring
+}
+
+// ── buildDimTable ─────────────────────────────────────────
+// Rebuilds the entire dimension table (headers, spec row, tool row,
+// 10 input rows, result row) from the provided dimension definitions.
+// existingDims — the dims object from saved inspection data (may be empty).
+function buildDimTable(dims, existingDims) {
+  CURRENT_DIMS = dims;
+  DIM_SPECS    = {};
+
+  // 1. Build thead
+  var th = '<tr><th class="left">SAMPLE</th>';
+  dims.forEach(function(d) {
+    th += '<th>' + esc(d.name);
+    if (d.subLabel) th += '<br><small style="font-weight:400;opacity:.8">' + esc(d.subLabel) + '</small>';
+    th += '</th>';
+  });
+  th += '</tr>';
+  document.getElementById("dimThead").innerHTML = th;
+
+  // 2. Spec row — values come from the xlsx template
+  var specRow = '<tr class="spec-row"><td class="left">SPEC (mm)</td>';
+  dims.forEach(function(d) {
+    var parsed = parseSpec(d.spec);
+    if (parsed) DIM_SPECS[d.id] = parsed;
+    if (d.isHardness) {
+      // Hardness spec can be overridden by the inspector at runtime
+      var hVal = (d.spec) || ((existingDims && existingDims.specHardness) || "");
+      specRow += '<td><input type="text" id="specHardness" value="' + esc(hVal) + '" placeholder="e.g. 60±5"'
+               + ' style="width:80px;border:1px solid #a5b4fc;border-radius:3px;padding:2px 5px;font-size:11px;text-align:center"'
+               + ' oninput="APP.onSpecHardnessInput(this)"/></td>';
+    } else {
+      specRow += '<td>' + esc(d.spec || "—") + '</td>';
+    }
+  });
+  specRow += '</tr>';
+
+  // 3. Tool row
+  var toolRow = '<tr class="tool-row"><td class="left">TII / TOOL</td>';
+  dims.forEach(function(d) {
+    toolRow += '<td>' + esc(d.tool || "—") + '</td>';
+  });
+  toolRow += '</tr>';
+
+  // 4. Input rows (10 samples)
+  var inputRows = '';
+  for (var r = 0; r < 10; r++) {
+    inputRows += '<tr class="input-row"><td class="lbl">Sample ' + (r+1) + '</td>';
+    dims.forEach(function(d) {
+      // Try the column's own id first, then the legacy key for the same position
+      var v = '';
+      if (existingDims && existingDims[r]) {
+        v = existingDims[r][d.id] || existingDims[r][LEGACY_DIM_KEYS[d.colIndex]] || '';
+      }
+      var sp  = DIM_SPECS[d.id];
+      var cls = '';
+      if (v !== '' && sp) { var f = parseFloat(v); if (!isNaN(f)) cls = f >= sp.min && f <= sp.max ? ' pass' : ' fail'; }
+      inputRows += '<td><input type="number" step="0.01" class="dim-inp"'
+                 + ' data-col="' + esc(d.id) + '" data-row="' + r + '"'
+                 + ' value="' + esc(String(v)) + '"'
+                 + ' class="' + cls.trim() + '"'
+                 + ' oninput="APP.onDimInput(this)" placeholder="—"/></td>';
+    });
+    inputRows += '</tr>';
+  }
+
+  // 5. Result row
+  var resRow = '<tr class="result-row"><td class="left" style="font-weight:700;color:var(--gray-800)">RESULT</td>';
+  dims.forEach(function(d) {
+    resRow += '<td id="res-' + esc(d.id) + '" class="result-na">—</td>';
+  });
+  resRow += '</tr>';
+
+  document.getElementById("dimBody").innerHTML = specRow + toolRow + inputRows + resRow;
+  refreshDimResults();
+}
+
+// ── Config ────────────────────────────────────────────────
+function loadConfig(){
+  var DEF = "https://script.google.com/macros/s/AKfycby3q_VI2oRrWbu-XlGf0ry_f_vOy9xi3wAS7g1HPxzEjMF90wk9xnKdAT6TIGE4K7i4bg/exec";
+  S.gasUrl      = localStorage.getItem("qc_gas_url") || DEF;
+  S.userName    = localStorage.getItem("qc_user")    || "QC User";
+  S.role        = localStorage.getItem("qc_role")    || "staff";
+  S.overdueDays = parseInt(localStorage.getItem("qc_overdue")||"3")||3;
+  document.getElementById("roleSelect").value = S.role;
+  updateRoleUI();
+  document.getElementById("configBanner").classList.toggle("hidden", !!S.gasUrl);
+}
+APP.setRole = function(r){
+  S.role = r; localStorage.setItem("qc_role",r); updateRoleUI(); APP.refresh();
+};
+function updateRoleUI(){
+  document.getElementById("postJobBtn").style.display = (S.role==="chief") ? "" : "none";
+}
+APP.openConfig = function(){
+  document.getElementById("cfgGasUrl").value    = S.gasUrl;
+  document.getElementById("cfgUserName").value  = S.userName;
+  document.getElementById("cfgRole").value      = S.role;
+  document.getElementById("cfgOverdueDays").value = S.overdueDays;
+  document.getElementById("configOverlay").classList.remove("hidden");
+};
+APP.closeConfig = function(){ document.getElementById("configOverlay").classList.add("hidden"); };
+APP.saveConfig = function(){
+  S.gasUrl      = document.getElementById("cfgGasUrl").value.trim();
+  S.userName    = document.getElementById("cfgUserName").value.trim()||"QC User";
+  S.role        = document.getElementById("cfgRole").value;
+  S.overdueDays = parseInt(document.getElementById("cfgOverdueDays").value)||3;
+  localStorage.setItem("qc_gas_url", S.gasUrl);
+  localStorage.setItem("qc_user",    S.userName);
+  localStorage.setItem("qc_role",    S.role);
+  localStorage.setItem("qc_overdue", S.overdueDays);
+  document.getElementById("roleSelect").value = S.role;
+  document.getElementById("configOverlay").classList.add("hidden");
+  document.getElementById("configBanner").classList.toggle("hidden", !!S.gasUrl);
+  updateRoleUI();
+  if(S.gasUrl){ toast("Configuration saved","success"); APP.refresh(); }
+  else toast("Please enter the GAS Web App URL","error");
+};
+
+// ── JSONP API ──────────────────────────────────────────────
+function api(action, params, body){
+  return new Promise(function(resolve,reject){
+    if(!S.gasUrl){ toast("GAS URL not configured. Click ⚙ Config.","error"); return reject(new Error("No GAS URL")); }
+    var cb = "qc_cb_"+Date.now()+"_"+Math.floor(Math.random()*1e5);
+    var url = S.gasUrl+"?callback="+cb+"&action="+encodeURIComponent(action);
+    if(params) Object.keys(params).forEach(function(k){ if(params[k]!=null&&params[k]!=="") url+="&"+encodeURIComponent(k)+"="+encodeURIComponent(params[k]); });
+    if(body)   url+="&payload="+encodeURIComponent(JSON.stringify(Object.assign({action:action},body)));
+    var timer = setTimeout(function(){ cleanup(); reject(new Error("Request timed out (30s)")); },30000);
+    function cleanup(){ clearTimeout(timer); delete window[cb]; if(sc.parentNode) sc.parentNode.removeChild(sc); }
+    window[cb] = function(data){ cleanup(); resolve(data); };
+    var sc = document.createElement("script");
+    sc.src = url;
+    sc.onerror = function(){ cleanup(); reject(new Error("Script load failed — check GAS URL")); };
+    document.head.appendChild(sc);
+  });
+}
+
+// ── Refresh / Load ────────────────────────────────────────
+APP.refresh = function(){ loadStats(); loadCurrentTab(); };
+
+async function loadStats(){
+  try{
+    var r = await api("getStats");
+    if(r.ok){
+      document.getElementById("statTotal").textContent    = r.stats.total;
+      document.getElementById("statUnderQC").textContent  = r.stats.underQC;
+      document.getElementById("statPending").textContent  = r.stats.pendingApproval;
+      document.getElementById("statApproved").textContent = r.stats.approved;
+      document.getElementById("statOverdue").textContent  = r.stats.overdue;
+    }
+  }catch(e){}
+}
+
+async function loadCurrentTab(){
+  var tab = S.activeTab;
+  if(tab==="logs"){ loadLogs(); return; }
+  var statusMap = {underqc:"UNDER_QC", pending:"PENDING_APPROVAL", history:null, overdue:null};
+  var params = Object.assign({}, getFilters());
+  if(statusMap[tab]) params.status = statusMap[tab];
+  var wrap = document.getElementById("tabContent-"+tab);
+  wrap.innerHTML = '<div class="load-wrap" style="min-height:180px"><div class="loading-overlay"><div class="loading-spinner"></div></div></div>';
+  try{
+    var r = await api("getJobs", params);
+    if(r.ok){
+      var jobs = r.jobs;
+      if(tab==="history") jobs = jobs.filter(function(j){ return j.status==="APPROVED"||j.status==="REJECTED"; });
+      if(tab==="overdue")  jobs = jobs.filter(function(j){ return j.isOverdue; });
+      S.jobs[tab] = jobs;
+      renderJobs(tab, jobs);
+      updateBadges(r.jobs);
+      updateFilterOpts(r.jobs);
+    }
+  }catch(e){ showError(tab,"Failed to load — check GAS URL / configuration."); }
+}
+
+function updateBadges(all){
+  var c={underqc:0,pending:0,history:0,overdue:0};
+  all.forEach(function(j){
+    if(j.status==="UNDER_QC") c.underqc++;
+    if(j.status==="PENDING_APPROVAL") c.pending++;
+    if(j.status==="APPROVED"||j.status==="REJECTED") c.history++;
+    if(j.isOverdue) c.overdue++;
+  });
+  Object.keys(c).forEach(function(k){ var el=document.getElementById("tb-"+k); if(el) el.textContent=c[k]; });
+}
+
+function updateFilterOpts(jobs){
+  var s=[...new Set(jobs.map(function(j){return j.supplier;}).filter(Boolean))].sort();
+  var i=[...new Set(jobs.map(function(j){return j.inspector;}).filter(Boolean))].sort();
+  var s1=document.getElementById("filterSupplier"), s2=document.getElementById("filterInspector");
+  var cv=s1.value, ci=s2.value;
+  s1.innerHTML='<option value="">All Suppliers</option>'+s.map(function(x){return'<option'+(x===cv?' selected':'')+'>'+x+'</option>';}).join('');
+  s2.innerHTML='<option value="">All Inspectors</option>'+i.map(function(x){return'<option'+(x===ci?' selected':'')+'>'+x+'</option>';}).join('');
+}
+
+// ── Render jobs table ─────────────────────────────────────
+function renderJobs(tab, jobs){
+  var wrap = document.getElementById("tabContent-"+tab);
+  if(!jobs||!jobs.length){
+    wrap.innerHTML='<div class="empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:12px"><path d="M9 12h6m-3-3v6m-7 4V5a2 2 0 012-2h8l4 4v14a2 2 0 01-2 2H4a2 2 0 01-2-2z"/></svg><h3>No jobs found</h3><p>Adjust filters or post a new job.</p></div>';
+    return;
+  }
+  var canApprove = (S.role==="chief"||S.role==="manager");
+  var html='<div class="tbl-wrap"><table class="list-tbl"><thead><tr><th>Job ID</th><th>Part No</th><th>Supplier</th><th>Inspector</th><th>Status</th><th>Posted</th><th>Days</th><th>Actions</th></tr></thead><tbody>';
+  jobs.forEach(function(job){
+    var odTag = job.isOverdue ? '<span class="overdue-tag"> 🚨</span>' : '';
+    var rowCls = job.isOverdue ? 'overdue-row' : '';
+    var posted = job.postedDate ? new Date(job.postedDate).toLocaleDateString() : '—';
+    html+='<tr class="'+rowCls+'"><td class="td-jobid">'+job.jobId+'</td><td class="td-part">'+esc(job.partNo)+'</td><td>'+esc(job.supplier||'—')+'</td><td>'+esc(job.inspector||'—')+'</td>';
+    html+='<td>'+makeStatusBadge(job.status)+odTag+'</td><td>'+posted+'</td><td>'+(job.daysOld!==undefined?job.daysOld+'d':'—')+'</td>';
+    html+='<td><div class="actions">'+makeActions(job,canApprove)+'</div></td></tr>';
+    if((tab==="history")&&job.remarks) html+='<tr><td colspan="8" style="padding:3px 14px 9px;font-size:12px;color:var(--gray-500)">💬 '+esc(job.remarks)+'</td></tr>';
+  });
+  html+='</tbody></table></div>';
+  wrap.innerHTML = html;
+}
+
+function makeStatusBadge(s){
+  var m={UNDER_QC:['s-under','🔍 Under QC'],PENDING_APPROVAL:['s-pending','⏳ Pending'],APPROVED:['s-approved','✅ Approved'],REJECTED:['s-rejected','❌ Rejected']};
+  var d=m[s]||['',s];
+  return '<span class="badge-status '+d[0]+'"><span class="dot"></span>'+d[1]+'</span>';
+}
+
+function makeActions(job, canApprove){
+  var btns=[];
+  if(job.status==="UNDER_QC")
+    btns.push('<button class="btn btn-primary btn-sm" onclick="APP.openInsp(\''+job.jobId+'\')">📝 Inspect</button>');
+  if(job.status==="PENDING_APPROVAL"&&canApprove){
+    btns.push('<button class="btn btn-success btn-sm" onclick="APP.openDecision(\''+job.jobId+'\',\'approve\')">✅ Approve</button>');
+    btns.push('<button class="btn btn-danger btn-sm" onclick="APP.openDecision(\''+job.jobId+'\',\'reject\')">❌ Reject</button>');
+  }
+  if(job.status==="PENDING_APPROVAL"||job.status==="APPROVED"||job.status==="REJECTED")
+    btns.push('<button class="btn btn-ghost btn-sm" onclick="APP.openInsp(\''+job.jobId+'\')">👁 View</button>');
+  if(job.fileId)
+    btns.push('<a href="https://drive.google.com/file/d/'+job.fileId+'" target="_blank" class="btn btn-ghost btn-sm">📄 File</a>');
+  return btns.join("");
+}
+
+function showError(tab,msg){ var el=document.getElementById("tabContent-"+tab); if(el) el.innerHTML='<div class="empty"><div style="font-size:40px">⚠️</div><h3>Error</h3><p>'+esc(msg)+'</p></div>'; }
+
+// ── Filters ───────────────────────────────────────────────
+function getFilters(){ return { q:document.getElementById("searchInput").value.trim(), supplier:document.getElementById("filterSupplier").value, inspector:document.getElementById("filterInspector").value, dateFrom:document.getElementById("filterDateFrom").value, dateTo:document.getElementById("filterDateTo").value }; }
+APP.applyFilters = function(){ loadCurrentTab(); };
+APP.clearFilters = function(){ ["searchInput","filterSupplier","filterInspector","filterDateFrom","filterDateTo"].forEach(function(id){document.getElementById(id).value="";}); loadCurrentTab(); };
+
+// ── Tab switching ─────────────────────────────────────────
+APP.switchTab = function(tab){
+  S.activeTab = tab;
+  document.querySelectorAll(".tab").forEach(function(el){ el.classList.toggle("active", el.dataset.tab===tab); });
+  document.querySelectorAll(".tab-content").forEach(function(el){ el.style.display = el.id==="tabContent-"+tab ? "" : "none"; });
+  loadCurrentTab();
+};
+
+// ── Post Job ──────────────────────────────────────────────
+APP.openPostJob = function(){
+  ["pjPartNo","pjSupplier","pjInspector","pjBatch","pjQty","pjNotes"].forEach(function(id){document.getElementById(id).value="";});
+  document.getElementById("pjPartHint").textContent = "Type to search master parts list";
+  S.pendingPart = null;
+  document.getElementById("postJobOverlay").classList.remove("hidden");
+  loadMasterParts();
+};
+APP.closePostJob = function(){ document.getElementById("postJobOverlay").classList.add("hidden"); };
+
+async function loadMasterParts(){
+  try{
+    var r = await api("getMasterParts");
+    if(r.ok){
+      S.masterParts = r.parts;
+      var dl = document.getElementById("partSuggestions");
+      dl.innerHTML = r.parts.slice(0,200).map(function(p){
+        return '<option value="'+esc(p.partNo)+'" data-supplier="'+esc(p.supplier)+'" data-file="'+esc(p.fileName)+'">'+p.partNo+' — '+(p.description||p.fileName||"")+'</option>';
+      }).join("");
+    }
+  }catch(e){}
+}
+
+APP.partSearch = function(val){
+  var part = S.masterParts.find(function(p){ return p.partNo===val; });
+  if(part){
+    if(part.supplier&&!document.getElementById("pjSupplier").value) document.getElementById("pjSupplier").value=part.supplier;
+    document.getElementById("pjPartHint").textContent = "✓ Found: "+(part.description||part.fileName||part.partNo);
+    S.pendingPart = part;
+  } else {
+    S.pendingPart = null;
+    document.getElementById("pjPartHint").textContent = "Type to search master parts list";
+  }
+};
+
+APP.submitPostJob = async function(){
+  var partNo   = document.getElementById("pjPartNo").value.trim();
+  var supplier = document.getElementById("pjSupplier").value.trim();
+  var insp     = document.getElementById("pjInspector").value.trim();
+  if(!partNo){ toast("Part number is required","error"); return; }
+  var btn = document.getElementById("postJobSubmitBtn");
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Posting…';
+  try{
+    var r = await api("postJob",null,{
+      partNo:partNo, supplier:supplier, inspector:insp,
+      postedBy:S.userName,
+      fileName: S.pendingPart ? S.pendingPart.fileName : "",
+      batch: document.getElementById("pjBatch").value.trim(),
+      qty:   document.getElementById("pjQty").value.trim(),
+      notes: document.getElementById("pjNotes").value.trim()
+    });
+    if(r.ok){ toast("✅ Job posted: "+r.jobId,"success"); APP.closePostJob(); APP.refresh(); }
+    else toast(r.error||"Failed to post job","error");
+  }catch(e){ toast("Network error: "+e.message,"error"); }
+  finally{ btn.disabled=false; btn.textContent="Post Job"; }
+};
+
+// ── Open Inspection Form ──────────────────────────────────
+// FIXED: now calls getTemplateData to load this part's actual specs,
+// column names, and measurement tools from its xlsx template file.
+APP.openInsp = function(jobId){
+  var job = findJob(jobId);
+  if(!job){ toast("Job not found","error"); return; }
+  S.currentInspJob = job;
+  S.uploadedPhotoIds = [];
+  S.finalResult = null;
+  var ex = job.inspData || {};
+  var today = new Date().toISOString().slice(0,10);
+
+  // Header — description will be updated once template loads
+  document.getElementById("inspJobId").textContent = jobId;
+  document.getElementById("rBanner").textContent   = job.partNo;
+  document.getElementById("rPartNo").textContent   = job.partNo;
+  document.getElementById("rDesc").textContent     = "Loading…";
+
+  // Meta inputs
+  document.getElementById("rSupplier").value  = ex.supplier  || job.supplier  || "";
+  document.getElementById("rPO").value        = ex.po        || "";
+  document.getElementById("rRecvDate").value  = ex.recvDate  || today;
+  document.getElementById("rInspDate").value  = ex.inspDate  || today;
+  document.getElementById("rWeight").value    = ex.weight    || "";
+  document.getElementById("rQty").value       = ex.qty       || "";
+  document.getElementById("appTotal").value   = ex.appTotal  || "";
+  document.getElementById("appSample").value  = ex.appSample || "";
+  document.getElementById("rRemark").value    = ex.remark    || "";
+  document.getElementById("signInspector").value = ex.inspector || job.inspector || S.userName;
+  document.getElementById("signChief").value     = ex.signChief   || "";
+  document.getElementById("signManager").value   = ex.signManager || "";
+
+  // Show the dimension table in loading state while we fetch the template
+  CURRENT_DIMS = [];
+  DIM_SPECS    = {};
+  document.getElementById("dimThead").innerHTML =
+    '<tr><th class="left">SAMPLE</th><th style="font-weight:400;opacity:.6" colspan="6">Loading part template…</th></tr>';
+  document.getElementById("dimBody").innerHTML =
+    '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--gray-400)">'
+    + '<div class="loading-spinner" style="display:inline-block;width:18px;height:18px;border-width:2px;margin:0 6px -4px 0"></div>'
+    + 'Fetching dimension specs…</td></tr>';
+
+  // Build appearance rows (these are the same for all parts)
+  document.getElementById("appRows").innerHTML = buildAppRows(ex);
+
+  // Checkboxes
+  document.querySelectorAll('input[name=boltsize]').forEach(function(cb){ cb.checked = !!(ex.boltSize&&ex.boltSize.indexOf(cb.value)>=0); });
+  document.querySelectorAll('input[name=nutcolor]').forEach(function(cb){ cb.checked = !!(ex.nutColor&&ex.nutColor.indexOf(cb.value)>=0); });
+
+  // Final result
+  if(ex.finalResult) APP.setFinalResult(ex.finalResult);
+  else { document.getElementById("finalOK").classList.remove("sel"); document.getElementById("finalNG").classList.remove("sel"); }
+
+  // Photos
+  document.getElementById("photoPreviews").innerHTML = "";
+  if(ex.photoUrls) ex.photoUrls.forEach(function(u){ addPhotoThumb(u); });
+
+  // Submit button
+  var canSubmit = (job.status==="UNDER_QC");
+  document.getElementById("inspSubmitBtn").style.display = canSubmit ? "" : "none";
+
+  document.getElementById("inspOverlay").classList.remove("hidden");
+
+  // Part reference images
+  document.getElementById("imgBoxTitle").textContent = job.partNo;
+  var imgs = PART_IMAGES[job.partNo];
+  if (imgs) { renderPartImages(imgs); }
+  else {
+    document.getElementById("partImagesRow").innerHTML =
+      '<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--gray-400);font-size:12px">'
+      + '&#128247; Reference diagrams not available for this part number</div>';
+  }
+
+  // ── FIXED: fetch template data and build the dimension table dynamically ──
+  if (job.fileId && S.gasUrl) {
+    api("getTemplateData", {fileId: job.fileId, partNo: job.partNo})
+      .then(function(r) {
+        var dims = (r.ok && r.dimensions && r.dimensions.length > 0) ? r.dimensions : FALLBACK_DIMS;
+        buildDimTable(dims, ex.dims || {});
+
+        // Update part description from template
+        if (r.description) {
+          document.getElementById("rDesc").textContent = r.description;
+          document.getElementById("rBanner").textContent = job.partNo + " — " + r.description;
+        } else {
+          document.getElementById("rDesc").textContent = "—";
+        }
+
+        if (r.source === "generic" && r.notice) {
+          toast("⚠️ Template: " + r.notice, "warning");
+        }
+      })
+      .catch(function(err) {
+        buildDimTable(FALLBACK_DIMS, ex.dims || {});
+        document.getElementById("rDesc").textContent = "—";
+        toast("Could not load template specs: " + err.message, "warning");
+      });
+  } else {
+    // No fileId — build with fallback dims and any saved data
+    buildDimTable(FALLBACK_DIMS, ex.dims || {});
+    document.getElementById("rDesc").textContent = "—";
+  }
+};
+
+// ── Part image library keyed by partNo ─────────────────
+var PART_IMAGES = {
+  "45535-09250": [
+    { label:"Inner Diameter A (รูใน)", arrow:"top-left",   b64:"/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAEZAfQDASIAAhEBAxEB/8QAHQABAAEFAQEBAAAAAAAAAAAAAAYDBAUHCAIBCf/EAEgQAAICAQICBgYHAwgJBQAAAAABAgMEBREGEgchMVFxkRMiQWGBoRQyQlKxwdEzYnIVQ1Njc5Lh8AgWIyQ0goOiskRUwtLx/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAfEQEAAgMAAgMBAAAAAAAAAAAAAQIRITESQQMyYVH/2gAMAwEAAhEDEQA/AOqQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa71rpKxKYZ1GnWYa1OjmjDHzLfRKc09tnJ9SRqHW+kvpbsm3h4GlY9fNspYzpuj7vWdj/A14SmXUQORcTjbpmolL0mfjOM3u/pE8NKPg01siX8L9JfF2HlwlxbrvDf0RJ89VU42XPw5Fsh4SZdFgh/AXGdfFc8pY1cpUUJP06i4xk2+zrJgSYx1QAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA822Qprc7ZxhBdspPZIDnX/SW07Fo1PGvpxqa7Lqeac4wScnzPrfezmPVXGFz2ivI6o/0lb8e+WD6G6E5Rqkmovfb1jlbWP252n6wzHVjFw3W8I+RKOH4w562ort7iJrtRKOH5qPI29tiV6su3ehxr/UHAUUls59niTY1h0Ia7hWcHY+N6T14Wyi3t1bvZ9ps9NNJp7pmb/aSOAAMKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGmelzV4Sx8XSMf1rlfVl5M99o0VQmpLd/ek1sl4sner5csDS8rKhW7HTW58q9uxzJ0i8a3Z0rdnLrlu+VbLc6Uj2zafSG9ImsZ2qWwjlJ2KjeMLYw2bTft9j+RrjJx6pRrsyJThzycFFQ37Nvf7yZR4usrolQseMpS6ubme5d6dpM+I8vR8HHx/TZWRZJpcu/Kt1vJ9yWzZrpGmsZVpWyhDGnJxe263ZmtJw8ubSjiXJd7g1+J1PRwDTgQjXVkpRittlBIx+scGQlU3K6yX8C3NeGE8mlLsnV6NDWBhZt2PtPnjXXa4pv27td66us6e6B+K8PW+CcDT1by6jp9Sotqsfrer1Jr5L3eDRz9xFplWnZKrjOxzb+rtu/JF9wpmeg1ah6dj2rUZyUFKt8jk+xJr2mZjy0vHX4LbTI5EdOxY5jTyVVFWtfe26/mXJxaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARjijiinSpyx6+WV6Xrc3ZHc5Q6TNaw8bXLnpl1mNkN72Ra/2e77mutfHdeBvnpl0RW2vP0zL2zXFK3H3+skuqSfsfuOZtfqxc/IlLLun6ddT9RPfyafyO8ajTHtG83XMq+XNYoTl96HK/y3K2Bx1xBpdnNp2o3Y09uXmhCCe3dvseLdM0r0nr5Vlce9Vt/iXeNoXC9ifpuJlS+p+tiWP8DLS5t6WuN7UlPiPUPg4r8EYzN464m1CPLm67ql8X9meVJLyRklw5wh2vjKvbuWBc/wAi" },
+    { label:"Inner Diameter B (รูใน)", arrow:"diagonal",   b64:"/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAEZAfQDASIAAhEBAxEB/8QAHQABAAAHAQEAAAAAAAAAAAAAAAECAwQFBggHCf/EAEcQAAIBAgIGBwQHBQYFBQAAAAABAgMEBREGEiExQVEHEyJhcYGRFDJCoQgjM1JiscEVcoKS0SQlQ1OishZjc8LhNFST8PH/xAAYAQEBAQEBAAAAAAAAAAAAAAAAAQIDBP/EACERAQEAAgIDAQEAAwAAAAAAAAABAhESMQMhQVFhMoGR/9oADAMBAAIRAxEAPwDqkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoXN5bW2XtFenTb3KUkm/ICuCyeJUH7mtNc0tnzIRxKlKWqoyz8jXDL8TlF8CxrYpb0E3V1kl3ZlKzx/C7yr1VG9o9b9yT1ZejFxsNxkwAZUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALe+vKFhbTuLqpGnSjvb/Jcyni2I0MMs53FxLsrYorfJ8keRaYY9cXzdW6nqQybhTXBdy/U3jhtm3Stpj0jXlacrbCM7Wju1/wDEl/Ty2mE0dq3FW4664qy1m83Kbzb82aZK/nXqylb0nKOe2cVuss1FfzMz+juKW9GouuvrOMluh7VKcv5aEG/md8cddMPW7Jt0VKU5PZs95/kib26dOvqwpTllypz/qac7+dxFOhaXtZc6Oj11Wz/AIq01+Rbyo3M560sLxrLk9GabX+/Mu0bxf4hJ0WqtGrBZb50aiX+1nl2lFeg60pKpTWT+GS3/Izk7yFnB9ZGpZvnXwO9tf8AVSk18jU9KsXpXFF6uIWNfesoYi21/DWgpLzKRsGiWneI4TOFGtVd3aburqvNpfhe9fNHsmBY3ZY1bdbZ1M5JdunLZKPiv1OULW7dNqTXVx5ySUX/ABRzh65G96NYxXs6tOtSqOnOO1Tj+vd6o45YSty6dDgwmi+P0satfhhdQX1kE/mu4zZys123LsABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITkoRcpNKKWbb4ETS+kDSOjYUI2MJydas1FwpxcpzfCEYra2+SNY48rpLdMJpRi/t97Ko2/Z6WcaUX+eXNnkWmGOW/tToSrZ1pPs0acOtqyfdHcn46z7jcsetYWlmrvTjGIaOYY1nCxoTUr2uuTaz1c+UU33o0Sr0wYRo7r2/Rzorb0JPs+3XacqtTvbz1n5y8jtuT1GNVNheh2mGNVI1rLRbq4P3bnHKvzUJbvKBuln0c6aU6OWI6cW2E0n/g4dRcUvNaiPOp3/S3pfF15XGJWtnPbrwirSil+89VfMx1TQeg5a+lGmmGU6r3xqYn10l5QUy7v009Xj0bYdKf969JeK1pbmld04bfOTKlPogwCacqGm+Oc843dNo8mp6MdG1KSjX0tt5tb5K1uJp+aUSZYH0Xy2R0pUH+LDrlL/eT/AIum7Y3hWCaMXFWhR6ZsTsbmk8nQnKVdxfJqEjT8Y0gv7mlq" },
+    { label:"Height (ความสูง)", arrow:"horizontal", b64:"/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAEZAfQDASIAAhEBAxEB/8QAHQABAAIDAQEBAQAAAAAAAAAAAAUGAwQHCAIBCf/EAFEQAAEDAwEDCQUDCAYHBgcAAAEAAgMEBREhBhIxBxMiQVFhcYGhFDKRscEjQlIVM2JyorLC0QglNJLh8BckRFNjc4IWJnSTo7MnQ1RkhNLi/8QAGAEBAQEBAQAAAAAAAAAAAAAAAAECAwT/xAAiEQEBAAIDAQEAAwADAAAAAAAAAREhAjFBEgMTMlFCgfD/2gAMAwEAAhEDEQA/APVKIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICLWrq+moI9+rmbEzGS4g4A7T2DvWeN7ZI2vjcHMcAWuacgg9YQfSLXrt8wuZFUCCRww1+6HEHwKj7Dc5qiaqoLjzYuVJumTmwQyVjs7kjQeo4Ixk4II7CrjWUykquqhpITLUP3WZxwJJPYANSe4L8oqyCtg52lkEjMlp0III4gg6g9xWnc7tFRy81kGTAJHYtStkFHVwXeN2KeQNhq2lwDQ0noyHPW0nB/RJ7Ar86yZTyi62+UtHM5szKnmWHElQ2FxijP6TuoDrPAdeFJkgNJJwFD0l1p6qpNM1rOY3d3B1B7lJMlTIIIyOCx1E8dNC+Wd4ZG0ZJKh9n5RR1VTZJHHepA2SnLnZLqd2d3+6Q5ngG9q2a6eAl1RK4OjpXYAzpznDPfjPxJ7ExsyzUNzp6yV8UfORztG8Ypo3Rv3fxYcBkd63VXq+Q1tDHc6Nu9WULnSRgffbjD2f9Q/aDT1KVNxpzahcI3GSmdEJmFo1e0jIwO06ad6WYJXxcrxQ22RkdXNuyPBcGtY55DR94hoOB3nRbdPPFUwRzU8jJYZGhzHsOWuB4EHrCihMy2N52qwaupO/ITjI7GjHU3OB5nrK2KFgo6x9PExraWVpmiweDs9NuOzUHzKuNGUio+jvVtrap1NS1sEszc9Fjs5xxx2468cFp357q2qgs0Je0VDXSVMjTgsgBAIB6i8nd8N49SyuFFU7tBFHGz2cgwBowI3M4buOHZp1ZHWkhlLrDWVdPRQOmrJ4oIW8XyODWjzK/aWUzU7JHMLHEdJh+6esfFQFtcy8VUl6qAH0UJcyhYdRug4dNjtcQQ09TR+kVJDKwwTRzxNlgkZJE4Za9jgQR3EL7WlbzTvdLJShrRI7MgaOLsDX4ALW2iqpo6eGjoZWx11a/mYnHXcGMvfj9FoJHVnA60xvAkmTxPmfEyVjpWAFzA4Fzc9o6lkUHSWu0W2emhpqWKGaIdCUDpnPHedxdnrznJ1UpcKuOgopqmbO5G3JDRknsAHWScAeKWGWwirNLY6WHmq+9MbU3dzxI6feP2buO5Hr0WDgAOPE5JKsjHtewPaQWkZBSzBK+kVZbTx3xzrnV1NQbedKSGGZ0T" }
+  ]
+};
+
+function renderPartImages(imgs){
+  imgs.forEach(function(img, i){
+    var card = document.getElementById("imgCard"+i);
+    var lbl  = document.getElementById("imgLabel"+i);
+    if(!card) return;
+    lbl.textContent = img.label;
+    card.innerHTML = buildAnnotatedCard(img);
+  });
+}
+
+var ARROW_SVGS = {
+  "top-left":
+    '<svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none" viewBox="0 0 500 281" xmlns="http://www.w3.org/2000/svg">'+
+    '<defs><marker id="ah1" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><polygon points="0,0 8,4 0,8" fill="#ff0000"/></marker></defs>'+
+    '<rect x="142" y="8" width="72" height="22" rx="3" fill="none" stroke="#00b050" stroke-width="2.5"/>'+
+    '<text x="178" y="23" font-size="13" font-weight="bold" fill="#00b050" text-anchor="middle" font-family="Arial">Inner A</text>'+
+    '<line x1="178" y1="30" x2="118" y2="78" stroke="#ff0000" stroke-width="2" marker-end="url(#ah1)"/>'+
+    '</svg>',
+  "diagonal":
+    '<svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none" viewBox="0 0 500 281" xmlns="http://www.w3.org/2000/svg">'+
+    '<defs><marker id="ah2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><polygon points="0,0 8,4 0,8" fill="#ff0000"/></marker></defs>'+
+    '<rect x="195" y="8" width="72" height="22" rx="3" fill="none" stroke="#00b050" stroke-width="2.5"/>'+
+    '<text x="231" y="23" font-size="13" font-weight="bold" fill="#00b050" text-anchor="middle" font-family="Arial">Inner B</text>'+
+    '<line x1="208" y1="30" x2="168" y2="138" stroke="#ff0000" stroke-width="2" marker-end="url(#ah2)"/>'+
+    '<line x1="254" y1="30" x2="305" y2="162" stroke="#ff0000" stroke-width="2" marker-end="url(#ah2)"/>'+
+    '</svg>',
+  "horizontal":
+    '<svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none" viewBox="0 0 500 281" xmlns="http://www.w3.org/2000/svg">'+
+    '<defs><marker id="ahL" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto-start-reverse"><polygon points="0,0 8,4 0,8" fill="#ff0000"/></marker><marker id="ahR" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><polygon points="0,0 8,4 0,8" fill="#ff0000"/></marker></defs>'+
+    '<rect x="195" y="8" width="64" height="22" rx="3" fill="none" stroke="#00b050" stroke-width="2.5"/>'+
+    '<text x="227" y="23" font-size="13" font-weight="bold" fill="#00b050" text-anchor="middle" font-family="Arial">Height</text>'+
+    '<line x1="62" y1="110" x2="432" y2="110" stroke="#ff0000" stroke-width="2" marker-start="url(#ahL)" marker-end="url(#ahR)"/>'+
+    '</svg>'
+};
+
+function buildAnnotatedCard(img){
+  var svg = ARROW_SVGS[img.arrow] || "";
+  return '<div style="position:relative;overflow:hidden;border-radius:4px 4px 0 0">'+
+    '<img src="data:image/jpeg;base64,'+img.b64+'" '+
+         'alt="'+img.label+'" '+
+         'style="width:100%;height:180px;object-fit:contain;display:block;background:#fff;padding:4px"/>'+
+    '<div style="position:absolute;inset:0;pointer-events:none">'+svg+'</div>'+
+  '</div>';
+}
+
+APP.closeInsp = function(){ document.getElementById("inspOverlay").classList.add("hidden"); S.currentInspJob=null; };
+
+// ── Build appearance rows ─────────────────────────────────
+function buildAppRows(ex){
+  var html="";
+  APP_CHECKS.forEach(function(c){
+    var d=(ex.appearance&&ex.appearance["c"+c[0]])||{ok:"",ng:"",res:""};
+    var cls = d.res==="OK"?"ok":d.res==="NG"?"ng":"";
+    html+='<tr><td class="no">'+c[0]+'</td>';
+    html+='<td class="check-name">'+esc(c[1])+' <small>'+esc(c[2])+'</small></td>';
+    html+='<td><div class="qty-row">OK=<input type="number" min="0" class="app-ok" data-no="'+c[0]+'" value="'+esc(d.ok||"")+'" oninput="APP.onAppInput(this)"/> Pcs. NG=<input type="number" min="0" class="app-ng" data-no="'+c[0]+'" value="'+esc(d.ng||"")+'" oninput="APP.onAppInput(this)"/> Pcs.</div></td>';
+    html+='<td class="result-cell"><select class="res-sel '+cls+'" data-no="'+c[0]+'" onchange="APP.onResSelect(this)"><option value="">—</option><option value="OK"'+(d.res==="OK"?" selected":"")+'>OK</option><option value="NG"'+(d.res==="NG"?" selected":"")+'>NG</option></select></td></tr>';
+  });
+  return html;
+}
+
+// ── Dim live check ────────────────────────────────────────
+// FIXED: uses DIM_SPECS populated from the template, not hardcoded values.
+APP.onDimInput = function(inp){
+  var col = inp.dataset.col;
+  var val = parseFloat(inp.value);
+  inp.classList.remove("pass","fail");
+  if (!isNaN(val) && DIM_SPECS[col]) {
+    var s = DIM_SPECS[col];
+    inp.classList.add(val >= s.min && val <= s.max ? "pass" : "fail");
+  }
+  refreshDimResults();
+};
+
+// FIXED: uses CURRENT_DIMS instead of hardcoded column keys ['dA','dB','h','hr'].
+function refreshDimResults(){
+  CURRENT_DIMS.forEach(function(d){
+    var el = document.getElementById("res-" + d.id);
+    if (!el) return;
+    var inputs = document.querySelectorAll('.dim-inp[data-col="' + d.id + '"]');
+    var vals = [];
+    inputs.forEach(function(i){ var v = parseFloat(i.value); if (!isNaN(v)) vals.push(v); });
+    if (!vals.length) { el.textContent="—"; el.className="result-na"; return; }
+    if (!DIM_SPECS[d.id]) { el.textContent="N/A"; el.className="result-na"; return; }
+    var s    = DIM_SPECS[d.id];
+    var pass = vals.every(function(v){ return v >= s.min && v <= s.max; });
+    el.textContent = pass ? "PASS" : "FAIL";
+    el.className   = pass ? "result-pass" : "result-fail";
+  });
+}
+
+// When the inspector types a hardness spec, update DIM_SPECS in real time
+APP.onSpecHardnessInput = function(inp){
+  var hDim = CURRENT_DIMS.find(function(d){ return d.isHardness; });
+  if (!hDim) return;
+  var parsed = parseSpec(inp.value);
+  if (parsed) { DIM_SPECS[hDim.id] = parsed; }
+  else        { delete DIM_SPECS[hDim.id]; }
+  refreshDimResults();
+};
+
+APP.onAppInput = function(inp){
+  var no=inp.dataset.no;
+  var ok=parseInt(document.querySelector('.app-ok[data-no="'+no+'"]').value)||0;
+  var ng=parseInt(document.querySelector('.app-ng[data-no="'+no+'"]').value)||0;
+  if(ok>0||ng>0){
+    var sel=document.querySelector('.res-sel[data-no="'+no+'"]');
+    var v=ng===0?"OK":"NG"; sel.value=v; sel.className="res-sel "+(v==="OK"?"ok":"ng");
+  }
+};
+APP.onResSelect = function(sel){
+  sel.className="res-sel "+(sel.value==="OK"?"ok":sel.value==="NG"?"ng":"");
+};
+
+APP.setFinalResult = function(v){
+  S.finalResult=v;
+  document.getElementById("finalOK").classList.toggle("sel",v==="OK");
+  document.getElementById("finalNG").classList.toggle("sel",v==="NG");
+};
+
+// ── Photo upload ──────────────────────────────────────────
+APP.handlePhotoUpload = async function(input){
+  for(var i=0;i<input.files.length;i++){
+    var file=input.files[i];
+    if(file.size>5*1024*1024){ toast(file.name+" too large","warning"); continue; }
+    var b64=await toBase64(file);
+    addPhotoThumb(b64);
+    if(S.gasUrl){
+      toast("Uploading "+file.name+"…");
+      try{
+        var r=await api("uploadPhoto",null,{base64:b64,filename:file.name,mimeType:file.type});
+        if(r.ok){ S.uploadedPhotoIds.push(r.fileId); toast("Uploaded: "+file.name,"success"); }
+        else toast("Upload failed: "+r.error,"error");
+      }catch(e){ toast("Upload error: "+e.message,"error"); }
+    }
+  }
+};
+function addPhotoThumb(src){ var img=document.createElement("img"); img.src=src; img.className="photo-thumb"; document.getElementById("photoPreviews").appendChild(img); }
+function toBase64(file){ return new Promise(function(resolve,reject){ var r=new FileReader(); r.onload=function(e){resolve(e.target.result);}; r.onerror=reject; r.readAsDataURL(file); }); }
+
+// ── Submit inspection ─────────────────────────────────────
+APP.submitInspection = async function(){
+  var job=S.currentInspJob; if(!job) return;
+  if(!S.finalResult){ toast("Please select final result (OK or NG)","error"); return; }
+
+  // Collect dimension values (keyed by dynamic col id)
+  var dims={};
+  document.querySelectorAll(".dim-inp").forEach(function(inp){
+    var row=inp.dataset.row, col=inp.dataset.col;
+    if(!dims[row]) dims[row]={};
+    dims[row][col]=inp.value;
+  });
+
+  // Collect appearance
+  var appearance={};
+  APP_CHECKS.forEach(function(c){
+    var ok=document.querySelector('.app-ok[data-no="'+c[0]+'"]');
+    var ng=document.querySelector('.app-ng[data-no="'+c[0]+'"]');
+    var rs=document.querySelector('.res-sel[data-no="'+c[0]+'"]');
+    appearance["c"+c[0]]={ok:ok?ok.value:"",ng:ng?ng.value:"",res:rs?rs.value:""};
+  });
+
+  var boltSize=[],nutColor=[];
+  document.querySelectorAll('input[name=boltsize]:checked').forEach(function(cb){boltSize.push(cb.value);});
+  document.querySelectorAll('input[name=nutcolor]:checked').forEach(function(cb){nutColor.push(cb.value);});
+
+  // Save the active dimension definitions so the data can be re-rendered correctly
+  var specHardnessEl = document.getElementById("specHardness");
+
+  var formData={
+    supplier:      document.getElementById("rSupplier").value,
+    po:            document.getElementById("rPO").value,
+    recvDate:      document.getElementById("rRecvDate").value,
+    inspDate:      document.getElementById("rInspDate").value,
+    weight:        document.getElementById("rWeight").value,
+    qty:           document.getElementById("rQty").value,
+    appTotal:      document.getElementById("appTotal").value,
+    appSample:     document.getElementById("appSample").value,
+    specHardness:  specHardnessEl ? specHardnessEl.value : "",
+    remark:        document.getElementById("rRemark").value,
+    inspector:     document.getElementById("signInspector").value || S.userName,
+    signChief:     document.getElementById("signChief").value,
+    signManager:   document.getElementById("signManager").value,
+    finalResult:   S.finalResult,
+    dims:          dims,
+    appearance:    appearance,
+    boltSize:      boltSize,
+    nutColor:      nutColor,
+    // Store the dimension template so we know how to re-render later
+    dimTemplate:   CURRENT_DIMS.map(function(d){ return {id:d.id,colIndex:d.colIndex,name:d.name,subLabel:d.subLabel,spec:d.spec,tool:d.tool,isHardness:d.isHardness}; })
+  };
+
+  var btn=document.getElementById("inspSubmitBtn");
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Submitting…';
+  try{
+    var r=await api("submitInspection",null,{
+      jobId:       job.jobId,
+      submittedBy: formData.inspector,
+      measurements:formData,
+      remarks:     formData.remark,
+      photoIds:    S.uploadedPhotoIds.join(",")
+    });
+    if(r.ok){ toast("✅ Inspection submitted for approval!","success"); APP.closeInsp(); APP.refresh(); }
+    else toast(r.error||"Submission failed","error");
+  }catch(e){ toast("Network error: "+e.message,"error"); }
+  finally{ btn.disabled=false; btn.textContent="Submit for Approval"; }
+};
+
+// ── Print ─────────────────────────────────────────────────
+APP.printInspForm = function(){
+  var w=window.open("","_blank");
+  w.document.write('<html><head><title>Inspection Report</title><style>body{font-family:Segoe UI,sans-serif;font-size:12px;padding:16px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:5px 8px}th{background:#1a3c6e;color:#fff}.rpt-banner{background:#1a3c6e;color:#fff;padding:10px 14px;margin-bottom:0}.part-images-box{background:#f8f9fa;padding:10px;border:1px solid #ccc;border-top:none}.images-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.part-img-card{text-align:center;border:1px solid #ccc}.part-img-card img{width:100%;height:120px;object-fit:contain}.img-label{font-size:10px;padding:3px;background:#eee}.sampling-box{background:#fffbeb;border:1px solid #fde68a;padding:8px;font-size:11px}.sec-title{background:#334155;color:#fff;padding:5px 10px;margin:10px 0 0}.final-box{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px;border:1px solid #ccc}.final-btn{padding:10px;text-align:center;border:2px solid #ccc;font-weight:700}.sign-row{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #ccc}.sign-cell{padding:8px;border-right:1px solid #ccc;text-align:center}.photo-previews img{width:70px;height:70px;object-fit:cover;margin:3px;border:1px solid #ccc}.rpt-meta{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #ccc;border-top:none}.meta-cell{padding:6px 10px;border-right:1px solid #ddd;border-bottom:1px solid #ddd}@media print{button{display:none}}</style></head><body>');
+  w.document.write(document.getElementById("inspReport").innerHTML);
+  w.document.write('</body></html>');
+  w.document.close();
+  setTimeout(function(){w.print();},400);
+};
+
+// ── Manager / Chief Decision ──────────────────────────────
+APP.openDecision = function(jobId, action){
+  var job=findJob(jobId); if(!job){ toast("Job not found","error"); return; }
+  S.currentDecisionJob=job; S.currentDecisionAction=action;
+  var isApprove=action==="approve";
+  var btn=document.getElementById("decisionBtn");
+  btn.textContent=isApprove?"✅ Approve":"❌ Reject";
+  btn.className="btn "+(isApprove?"btn-success":"btn-danger");
+  document.getElementById("decisionTitle").textContent=isApprove?"✅ Approve Job":"❌ Reject Job";
+  document.getElementById("decisionJobInfo").innerHTML='<strong>Job:</strong> '+esc(jobId)+'<br><strong>Part:</strong> '+esc(job.partNo)+'<br><strong>Inspector:</strong> '+esc(job.inspector||"—")+'<br><strong>Supplier:</strong> '+esc(job.supplier||"—");
+  document.getElementById("decisionRemarks").value="";
+  document.getElementById("decisionOverlay").classList.remove("hidden");
+};
+APP.closeDecision = function(){ document.getElementById("decisionOverlay").classList.add("hidden"); };
+
+APP.submitDecision = async function(){
+  var job=S.currentDecisionJob, action=S.currentDecisionAction; if(!job||!action) return;
+  var remarks=document.getElementById("decisionRemarks").value.trim();
+  var btn=document.getElementById("decisionBtn");
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Processing…';
+  try{
+    var gasAction=action==="approve"?"approveJob":"rejectJob";
+    var body={jobId:job.jobId,remarks:remarks};
+    body[action==="approve"?"approvedBy":"rejectedBy"]=S.userName;
+    var r=await api(gasAction,null,body);
+    if(r.ok){ toast(action==="approve"?"✅ Job approved!":"❌ Job rejected!",action==="approve"?"success":"error"); APP.closeDecision(); APP.refresh(); }
+    else toast(r.error||"Failed","error");
+  }catch(e){ toast("Network error: "+e.message,"error"); }
+  finally{ btn.disabled=false; btn.textContent=action==="approve"?"✅ Approve":"❌ Reject"; }
+};
+
+// ── Logs ──────────────────────────────────────────────────
+async function loadLogs(){
+  var el=document.getElementById("logsContainer");
+  el.innerHTML='<div style="text-align:center;padding:28px;color:var(--gray-400)"><div class="loading-spinner" style="margin:0 auto 10px"></div>Loading…</div>';
+  try{
+    var r=await api("getLogs",{limit:100});
+    if(r.ok){
+      if(!r.logs.length){ el.innerHTML='<div class="empty"><h3>No logs yet</h3></div>'; return; }
+      var colors={POST_JOB:"#2457a0",SUBMIT_INSPECTION:"#7c3aed",APPROVE_JOB:"#16a34a",REJECT_JOB:"#dc2626"};
+      el.innerHTML=r.logs.map(function(log){
+        var col=colors[log.action]||"#94a3b8";
+        var dt=log.timestamp?new Date(log.timestamp).toLocaleString():"—";
+        return'<div class="log-entry"><div class="log-dot" style="background:'+col+'"></div><div><div style="font-size:13px;font-weight:600;color:var(--gray-800)">'+esc(log.action)+' — '+esc(log.jobId||"")+'</div><div style="font-size:12px;color:var(--gray-600);margin-top:1px">'+esc(log.details||"")+'</div><div style="font-size:11px;color:var(--gray-400)">'+esc(log.user||"")+" · "+dt+'</div></div></div>';
+      }).join("");
+    }
+  }catch(e){ el.innerHTML='<div class="empty"><h3>Failed to load logs</h3></div>'; }
+}
+
+// ── Export ─────────────────────────────────────────────────
+APP.exportExcel = function(){
+  var jobs=S.jobs[S.activeTab]||[]; if(!jobs.length){ toast("No data","warning"); return; }
+  var rows=[["Job ID","Part No","Supplier","Inspector","Status","Posted Date","Days","Submitted By","Decision By","Remarks"]];
+  jobs.forEach(function(j){ rows.push([j.jobId,j.partNo,j.supplier,j.inspector,j.status,j.postedDate?new Date(j.postedDate).toLocaleDateString():"",j.daysOld,j.submittedBy,j.decisionBy,j.remarks]); });
+  var wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=rows[0].map(function(){return{wch:18};});
+  XLSX.utils.book_append_sheet(wb,ws,"QC Jobs");
+  XLSX.writeFile(wb,"QC_Export_"+new Date().toISOString().slice(0,10)+".xlsx");
+  toast("Exported","success");
+};
+APP.exportPrint = function(){
+  var jobs=S.jobs[S.activeTab]||[]; if(!jobs.length){ toast("No data","warning"); return; }
+  var w=window.open("","_blank");
+  w.document.write('<html><head><title>QC Report</title><style>body{font-family:Arial,sans-serif;font-size:12px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccc;padding:6px 8px;text-align:left}th{background:#1a3c6e;color:#fff}tr:nth-child(even){background:#f5f5f5}</style></head><body><h2 style="color:#1a3c6e">QC Report — '+esc(S.activeTab.toUpperCase())+'</h2><div style="color:#666;font-size:11px;margin-bottom:10px">Exported: '+new Date().toLocaleString()+' | Total: '+jobs.length+'</div><table><tr><th>Job ID</th><th>Part No</th><th>Supplier</th><th>Inspector</th><th>Status</th><th>Posted</th><th>Days</th><th>Remarks</th></tr>'+jobs.map(function(j){return'<tr><td>'+esc(j.jobId)+'</td><td>'+esc(j.partNo)+'</td><td>'+esc(j.supplier||"")+'</td><td>'+esc(j.inspector||"")+'</td><td>'+esc(j.status)+'</td><td>'+(j.postedDate?new Date(j.postedDate).toLocaleDateString():"")+'</td><td>'+j.daysOld+'</td><td>'+esc(j.remarks||"")+'</td></tr>';}).join("")+'</table></body></html>');
+  w.document.close(); w.print();
+};
+
+// ── Helpers ───────────────────────────────────────────────
+function findJob(jobId){
+  var found=null;
+  Object.values(S.jobs).forEach(function(arr){ if(!found) found=(arr||[]).find(function(j){return j.jobId===jobId;}); });
+  return found;
+}
+function toast(msg,type){
+  var el=document.createElement("div"); el.className="toast"+(type?" "+type:"");
+  el.innerHTML=(type==="success"?"✅ ":type==="error"?"❌ ":type==="warning"?"⚠️ ":"ℹ️ ")+esc(String(msg));
+  document.getElementById("toastContainer").appendChild(el);
+  setTimeout(function(){ el.style.opacity="0"; el.style.transition="opacity .3s"; setTimeout(function(){el.remove();},350); },3500);
+}
+function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+// ── Bootstrap ─────────────────────────────────────────────
+loadConfig();
+if(S.gasUrl){ loadStats(); loadCurrentTab(); }
+else {
+  ["underqc","pending","history","overdue"].forEach(function(tab){
+    var el=document.getElementById("tabContent-"+tab);
+    if(el) el.innerHTML='<div class="empty"><div style="font-size:40px">🔌</div><h3>Not Connected</h3><p>Click ⚙ Config to set up your GAS URL.</p></div>';
+  });
+}
+setInterval(function(){ if(S.gasUrl) loadStats(); },60000);
+
+})();
+</script>
+</body>
+</html>
