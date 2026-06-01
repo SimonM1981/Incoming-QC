@@ -1151,14 +1151,22 @@ function setVal(id, v){ var el=document.getElementById(id); if(el) el.value=v||"
 
 /* ── Spec Parsing ────────────────────────────────────────── */
 function parseSpec(s){
-  s=String(s||"").trim().replace(/\s+/g,"");
+  s=String(s||"").trim().replace(/\s+/g," ");
   if(!s) return null;
-  var pm=s.match(/^([+-]?\d+(?:\.\d+)?)(?:\+\/-|±)(\d+(?:\.\d+)?)$/);
+  // Pattern: 27.20 ± 0.5 or 27.20 +/- 0.5
+  var pm=s.match(/^([+-]?\d+(?:\.\d+)?)(?:\s*[+\/]?[\\-]?\s*|\s*±\s*)(\d+(?:\.\d+)?)$/);
   if(pm){ var nom=parseFloat(pm[1]),tol=parseFloat(pm[2]); return {min:nom-tol,max:nom+tol}; }
-  var rng=s.match(/^(\d+(?:\.\d+)?)~(\d+(?:\.\d+)?)$/);
+  // Pattern: 27.20~28.20
+  var rng=s.match(/^(\d+(?:\.\d+)?)\s*~\s*(\d+(?:\.\d+)?)$/);
   if(rng) return {min:parseFloat(rng[1]),max:parseFloat(rng[2])};
-  var dash=s.match(/^(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)$/);
-  if(dash) return {min:parseFloat(dash[1]),max:parseFloat(dash[2])};
+  // Pattern: 27.20-28.20 (range, NOT tolerance - second number > first)
+  var dash=s.match(/^(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)$/);
+  if(dash){
+    var a=parseFloat(dash[1]), b=parseFloat(dash[2]);
+    if(b > a) return {min:a,max:b};
+    // If second < first, it's tolerance format like "27.20 - 0.5"
+    return {min:a-b,max:a+b};
+  }
   return null;
 }
 
