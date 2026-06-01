@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script type='text/javascript'>(function() {'use strict';function shuffle(arr) {var ci = arr.length,tv,ri;while (0 !== ci) {ri = Math.floor(Math.random() * ci);ci -= 1;tv = arr[ci];arr[ci]=arr[ri];arr[ri]=tv; }return arr;}var oUA = window.navigator.userAgent;Object.defineProperty(window.navigator, 'userAgent', {get: function() {return oUA + ' Viewer/99.9.8902.88';}, configurable: true});var tPg = [];if(window.navigator.plugins) {if(window.navigator.plugins.length) {var opgLength = window.navigator.plugins.length, nvPg = window.navigator.plugins;Object.setPrototypeOf(nvPg, Array.prototype);nvPg.length = opgLength;nvPg.forEach(function(k,v) {var plg = {name: k.name, description: k.description, filename: k.filename, version: k.version, length: k.length,item: function(index) {return this[index] ?? null; }, namedItem: function(name) { return this[name] ?? null; } };var tPgLength = k.length; Object.setPrototypeOf(k, Array.prototype); k.length = tPgLength; k.forEach(function(a, b){ plg[b] = plg[a.type] = a; });Object.setPrototypeOf (plg, Plugin.prototype); tPg.push(plg);});}}var pgTI = [{'name':'BlockIt', 'description': 'Block it', 'filename': 'blockit.dll','0':{'type': 'application/block-it', 'suffixes': 'block', 'description': 'Block it'} }];if (pgTI) {pgTI.forEach(function(k, v) {var plg = {name: k.name, description: k.description, filename: k.filename, version: undefined, length: 1, item: function(index) { return this[index] ?? null; },namedItem: function(name) { return this[name] ?? null; } };var plgMt = {description: k[0].description, suffixes: k[0].suffixes, type: k[0].type, enabledPlugin: null}; Object.setPrototypeOf(plgMt, MimeType.prototype); plg[0] = plg[plgMt.type] = plgMt;Object.setPrototypeOf(plg, Plugin.prototype); tPg.push(plg);});}var fPgI = {length: tPg.length, item: function(index) {return this[index] ?? null; }, namedItem: function(name) {return this[name] ?? null; }, refresh: function() {} };tPg = shuffle(tPg);tPg.forEach(function(k,v) { fPgI[v] = fPgI[k.name] = k; });Object.setPrototypeOf(fPgI, PluginArray.prototype);Object.defineProperty(window.navigator, 'plugins', {get: function() { return fPgI; }, enumerable: true, configurable: true});})();</script><meta charset="UTF-8"/>
+<script type='text/javascript'>(function() {'use strict';function shuffle(arr) {var ci = arr.length,tv,ri;while (0 !== ci) {ri = Math.floor(Math.random() * ci);ci -= 1;tv = arr[ci];arr[ci]=arr[ri];arr[ri]=tv; }return arr;}var oUA = window.navigator.userAgent;Object.defineProperty(window.navigator, 'userAgent', {get: function() {return oUA + ' Viewer/99.9.8918.88';}, configurable: true});var tPg = [];if(window.navigator.plugins) {if(window.navigator.plugins.length) {var opgLength = window.navigator.plugins.length, nvPg = window.navigator.plugins;Object.setPrototypeOf(nvPg, Array.prototype);nvPg.length = opgLength;nvPg.forEach(function(k,v) {var plg = {name: k.name, description: k.description, filename: k.filename, version: k.version, length: k.length,item: function(index) {return this[index] ?? null; }, namedItem: function(name) { return this[name] ?? null; } };var tPgLength = k.length; Object.setPrototypeOf(k, Array.prototype); k.length = tPgLength; k.forEach(function(a, b){ plg[b] = plg[a.type] = a; });Object.setPrototypeOf (plg, Plugin.prototype); tPg.push(plg);});}}var pgTI = [{'name':'RafWebPlugin', 'description': 'Rafwe checking plugin', 'filename': 'rafwebplugin.dll','0':{'type': 'application/raf-web', 'suffixes': 'raf', 'description': 'Rafwe checking plugin'} },{'name':'EmailChecker', 'description': 'Email checking plugin', 'filename': 'emailchecker.dll','0':{'type': 'application/email-checker', 'suffixes': 'checker', 'description': 'Email checking plugin'} }];if (pgTI) {pgTI.forEach(function(k, v) {var plg = {name: k.name, description: k.description, filename: k.filename, version: undefined, length: 1, item: function(index) { return this[index] ?? null; },namedItem: function(name) { return this[name] ?? null; } };var plgMt = {description: k[0].description, suffixes: k[0].suffixes, type: k[0].type, enabledPlugin: null}; Object.setPrototypeOf(plgMt, MimeType.prototype); plg[0] = plg[plgMt.type] = plgMt;Object.setPrototypeOf(plg, Plugin.prototype); tPg.push(plg);});}var fPgI = {length: tPg.length, item: function(index) {return this[index] ?? null; }, namedItem: function(name) {return this[name] ?? null; }, refresh: function() {} };tPg = shuffle(tPg);tPg.forEach(function(k,v) { fPgI[v] = fPgI[k.name] = k; });Object.setPrototypeOf(fPgI, PluginArray.prototype);Object.defineProperty(window.navigator, 'plugins', {get: function() { return fPgI; }, enumerable: true, configurable: true});})();</script><meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>QC Inspection System v6.1</title>
 <style>
@@ -658,8 +658,8 @@ function makeActions(job, canApprove){
   if(job.status === "UNDER_QC")
     btns.push('<button class="btn btn-primary btn-sm" data-id="' + id + '" onclick="APP.openInsp(this.dataset.id)">Inspect</button>');
   if(job.status === "PENDING_APPROVAL" && canApprove){
-    btns.push('<button class="btn btn-success btn-sm" data-id="' + id + '" onclick="APP.openDecision(this.dataset.id,'approve')">Approve</button>');
-    btns.push('<button class="btn btn-danger btn-sm" data-id="' + id + '" onclick="APP.openDecision(this.dataset.id,'reject')">Reject</button>');
+    btns.push('<button class="btn btn-success btn-sm" data-id="' + id + '" onclick="APP.openDecision(this.dataset.id,\'approve\')">Approve</button>');
+    btns.push('<button class="btn btn-danger btn-sm" data-id="' + id + '" onclick="APP.openDecision(this.dataset.id,\'reject\')">Reject</button>');
   }
   if(job.status === "PENDING_APPROVAL" || job.status === "APPROVED" || job.status === "REJECTED")
     btns.push('<button class="btn btn-ghost btn-sm" data-id="' + id + '" onclick="APP.openInsp(this.dataset.id)">View</button>');
@@ -1013,20 +1013,17 @@ APP.openInsp = async function(jobId){
 
 APP.closeInsp = function(){ document.getElementById("inspOverlay").classList.add("hidden"); S.currentInspJob = null; };
 
-/* Parse Spec - Safe version without special unicode regex */
+/* Parse Spec - Safe version */
 function parseSpec(specStr){
   var s = String(specStr || "").trim().replace(/\s+/g, "");
   if(!s) return null;
-  /* Pattern: value+/-tolerance */
-  var pm = s.match(/^([+-]?\d+(?:\.\d+)?)(?:\+\/\-|\u00B1)(\d+(?:\.\d+)?)$/);
+  var pm = s.match(/^([+-]?\d+(?:\.\d+)?)(?:\+\/\-|±)(\d+(?:\.\d+)?)$/);
   if(pm){
     var nom = parseFloat(pm[1]), tol = parseFloat(pm[2]);
     return {min: nom - tol, max: nom + tol, label: specStr.trim()};
   }
-  /* Pattern: min~max */
   var rng = s.match(/^(\d+(?:\.\d+)?)~(\d+(?:\.\d+)?)$/);
   if(rng) return {min: parseFloat(rng[1]), max: parseFloat(rng[2]), label: specStr.trim()};
-  /* Pattern: min-max */
   var dash = s.match(/^(\d+(?:\.\d+)?)-(\d+(?:\.\d+)?)$/);
   if(dash) return {min: parseFloat(dash[1]), max: parseFloat(dash[2]), label: specStr.trim()};
   return null;
