@@ -432,6 +432,10 @@ table.list-tbl td{padding:10px 12px;color:var(--gray-700);vertical-align:middle}
         <div class="form-group"><label>Inspector</label><input type="text" id="pjInspector" placeholder="Inspector name"/></div>
       </div>
       <div class="form-row">
+        <div class="form-group"><label>PO Number</label><input type="text" id="pjPO" placeholder="e.g. PO-2026-001"/></div>
+        <div class="form-group"><label>Weight (g)</label><input type="text" id="pjWeight" placeholder="Auto-filled from part" readonly style="background:var(--gray-100)"/></div>
+      </div>
+      <div class="form-row">
         <div class="form-group"><label>Quantity (pcs)</label><input type="number" id="pjQty" placeholder="e.g. 500"/></div>
         <div class="form-group"><label>Notes</label><input type="text" id="pjNotes" placeholder="Optional"/></div>
       </div>
@@ -865,7 +869,7 @@ APP.switchTab = function(tab){
 
 /* ── Post Job ────────────────────────────────────────────── */
 APP.openPostJob = function(){
-  ["pjPartNo","pjSupplier","pjInspector","pjQty","pjNotes"].forEach(function(id){ document.getElementById(id).value=""; });
+  ["pjPartNo","pjSupplier","pjInspector","pjPO","pjWeight","pjQty","pjNotes"].forEach(function(id){ document.getElementById(id).value=""; });
   document.getElementById("postJobOverlay").classList.remove("hidden");
   loadMasterParts();
 };
@@ -885,8 +889,12 @@ async function loadMasterParts(){
 }
 APP.partSearch = function(val){
   var part = S.masterParts.find(function(p){ return p.partNo===val; });
-  if(part&&part.supplier&&!document.getElementById("pjSupplier").value)
-    document.getElementById("pjSupplier").value = part.supplier;
+  if(part){
+    if(part.supplier && !document.getElementById("pjSupplier").value)
+      document.getElementById("pjSupplier").value = part.supplier;
+    if(part.weight)
+      document.getElementById("pjWeight").value = part.weight;
+  }
 };
 APP.submitPostJob = async function(){
   var partNo = document.getElementById("pjPartNo").value.trim();
@@ -894,7 +902,7 @@ APP.submitPostJob = async function(){
   var btn = document.getElementById("postJobSubmitBtn");
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Posting...';
   try{
-    var r = await api("postJob",{partNo:partNo,supplier:document.getElementById("pjSupplier").value.trim(),inspector:document.getElementById("pjInspector").value.trim(),postedBy:S.userName,qty:document.getElementById("pjQty").value.trim(),notes:document.getElementById("pjNotes").value.trim()});
+    var r = await api("postJob",{partNo:partNo,supplier:document.getElementById("pjSupplier").value.trim(),inspector:document.getElementById("pjInspector").value.trim(),postedBy:S.userName,qty:document.getElementById("pjQty").value.trim(),po:document.getElementById("pjPO").value.trim(),weight:document.getElementById("pjWeight").value.trim(),notes:document.getElementById("pjNotes").value.trim()});
     if(r&&r.ok){ toast("Job posted: "+r.jobId,"success"); APP.closePostJob(); APP.refresh(); }
     else toast((r&&r.error)||"Failed to post job","error");
   }catch(e){ toast("Error: "+e.message,"error"); }
@@ -1087,10 +1095,10 @@ APP.openInsp = async function(jobId){
   setText("isoDisplay", "-");
 
   setVal("rSupplier", ex.supplier||job.supplier||"");
-  setVal("rPO", ex.po||"");
+  setVal("rPO", ex.po||job.po||"");
   setVal("rRecvDate", ex.recvDate||today);
   setVal("rInspDate", ex.inspDate||today);
-  setVal("rWeight", ex.weight||"");
+  setVal("rWeight", ex.weight||job.weight||"");
   setVal("rQty", ex.qty||job.qty||"");
   setVal("appTotal", ex.appTotal||"");
   setVal("appSample", ex.appSample||"");
