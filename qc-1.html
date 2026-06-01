@@ -345,7 +345,7 @@ table.list-tbl td{padding:10px 12px;color:var(--gray-700);vertical-align:middle}
         <div class="form-row">
           <div class="form-group"><label>ISO Document No.</label><input type="text" id="npIsoNo" placeholder="e.g. QC-IIR-001"/></div>
           <div class="form-group"><label>Screenshot</label>
-            <div class="photo-drop" onclick="document.getElementById(`npScreenshot`).click()" style="margin-top:0;padding:8px">
+            <div class="photo-drop" onclick="document.getElementById('npScreenshot').click()" style="margin-top:0;padding:8px">
               <input type="file" id="npScreenshot" accept="image/png,image/jpeg" onchange="APP.handleScreenshot(this)"/>
               <div style="font-size:11px;color:var(--gray-500)">Click to upload screenshot</div>
             </div>
@@ -473,7 +473,7 @@ table.list-tbl td{padding:10px 12px;color:var(--gray-700);vertical-align:middle}
         </div>
         <div style="margin-top:10px">
           <div style="font-size:10px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">📷 Inspection Photos</div>
-          <div class="photo-drop" onclick="document.getElementById(`photoInput`).click()">
+          <div class="photo-drop" onclick="document.getElementById('photoInput').click()">
             <input type="file" id="photoInput" multiple accept="image/*" onchange="APP.handlePhotoUpload(this)"/>
             <div style="font-size:18px;margin-bottom:2px">📁</div>
             <div style="font-size:12px;color:var(--gray-500)">Click to upload photos</div>
@@ -610,14 +610,12 @@ function api(action, params){
 
     console.log("API Request:", url);
 
-    // Create callback function
     window[cbName] = function(data){
       console.log("API Response:", action, data);
       cleanup();
       resolve(data);
     };
 
-    // Create script tag
     var script = document.createElement("script");
     script.src = url;
     script.onerror = function(err){
@@ -626,25 +624,18 @@ function api(action, params){
       reject(new Error("Failed to load script — check GAS URL or deployment settings"));
     };
 
-    // Cleanup function
+    var timer;
     function cleanup(){
+      clearTimeout(timer);
       delete window[cbName];
       if(script.parentNode) script.parentNode.removeChild(script);
     }
 
-    // Timeout
-    var timer = setTimeout(function(){
+    timer = setTimeout(function(){
       console.error("API Timeout:", action);
       cleanup();
       reject(new Error("Request timed out (30s) — GAS may not be responding"));
     }, 30000);
-
-    // Override cleanup to also clear timer
-    var origCleanup = cleanup;
-    cleanup = function(){
-      clearTimeout(timer);
-      origCleanup();
-    };
 
     document.head.appendChild(script);
   });
@@ -721,7 +712,7 @@ function renderJobs(tab, jobs){
     var odTag = job.isOverdue ? '<span class="overdue-tag"> 🚨</span>' : '';
     var rowCls = job.isOverdue ? 'overdue-row' : '';
     var posted = job.postedDate ? new Date(job.postedDate).toLocaleDateString() : '—';
-    html += '<tr class="' + rowCls + '"><td class="td-jobid">' + job.jobId + '</td><td class="td-part">' + esc(job.partNo) + '</td><td>' + esc(job.supplier || '—') + '</td><td>' + esc(job.inspector || '—') + '</td>';
+    html += '<tr class="' + rowCls + '"><td class="td-jobid">' + esc(job.jobId) + '</td><td class="td-part">' + esc(job.partNo) + '</td><td>' + esc(job.supplier || '—') + '</td><td>' + esc(job.inspector || '—') + '</td>';
     html += '<td>' + makeStatusBadge(job.status) + odTag + '</td><td>' + posted + '</td><td>' + (job.daysOld !== undefined ? job.daysOld + 'd' : '—') + '</td>';
     html += '<td><div class="actions">' + makeActions(job, canApprove) + '</div></td></tr>';
     if((tab === "history") && job.remarks) html += '<tr><td colspan="8" style="padding:3px 12px 8px;font-size:11px;color:var(--gray-500)">💬 ' + esc(job.remarks) + '</td></tr>';
@@ -736,15 +727,18 @@ function makeStatusBadge(s){
   return '<span class="badge-status ' + d[0] + '"><span class="dot"></span>' + d[1] + '</span>';
 }
 
+// ── FIXED: use data-id attribute instead of inline string interpolation ──
 function makeActions(job, canApprove){
   var btns = [];
-  if(job.status === "UNDER_QC") btns.push('<button class="btn btn-primary btn-sm" onclick="APP.openInsp(\'" + job.jobId + "\')">📝 Inspect</button>');
+  var id = esc(job.jobId);
+  if(job.status === "UNDER_QC")
+    btns.push('<button class="btn btn-primary btn-sm" data-id="' + id + '" onclick="APP.openInsp(this.dataset.id)">📝 Inspect</button>');
   if(job.status === "PENDING_APPROVAL" && canApprove){
-    btns.push('<button class="btn btn-success btn-sm" onclick="APP.openDecision(\'" + job.jobId + "\',\'approve\')">✅ Approve</button>');
-    btns.push('<button class="btn btn-danger btn-sm" onclick="APP.openDecision(\'" + job.jobId + "\',\'reject\')">❌ Reject</button>');
+    btns.push('<button class="btn btn-success btn-sm" data-id="' + id + '" onclick="APP.openDecision(this.dataset.id,\'approve\')">✅ Approve</button>');
+    btns.push('<button class="btn btn-danger btn-sm" data-id="' + id + '" onclick="APP.openDecision(this.dataset.id,\'reject\')">❌ Reject</button>');
   }
   if(job.status === "PENDING_APPROVAL" || job.status === "APPROVED" || job.status === "REJECTED")
-    btns.push('<button class="btn btn-ghost btn-sm" onclick="APP.openInsp(\'" + job.jobId + "\')">👁 View</button>');
+    btns.push('<button class="btn btn-ghost btn-sm" data-id="' + id + '" onclick="APP.openInsp(this.dataset.id)">👁 View</button>');
   return btns.join("");
 }
 
@@ -917,7 +911,7 @@ async function openEditPartList(){
     var html = '<div style="max-height:400px;overflow-y:auto"><table class="list-tbl"><thead><tr><th>Part No</th><th>Description</th><th>Supplier</th><th>ISO No</th><th>Actions</th></tr></thead><tbody>';
     parts.forEach(function(p){
       html += '<tr><td class="td-part">' + esc(p.partNo) + '</td><td>' + esc(p.description || '—') + '</td><td>' + esc(p.supplier || '—') + '</td><td>' + esc(p.isoNo || '—') + '</td>';
-      html += '<td><button class="btn btn-primary btn-sm" onclick="APP.openEditPart(\'" + p.partNo + "\')">✎ Edit</button></td></tr>';
+      html += '<td><button class="btn btn-primary btn-sm" data-pno="' + esc(p.partNo) + '" onclick="APP.openEditPart(this.dataset.pno)">✎ Edit</button></td></tr>';
     });
     html += '</tbody></table></div>';
     document.getElementById("editPartBody").innerHTML = html;
@@ -938,7 +932,7 @@ APP.openEditPart = async function(partNo){
     html += '<div class="form-row"><div class="form-group"><label>Supplier</label><input type="text" id="epSupplier" value="' + esc(p.supplier) + '"/></div>';
     html += '<div class="form-group"><label>Weight</label><input type="text" id="epWeight" value="' + esc(p.weight) + '"/></div></div>';
     html += '<div class="form-row"><div class="form-group"><label>ISO No</label><input type="text" id="epIsoNo" value="' + esc(p.isoNo) + '"/></div>';
-    html += '<div class="form-group"><label>New Screenshot</label><div class="photo-drop" onclick="document.getElementById(`epScreenshot`).click()" style="margin-top:0;padding:6px"><input type="file" id="epScreenshot" accept="image/png,image/jpeg" onchange="APP.handleEditScreenshot(this)"/><div style="font-size:11px">Click to replace screenshot</div></div><div id="epScreenshotPreview"></div></div></div></div>';
+    html += '<div class="form-group"><label>New Screenshot</label><div class="photo-drop" onclick="document.getElementById(\'epScreenshot\').click()" style="margin-top:0;padding:6px"><input type="file" id="epScreenshot" accept="image/png,image/jpeg" onchange="APP.handleEditScreenshot(this)"/><div style="font-size:11px">Click to replace screenshot</div></div><div id="epScreenshotPreview"></div></div></div></div>';
     html += '<div class="setup-section"><h3>📐 Measurements</h3><div id="epMeasurements"></div><button class="btn btn-ghost btn-sm" onclick="APP.addEditMeasRow()" style="margin-top:8px">+ Add</button></div>';
     html += '<div class="setup-section"><h3>🧪 Hardness</h3><div class="form-row"><div class="form-group"><label>Spec</label><input type="text" id="epHardnessSpec" value="' + esc(p.hardness.spec) + '"/></div><div class="form-group"><label>Tool</label><input type="text" id="epHardnessTool" value="' + esc(p.hardness.tool) + '"/></div></div></div>';
     html += '<div class="setup-section"><h3>👁 Appearance Checks</h3><div class="check-grid" id="epChecks"></div></div>';
@@ -1076,7 +1070,7 @@ APP.openInsp = async function(jobId){
       document.getElementById("isoDisplay").textContent = r.isoNo || "—";
 
       if(r.drawingUrl){
-        document.getElementById("partImageBox").innerHTML = '<img src="' + r.drawingUrl + '" alt="' + esc(r.partNo) + '" onerror="this.parentElement.innerHTML=`<div class=\`no-img\`>📷 Image not available</div>`"/>';
+        document.getElementById("partImageBox").innerHTML = '<img src="' + r.drawingUrl + '" alt="' + esc(r.partNo) + '" onerror="this.parentElement.innerHTML=\'<div class=\\'no-img\\'>📷 Image not available</div>\'"/>';
       } else {
         document.getElementById("partImageBox").innerHTML = '<div class="no-img">📷 No image for this part</div>';
       }
@@ -1372,7 +1366,7 @@ async function loadLogs(){
       el.innerHTML = r.logs.map(function(log){
         var col = colors[log.action] || "#94a3b8";
         var dt = log.timestamp ? new Date(log.timestamp).toLocaleString() : "—";
-        return '<div class="log-entry"><div class="log-dot" style="background:' + col + '"></div><div><div style="font-size:12px;font-weight:600;color:var(--gray-800)">' + esc(log.action) + ' — ' + esc(log.jobId || "") + '</div><div style="font-size:11px;color:var(--gray-600)">' + esc(log.details || "") + '</div><div style="font-size:10px;color:var(--gray-400)">' + esc(log.user || "") + " · " + dt + '</div></div></div>';
+        return '<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--gray-100)"><div style="width:8px;height:8px;border-radius:50%;background:' + col + ';margin-top:4px;flex-shrink:0"></div><div><div style="font-size:12px;font-weight:600;color:var(--gray-800)">' + esc(log.action) + ' — ' + esc(log.jobId || "") + '</div><div style="font-size:11px;color:var(--gray-600)">' + esc(log.details || "") + '</div><div style="font-size:10px;color:var(--gray-400)">' + esc(log.user || "") + " · " + dt + '</div></div></div>';
       }).join('');
     }
   }catch(e){ el.innerHTML = '<div class="empty"><h3>Failed to load logs</h3></div>'; }
