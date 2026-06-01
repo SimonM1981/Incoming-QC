@@ -590,22 +590,58 @@ APP.saveConfig = function(){
   APP.refresh();
 };
 
-// API — uses fetch() for GitHub Pages hosting
+// API — uses JSONP for GitHub Pages (bypasses CORS)
 var GAS_URL = localStorage.getItem("qc_gas_url") || "";
 
 function api(action, params){
   return new Promise(function(resolve, reject){
     if(!GAS_URL){ reject(new Error("GAS URL not configured. Click ⚙ Config to set URL.")); return; }
-    var url = GAS_URL + "?action=" + encodeURIComponent(action);
+
+    var cbName = "qc_cb_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+    var url = GAS_URL + "?callback=" + cbName + "&action=" + encodeURIComponent(action);
+
     if(params){
       Object.keys(params).forEach(function(k){
-        if(params[k] != null && params[k] !== "") url += "&" + encodeURIComponent(k) + "=" + encodeURIComponent(JSON.stringify(params[k]));
+        if(params[k] != null && params[k] !== ""){
+          url += "&" + encodeURIComponent(k) + "=" + encodeURIComponent(JSON.stringify(params[k]));
+        }
       });
     }
-    fetch(url, {method: "GET", mode: "cors"})
-      .then(function(r){ return r.json(); })
-      .then(function(data){ resolve(data); })
-      .catch(function(err){ reject(new Error(err.message)); });
+
+    // Create callback function
+    window[cbName] = function(data){
+      cleanup();
+      resolve(data);
+    };
+
+    // Create script tag
+    var script = document.createElement("script");
+    script.src = url;
+    script.onerror = function(){
+      cleanup();
+      reject(new Error("Failed to load script — check GAS URL"));
+    };
+
+    // Cleanup function
+    function cleanup(){
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    // Timeout
+    var timer = setTimeout(function(){
+      cleanup();
+      reject(new Error("Request timed out (30s)"));
+    }, 30000);
+
+    // Override cleanup to also clear timer
+    var origCleanup = cleanup;
+    cleanup = function(){
+      clearTimeout(timer);
+      origCleanup();
+    };
+
+    document.head.appendChild(script);
   });
 }
 
