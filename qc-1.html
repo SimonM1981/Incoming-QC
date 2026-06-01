@@ -807,15 +807,16 @@ function renderJobs(tab, jobs){
     return;
   }
   var canApprove = (S.role==="chief"||S.role==="manager"||S.isManagerVerified);
-  var html='<div class="tbl-wrap"><table class="list-tbl"><thead><tr><th>Job ID</th><th>Part No</th><th>Supplier</th><th>Inspector</th><th>Status</th><th>Posted</th><th>Days</th><th>Actions</th></tr></thead><tbody>';
+  var html='<div class="tbl-wrap"><table class="list-tbl"><thead><tr><th>Job ID</th><th>Part No</th><th>Supplier</th><th>Inspector</th><th>QTY</th><th>Status</th><th>Posted</th><th>Days</th><th>Actions</th></tr></thead><tbody>';
   jobs.forEach(function(job){
     var odTag=job.isOverdue?'<span class="overdue-tag"> &#9888; OVERDUE</span>':'';
     var rowCls=job.isOverdue?'overdue-row':'';
     var posted=job.postedDate?new Date(job.postedDate).toLocaleDateString():'-';
     html+='<tr class="'+rowCls+'"><td class="td-jobid">'+esc(job.jobId)+'</td><td class="td-part">'+esc(job.partNo)+'</td><td>'+esc(job.supplier||'-')+'</td><td>'+esc(job.inspector||'-')+'</td>';
+    html+='<td style="text-align:center;font-weight:600">'+esc(job.qty||'-')+'</td>';
     html+='<td>'+makeStatusBadge(job.status)+odTag+'</td><td>'+posted+'</td><td>'+(job.daysOld!==undefined?job.daysOld+'d':'-')+'</td>';
     html+='<td><div class="actions">'+makeActions(job,canApprove)+'</div></td></tr>';
-    if(tab==="history"&&job.remarks) html+='<tr><td colspan="8" style="padding:3px 12px 8px;font-size:11px;color:var(--gray-500)">&#128172; '+esc(job.remarks)+'</td></tr>';
+    if(tab==="history"&&job.remarks) html+='<tr><td colspan="9" style="padding:3px 12px 8px;font-size:11px;color:var(--gray-500)">&#128172; '+esc(job.remarks)+'</td></tr>';
   });
   html+='</tbody></table></div>';
   wrap.innerHTML=html;
@@ -1084,7 +1085,7 @@ APP.openInsp = async function(jobId){
   setVal("rRecvDate", ex.recvDate||today);
   setVal("rInspDate", ex.inspDate||today);
   setVal("rWeight", ex.weight||"");
-  setVal("rQty", ex.qty||"");
+  setVal("rQty", ex.qty||job.qty||"");
   setVal("appTotal", ex.appTotal||"");
   setVal("appSample", ex.appSample||"");
   setVal("rRemark", ex.remark||"");
