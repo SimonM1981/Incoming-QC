@@ -1150,6 +1150,7 @@ APP.closeInsp = function(){ document.getElementById("inspOverlay").classList.add
 function setVal(id, v){ var el=document.getElementById(id); if(el) el.value=v||""; }
 
 /* ── Spec Parsing ────────────────────────────────────────── */
+* ── Spec Parsing ────────────────────────────────────────── */
 function parseSpec(s){
   s=String(s||"").trim().replace(/\s+/g," ");
   if(!s) return null;
