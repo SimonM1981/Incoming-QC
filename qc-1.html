@@ -658,8 +658,8 @@ function makeActions(job, canApprove){
   if(job.status === "UNDER_QC")
     btns.push('<button class="btn btn-primary btn-sm" data-id="' + id + '" onclick="APP.openInsp(this.dataset.id)">Inspect</button>');
   if(job.status === "PENDING_APPROVAL" && canApprove){
-    btns.push('<button class="btn btn-success btn-sm" data-id="' + id + '" onclick="APP.openDecision(this.dataset.id,\'approve\')">Approve</button>');
-    btns.push('<button class="btn btn-danger btn-sm" data-id="' + id + '" onclick="APP.openDecision(this.dataset.id,\'reject\')">Reject</button>');
+    btns.push('<button class="btn btn-success btn-sm" data-id="' + id + '" onclick="APP.openDecision(this.dataset.id,&#39;approve&#39;)">Approve</button>');
+    btns.push('<button class="btn btn-danger btn-sm" data-id="' + id + '" onclick="APP.openDecision(this.dataset.id,&#39;reject&#39;)">Reject</button>');
   }
   if(job.status === "PENDING_APPROVAL" || job.status === "APPROVED" || job.status === "REJECTED")
     btns.push('<button class="btn btn-ghost btn-sm" data-id="' + id + '" onclick="APP.openInsp(this.dataset.id)">View</button>');
@@ -856,7 +856,7 @@ APP.openEditPart = async function(partNo){
     html += '<div class="form-row"><div class="form-group"><label>Supplier</label><input type="text" id="epSupplier" value="' + esc(p.supplier) + '"/></div>';
     html += '<div class="form-group"><label>Weight</label><input type="text" id="epWeight" value="' + esc(p.weight) + '"/></div></div>';
     html += '<div class="form-row"><div class="form-group"><label>ISO No</label><input type="text" id="epIsoNo" value="' + esc(p.isoNo) + '"/></div>';
-    html += '<div class="form-group"><label>New Screenshot</label><div class="photo-drop" onclick="document.getElementById('epScreenshot').click()" style="margin-top:0;padding:6px"><input type="file" id="epScreenshot" accept="image/png,image/jpeg" onchange="APP.handleEditScreenshot(this)"/><div style="font-size:11px">Click to replace screenshot</div></div><div id="epScreenshotPreview"></div></div></div></div>';
+    html += '<div class="form-group"><label>New Screenshot</label><div class="photo-drop" onclick="document.getElementById(&#39;epScreenshot&#39;).click()" style="margin-top:0;padding:6px"><input type="file" id="epScreenshot" accept="image/png,image/jpeg" onchange="APP.handleEditScreenshot(this)"/><div style="font-size:11px">Click to replace screenshot</div></div><div id="epScreenshotPreview"></div></div></div></div>';
     html += '<div class="setup-section"><h3>Measurements</h3><div id="epMeasurements"></div><button class="btn btn-ghost btn-sm" onclick="APP.addEditMeasRow()" style="margin-top:8px">+ Add</button></div>';
     html += '<div class="setup-section"><h3>Hardness</h3><div class="form-row"><div class="form-group"><label>Spec</label><input type="text" id="epHardnessSpec" value="' + esc(p.hardness.spec) + '"/></div><div class="form-group"><label>Tool</label><input type="text" id="epHardnessTool" value="' + esc(p.hardness.tool) + '"/></div></div></div>';
     html += '<div class="setup-section"><h3>Appearance Checks</h3><div class="check-grid" id="epChecks"></div></div>';
@@ -1017,7 +1017,7 @@ APP.closeInsp = function(){ document.getElementById("inspOverlay").classList.add
 function parseSpec(specStr){
   var s = String(specStr || "").trim().replace(/\s+/g, "");
   if(!s) return null;
-  var pm = s.match(/^([+-]?\d+(?:\.\d+)?)(?:\+\/\-|±)(\d+(?:\.\d+)?)$/);
+  var pm = s.match(/^([+-]?\d+(?:\.\d+)?)(?:\+\/\-|\u00B1)(\d+(?:\.\d+)?)$/);
   if(pm){
     var nom = parseFloat(pm[1]), tol = parseFloat(pm[2]);
     return {min: nom - tol, max: nom + tol, label: specStr.trim()};
