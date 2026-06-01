@@ -876,7 +876,7 @@ async function openEditPartList(){
     var html = '<div style="max-height:400px;overflow-y:auto"><table class="list-tbl"><thead><tr><th>Part No</th><th>Description</th><th>Supplier</th><th>ISO No</th><th>Actions</th></tr></thead><tbody>';
     parts.forEach(function(p){
       html += '<tr><td class="td-part">' + esc(p.partNo) + '</td><td>' + esc(p.description || '—') + '</td><td>' + esc(p.supplier || '—') + '</td><td>' + esc(p.isoNo || '—') + '</td>';
-      html += '<td><button class="btn btn-primary btn-sm" onclick="APP.openEditPart('' + p.partNo + '')">✎ Edit</button></td></tr>';
+      html += '<td><button class="btn btn-primary btn-sm" onclick="APP.openEditPart(\'" + p.partNo + "\')">✎ Edit</button></td></tr>';
     });
     html += '</tbody></table></div>';
     document.getElementById("editPartBody").innerHTML = html;
