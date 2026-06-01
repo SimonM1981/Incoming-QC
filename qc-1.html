@@ -697,13 +697,13 @@ function makeStatusBadge(s){
 
 function makeActions(job, canApprove){
   var btns = [];
-  if(job.status === "UNDER_QC") btns.push('<button class="btn btn-primary btn-sm" onclick="APP.openInsp('' + job.jobId + '')">📝 Inspect</button>');
+  if(job.status === "UNDER_QC") btns.push('<button class="btn btn-primary btn-sm" onclick="APP.openInsp(\'" + job.jobId + "\')">📝 Inspect</button>');
   if(job.status === "PENDING_APPROVAL" && canApprove){
-    btns.push('<button class="btn btn-success btn-sm" onclick="APP.openDecision('' + job.jobId + '','approve')">✅ Approve</button>');
-    btns.push('<button class="btn btn-danger btn-sm" onclick="APP.openDecision('' + job.jobId + '','reject')">❌ Reject</button>');
+    btns.push('<button class="btn btn-success btn-sm" onclick="APP.openDecision(\'" + job.jobId + "\',\'approve\')">✅ Approve</button>');
+    btns.push('<button class="btn btn-danger btn-sm" onclick="APP.openDecision(\'" + job.jobId + "\',\'reject\')">❌ Reject</button>');
   }
   if(job.status === "PENDING_APPROVAL" || job.status === "APPROVED" || job.status === "REJECTED")
-    btns.push('<button class="btn btn-ghost btn-sm" onclick="APP.openInsp('' + job.jobId + '')">👁 View</button>');
+    btns.push('<button class="btn btn-ghost btn-sm" onclick="APP.openInsp(\'" + job.jobId + "\')">👁 View</button>');
   return btns.join("");
 }
 
