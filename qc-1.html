@@ -1209,7 +1209,7 @@ function buildDimTable(dims, existingDims){
   toolRow+='</tr>';
 
   var inputRows='';
-  for(var row=0;row<10;row++){
+  for(var row=0;row<50;row++){
     inputRows+='<tr class="input-row"><td class="lbl">S'+(row+1)+'</td>';
     dims.forEach(function(d){
       var v=''; if(existingDims&&existingDims[row]) v=existingDims[row][d.id]||'';
