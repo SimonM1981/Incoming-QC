@@ -1035,7 +1035,7 @@ APP.openInsp = async function(jobId){
       document.getElementById("isoDisplay").textContent = r.isoNo || "—";
 
       if(r.drawingUrl){
-        document.getElementById("partImageBox").innerHTML = '<img src="' + r.drawingUrl + '" alt="' + esc(r.partNo) + '" onerror="this.parentElement.innerHTML='<div class=\'no-img\'>📷 Image not available</div>'"/>';
+        document.getElementById("partImageBox").innerHTML = '<img src="' + r.drawingUrl + '" alt="' + esc(r.partNo) + '" onerror="this.parentElement.innerHTML=`<div class=\`no-img\`>📷 Image not available</div>`"/>';
       } else {
         document.getElementById("partImageBox").innerHTML = '<div class="no-img">📷 No image for this part</div>';
       }
