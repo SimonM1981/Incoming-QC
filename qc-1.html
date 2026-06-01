@@ -655,7 +655,8 @@ var S = {
   currentInspJob:null, currentDecisionJob:null, currentDecisionAction:null,
   uploadedPhotoIds:[], finalResult:null,
   isManagerVerified:false,
-  npScreenshotBase64:null, epScreenshotBase64:null
+  npScreenshotBase64:null, epScreenshotBase64:null,
+  dimRowCount: 10
 };
 
 var APP_CHECKS = [
@@ -1139,9 +1140,7 @@ APP.openInsp = async function(jobId){
       }
 
       buildDimTable(r.measurements||[], ex.dims||{});
-              buildDimTable(r.measurements||[], ex.dims||{});
-        
-        // If saved data has more than 10 rows, auto-expand
+         // If saved data has more than 10 rows, auto-expand
         if(ex.dims){
           var maxSavedRow = -1;
           Object.keys(ex.dims).forEach(function(k){
@@ -1174,8 +1173,7 @@ APP.openInsp = async function(jobId){
         }
         
         document.getElementById("appRows").innerHTML=buildAppRows(r.checks||[], ex.appearance||{});
-      document.getElementById("appRows").innerHTML=buildAppRows(r.checks||[], ex.appearance||{});
-    } else {
+        } else {
       setText("rDesc", "-");
       document.getElementById("partImageBox").innerHTML='<div class="no-img">Error loading part data</div>';
       document.getElementById("dimBody").innerHTML='<tr><td colspan="7" style="text-align:center;padding:12px;color:var(--gray-400)">No dimension data</td></tr>';
