@@ -608,8 +608,11 @@ function api(action, params){
       });
     }
 
+    console.log("API Request:", url);
+
     // Create callback function
     window[cbName] = function(data){
+      console.log("API Response:", action, data);
       cleanup();
       resolve(data);
     };
@@ -617,9 +620,10 @@ function api(action, params){
     // Create script tag
     var script = document.createElement("script");
     script.src = url;
-    script.onerror = function(){
+    script.onerror = function(err){
+      console.error("API Script Error:", err);
       cleanup();
-      reject(new Error("Failed to load script — check GAS URL"));
+      reject(new Error("Failed to load script — check GAS URL or deployment settings"));
     };
 
     // Cleanup function
@@ -630,8 +634,9 @@ function api(action, params){
 
     // Timeout
     var timer = setTimeout(function(){
+      console.error("API Timeout:", action);
       cleanup();
-      reject(new Error("Request timed out (30s)"));
+      reject(new Error("Request timed out (30s) — GAS may not be responding"));
     }, 30000);
 
     // Override cleanup to also clear timer
