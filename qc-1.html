@@ -1139,6 +1139,41 @@ APP.openInsp = async function(jobId){
       }
 
       buildDimTable(r.measurements||[], ex.dims||{});
+              buildDimTable(r.measurements||[], ex.dims||{});
+        
+        // If saved data has more than 10 rows, auto-expand
+        if(ex.dims){
+          var maxSavedRow = -1;
+          Object.keys(ex.dims).forEach(function(k){
+            var rowNum = parseInt(k);
+            if(!isNaN(rowNum) && rowNum > maxSavedRow) maxSavedRow = rowNum;
+          });
+          // Auto-expand to accommodate saved data (in batches of 10)
+          while(S.dimRowCount <= maxSavedRow && S.dimRowCount < 50){
+            APP.addMoreRows();
+          }
+          // Restore saved values into newly added rows
+          Object.keys(ex.dims).forEach(function(rowKey){
+            var rowNum = parseInt(rowKey);
+            if(isNaN(rowNum)) return;
+            var rowData = ex.dims[rowKey];
+            r.measurements.forEach(function(d){
+              var inp = document.querySelector('.dim-inp[data-col="'+esc(d.id)+'"][data-row="'+rowNum+'"]');
+              if(inp && rowData[d.id]){
+                inp.value = rowData[d.id];
+                var val = parseFloat(inp.value);
+                var sp = DIM_SPECS[d.id];
+                inp.classList.remove("pass","fail");
+                if(!isNaN(val) && sp){
+                  inp.classList.add(val>=sp.min && val<=sp.max ? "pass" : "fail");
+                }
+              }
+            });
+          });
+          refreshDimResults();
+        }
+        
+        document.getElementById("appRows").innerHTML=buildAppRows(r.checks||[], ex.appearance||{});
       document.getElementById("appRows").innerHTML=buildAppRows(r.checks||[], ex.appearance||{});
     } else {
       setText("rDesc", "-");
@@ -1197,7 +1232,6 @@ function parseSpec(s) {
   return null;
 }
 
-/* ── Dimension Table ─────────────────────────────────────── */
 function buildDimTable(dims, existingDims){
   CURRENT_DIMS=dims; DIM_SPECS={};
   var th='<tr><th class="left">SAMPLE</th>';
@@ -1251,9 +1285,11 @@ APP.addMoreRows = function(){
   var dims = CURRENT_DIMS;
   if(!dims.length) return;
   
-  // Find and remove result row temporarily
+  // Find the result row (last tr with class result-row)
   var resultRow = tbody.querySelector(".result-row");
   if(!resultRow) return;
+  
+  // Remove result row temporarily
   resultRow.remove();
   
   // Add 10 more rows (or up to 50 max)
@@ -1263,24 +1299,22 @@ APP.addMoreRows = function(){
   if(toAdd <= 0){
     toast("Maximum 50 rows reached", "warning");
     document.getElementById("addRowsBtn").style.display = "none";
-    // Put result row back
-    var resRow='<tr class="result-row"><td class="left">RESULT</td>';
-    dims.forEach(function(d){ resRow+='<td id="res-'+esc(d.id)+'" class="result-na">-</td>'; });
-    resRow+='</tr>';
-    tbody.insertAdjacentHTML('beforeend', resRow);
-    refreshDimResults();
     return;
   }
   
+  var existingDims = {}; // No existing data for new rows
+  
   for(var i=0; i<<toAdd; i++){
     var rowNum = current + i;
-    tbody.insertAdjacentHTML('beforeend', buildDimInputRow(rowNum, dims, {}));
+    var newRow = buildDimInputRow(rowNum, dims, existingDims);
+    // Insert before where result row was (at end of tbody)
+    tbody.insertAdjacentHTML('beforeend', newRow);
   }
   
   S.dimRowCount = current + toAdd;
   document.getElementById("rowsCount").textContent = "Showing " + S.dimRowCount + " rows";
   
-  // Re-add result row at the bottom
+  // Re-add result row at the end
   var resRow='<tr class="result-row"><td class="left">RESULT</td>';
   dims.forEach(function(d){ resRow+='<td id="res-'+esc(d.id)+'" class="result-na">-</td>'; });
   resRow+='</tr>';
