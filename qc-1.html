@@ -345,7 +345,7 @@ table.list-tbl td{padding:10px 12px;color:var(--gray-700);vertical-align:middle}
         <div class="form-row">
           <div class="form-group"><label>ISO Document No.</label><input type="text" id="npIsoNo" placeholder="e.g. QC-IIR-001"/></div>
           <div class="form-group"><label>Screenshot</label>
-            <div class="photo-drop" onclick="document.getElementById('npScreenshot').click()" style="margin-top:0;padding:8px">
+            <div class="photo-drop" onclick="document.getElementById(`npScreenshot`).click()" style="margin-top:0;padding:8px">
               <input type="file" id="npScreenshot" accept="image/png,image/jpeg" onchange="APP.handleScreenshot(this)"/>
               <div style="font-size:11px;color:var(--gray-500)">Click to upload screenshot</div>
             </div>
@@ -473,7 +473,7 @@ table.list-tbl td{padding:10px 12px;color:var(--gray-700);vertical-align:middle}
         </div>
         <div style="margin-top:10px">
           <div style="font-size:10px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">📷 Inspection Photos</div>
-          <div class="photo-drop" onclick="document.getElementById('photoInput').click()">
+          <div class="photo-drop" onclick="document.getElementById(`photoInput`).click()">
             <input type="file" id="photoInput" multiple accept="image/*" onchange="APP.handlePhotoUpload(this)"/>
             <div style="font-size:18px;margin-bottom:2px">📁</div>
             <div style="font-size:12px;color:var(--gray-500)">Click to upload photos</div>
@@ -897,7 +897,7 @@ APP.openEditPart = async function(partNo){
     html += '<div class="form-row"><div class="form-group"><label>Supplier</label><input type="text" id="epSupplier" value="' + esc(p.supplier) + '"/></div>';
     html += '<div class="form-group"><label>Weight</label><input type="text" id="epWeight" value="' + esc(p.weight) + '"/></div></div>';
     html += '<div class="form-row"><div class="form-group"><label>ISO No</label><input type="text" id="epIsoNo" value="' + esc(p.isoNo) + '"/></div>';
-    html += '<div class="form-group"><label>New Screenshot</label><div class="photo-drop" onclick="document.getElementById('epScreenshot').click()" style="margin-top:0;padding:6px"><input type="file" id="epScreenshot" accept="image/png,image/jpeg" onchange="APP.handleEditScreenshot(this)"/><div style="font-size:11px">Click to replace screenshot</div></div><div id="epScreenshotPreview"></div></div></div></div>';
+    html += '<div class="form-group"><label>New Screenshot</label><div class="photo-drop" onclick="document.getElementById(`epScreenshot`).click()" style="margin-top:0;padding:6px"><input type="file" id="epScreenshot" accept="image/png,image/jpeg" onchange="APP.handleEditScreenshot(this)"/><div style="font-size:11px">Click to replace screenshot</div></div><div id="epScreenshotPreview"></div></div></div></div>';
     html += '<div class="setup-section"><h3>📐 Measurements</h3><div id="epMeasurements"></div><button class="btn btn-ghost btn-sm" onclick="APP.addEditMeasRow()" style="margin-top:8px">+ Add</button></div>';
     html += '<div class="setup-section"><h3>🧪 Hardness</h3><div class="form-row"><div class="form-group"><label>Spec</label><input type="text" id="epHardnessSpec" value="' + esc(p.hardness.spec) + '"/></div><div class="form-group"><label>Tool</label><input type="text" id="epHardnessTool" value="' + esc(p.hardness.tool) + '"/></div></div></div>';
     html += '<div class="setup-section"><h3>👁 Appearance Checks</h3><div class="check-grid" id="epChecks"></div></div>';
