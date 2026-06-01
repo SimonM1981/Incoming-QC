@@ -572,8 +572,13 @@ table.list-tbl td{padding:10px 12px;color:var(--gray-700);vertical-align:middle}
         </div>
         <div class="sec-title">Standard Check Dimension - Sample Measurements</div>
         <table class="dim-tbl" id="dimTable">
-          <thead id="dimThead"><tr><th class="left">SAMPLE</th><th colspan="6" style="font-weight:400;opacity:.6">Loading...</th></tr></thead>
-          <tbody id="dimBody"><tr><td colspan="7" style="text-align:center;padding:20px"><div class="loading-spinner" style="display:inline-block;width:18px;height:18px;border-width:2px;margin:0 6px -4px 0"></div>Loading specs...</td></tr></tbody>
+  <thead id="dimThead"><tr><th class="left">SAMPLE</th><th colspan="6" style="font-weight:400;opacity:.6">Loading...</th></tr></thead>
+  <tbody id="dimBody"><tr><td colspan="7" style="text-align:center;padding:20px"><div class="loading-spinner" style="display:inline-block;width:18px;height:18px;border-width:2px;margin:0 6px -4px 0"></div>Loading specs...</td></tr></tbody>
+</table>
+<div style="text-align:center;margin-top:8px">
+  <button class="btn btn-ghost btn-sm" id="addRowsBtn" onclick="APP.addMoreRows()">+ Add More Rows</button>
+  <span id="rowsCount" style="font-size:11px;color:var(--gray-500);margin-left:8px">Showing 10 rows</span>
+</div>
         </table>
         <div class="sec-title" style="margin-top:12px">Standard Sampling Appearance - 100% Inspection</div>
         <table class="app-tbl">
@@ -1208,16 +1213,10 @@ function buildDimTable(dims, existingDims){
   dims.forEach(function(d){ toolRow+='<td>'+esc(d.tool||"-")+'</td>'; });
   toolRow+='</tr>';
 
+  // Build first 10 rows
   var inputRows='';
-  for(var row=0;row<10;row++){
-    inputRows+='<tr class="input-row"><td class="lbl">S'+(row+1)+'</td>';
-    dims.forEach(function(d){
-      var v=''; if(existingDims&&existingDims[row]) v=existingDims[row][d.id]||'';
-      var sp=DIM_SPECS[d.id]; var cls='';
-      if(v!==''&&sp){ var f=parseFloat(v); if(!isNaN(f)) cls=f>=sp.min&&f<=sp.max?'pass':'fail'; }
-      inputRows+='<td><input type="number" step="0.01" class="dim-inp '+cls+'" data-col="'+esc(d.id)+'" data-row="'+row+'" value="'+esc(String(v))+'" oninput="APP.onDimInput(this)" placeholder="-"/></td>';
-    });
-    inputRows+='</tr>';
+  for(var row=0;row<<10;row++){
+    inputRows+=buildDimInputRow(row,dims,existingDims);
   }
 
   var resRow='<tr class="result-row"><td class="left">RESULT</td>';
@@ -1225,8 +1224,76 @@ function buildDimTable(dims, existingDims){
   resRow+='</tr>';
 
   document.getElementById("dimBody").innerHTML=specRow+toolRow+inputRows+resRow;
+  
+  // Store current row count
+  S.dimRowCount = 10;
+  document.getElementById("rowsCount").textContent = "Showing 10 rows";
+  document.getElementById("addRowsBtn").style.display = "";
+  
   refreshDimResults();
 }
+
+// Helper to build one input row
+function buildDimInputRow(row,dims,existingDims){
+  var html='<tr class="input-row"><td class="lbl">S'+(row+1)+'</td>';
+  dims.forEach(function(d){
+    var v=''; if(existingDims&&existingDims[row]) v=existingDims[row][d.id]||'';
+    var sp=DIM_SPECS[d.id]; var cls='';
+    if(v!==''&&sp){ var f=parseFloat(v); if(!isNaN(f)) cls=f>=sp.min&&f<=sp.max?'pass':'fail'; }
+    html+='<td><input type="number" step="0.01" class="dim-inp '+cls+'" data-col="'+esc(d.id)+'" data-row="'+row+'" value="'+esc(String(v))+'" oninput="APP.onDimInput(this)" placeholder="-"/></td>';
+  });
+  html+='</tr>';
+  return html;
+}
+
+APP.addMoreRows = function(){
+  var tbody = document.getElementById("dimBody");
+  var dims = CURRENT_DIMS;
+  if(!dims.length) return;
+  
+  // Find and remove result row temporarily
+  var resultRow = tbody.querySelector(".result-row");
+  if(!resultRow) return;
+  resultRow.remove();
+  
+  // Add 10 more rows (or up to 50 max)
+  var current = S.dimRowCount || 10;
+  var toAdd = Math.min(10, 50 - current);
+  
+  if(toAdd <= 0){
+    toast("Maximum 50 rows reached", "warning");
+    document.getElementById("addRowsBtn").style.display = "none";
+    // Put result row back
+    var resRow='<tr class="result-row"><td class="left">RESULT</td>';
+    dims.forEach(function(d){ resRow+='<td id="res-'+esc(d.id)+'" class="result-na">-</td>'; });
+    resRow+='</tr>';
+    tbody.insertAdjacentHTML('beforeend', resRow);
+    refreshDimResults();
+    return;
+  }
+  
+  for(var i=0; i<<toAdd; i++){
+    var rowNum = current + i;
+    tbody.insertAdjacentHTML('beforeend', buildDimInputRow(rowNum, dims, {}));
+  }
+  
+  S.dimRowCount = current + toAdd;
+  document.getElementById("rowsCount").textContent = "Showing " + S.dimRowCount + " rows";
+  
+  // Re-add result row at the bottom
+  var resRow='<tr class="result-row"><td class="left">RESULT</td>';
+  dims.forEach(function(d){ resRow+='<td id="res-'+esc(d.id)+'" class="result-na">-</td>'; });
+  resRow+='</tr>';
+  tbody.insertAdjacentHTML('beforeend', resRow);
+  
+  refreshDimResults();
+  
+  // Hide button if reached 50
+  if(S.dimRowCount >= 50){
+    document.getElementById("addRowsBtn").style.display = "none";
+  }
+};
+
 function refreshDimResults(){
   CURRENT_DIMS.forEach(function(d){
     var el=document.getElementById("res-"+d.id); if(!el) return;
