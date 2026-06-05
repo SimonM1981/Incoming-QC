@@ -419,12 +419,12 @@ table.list-tbl td{padding:10px 12px;color:var(--table-text);vertical-align:middl
 /* Background Settings in Config */
 .bg-section{border:1px solid var(--gray-200);border-radius:var(--radius);padding:14px;margin-top:12px;background:var(--gray-50)}
 .bg-section h4{font-size:12px;font-weight:700;color:var(--gray-700);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
-.bg-preview{height:60px;border-radius:6px;border:1px solid var(--gray-300);margin-top:8px;transition:background .3s}
-.bg-row{display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
-.bg-row label{font-size:11px;font-weight:600;color:var(--gray-600);min-width:70px}
-.bg-row input[type="color"]{width:44px;height:28px;border:1px solid var(--gray-300);border-radius:4px;padding:1px;cursor:pointer;background:#fff}
-.bg-row input[type="text"]{width:80px;border:1px solid var(--gray-300);border-radius:4px;padding:4px 6px;font-size:11px;font-family:monospace}
-.bg-row select{border:1px solid var(--gray-300);border-radius:4px;padding:4px 6px;font-size:11px;background:var(--input-bg);color:var(--body-text)}
+.bg-preview{height:40px;border:1px solid var(--gray-300);border-radius:6px;margin-top:8px;transition:background .3s}
+.bg-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.bg-row label{font-size:11px;font-weight:600;color:var(--gray-600);min-width:55px}
+.bg-row input[type="color"]{width:40px;height:26px;border:1px solid var(--gray-300);border-radius:4px;padding:1px;cursor:pointer;background:#fff;flex-shrink:0}
+.bg-row input[type="text"]{width:70px;border:1px solid var(--gray-300);border-radius:4px;padding:4px 6px;font-size:11px;font-family:monospace}
+.bg-row input[type="range"]{width:70px;height:20px;cursor:pointer}
 .bg-type-group{display:flex;gap:12px;align-items:center;margin-bottom:10px}
 .bg-type-group label{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;cursor:pointer;color:var(--gray-700)}
 .bg-type-group input[type="radio"]{accent-color:var(--brand)}
@@ -529,34 +529,42 @@ table.list-tbl td{padding:10px 12px;color:var(--table-text);vertical-align:middl
       <div class="form-group"><label>Overdue Threshold (days)</label><input type="number" id="cfgOverdueDays" value="3" min="1" max="30"/></div>
 
       <div class="bg-section">
-        <h4>&#127912; Background Settings</h4>
+        <h4>&#127912; Topbar Background</h4>
         <div class="bg-type-group">
           <label><input type="radio" name="bgType" value="solid" id="bgTypeSolid" checked onchange="APP.toggleBgType()"/> Solid</label>
           <label><input type="radio" name="bgType" value="gradient" id="bgTypeGradient" onchange="APP.toggleBgType()"/> Gradient</label>
         </div>
-        <div class="bg-row">
-          <label>Color 1</label>
-          <input type="color" id="bgColor1" value="#f8fafc" oninput="APP.previewBg()"/>
-          <input type="text" id="bgColor1Hex" value="#f8fafc" oninput="APP.hexInput(1)"/>
+        <div class="bg-row" id="bgSolidRow">
+          <label>Color</label>
+          <input type="color" id="bgColor1" value="#1a3c6e" oninput="APP.previewBg()"/>
+          <input type="text" id="bgColor1Hex" value="#1a3c6e" oninput="APP.hexInput(1)"/>
         </div>
-        <div class="bg-row" id="bgColor2Row" style="display:none">
-          <label>Color 2</label>
-          <input type="color" id="bgColor2" value="#f1f5f9" oninput="APP.previewBg()"/>
-          <input type="text" id="bgColor2Hex" value="#f1f5f9" oninput="APP.hexInput(2)"/>
-        </div>
-        <div class="bg-row" id="bgDirRow" style="display:none">
-          <label>Direction</label>
-          <select id="bgDir" onchange="APP.previewBg()">
-            <option value="to bottom">Top to Bottom</option>
-            <option value="to right">Left to Right</option>
-            <option value="to bottom right">Diagonal</option>
-            <option value="to top">Bottom to Top</option>
-            <option value="to left">Right to Left</option>
-          </select>
+        <div id="bgGradRows" style="display:none">
+          <div class="bg-row">
+            <label>Color 1</label>
+            <input type="color" id="bgColor2" value="#ffffff" oninput="APP.previewBg()"/>
+            <input type="text" id="bgColor2Hex" value="#ffffff" oninput="APP.hexInput(2)"/>
+            <input type="range" id="bgPos2" min="0" max="100" value="0" style="width:80px" oninput="APP.previewBg()"/>
+            <span id="bgPos2Val" style="font-size:10px;color:var(--gray-500);min-width:24px">0%</span>
+          </div>
+          <div class="bg-row">
+            <label>Color 2</label>
+            <input type="color" id="bgColor3" value="#ffffff" oninput="APP.previewBg()"/>
+            <input type="text" id="bgColor3Hex" value="#ffffff" oninput="APP.hexInput(3)"/>
+            <input type="range" id="bgPos3" min="0" max="100" value="50" style="width:80px" oninput="APP.previewBg()"/>
+            <span id="bgPos3Val" style="font-size:10px;color:var(--gray-500);min-width:24px">50%</span>
+          </div>
+          <div class="bg-row">
+            <label>Color 3</label>
+            <input type="color" id="bgColor4" value="#1a3c6e" oninput="APP.previewBg()"/>
+            <input type="text" id="bgColor4Hex" value="#1a3c6e" oninput="APP.hexInput(4)"/>
+            <input type="range" id="bgPos4" min="0" max="100" value="100" style="width:80px" oninput="APP.previewBg()"/>
+            <span id="bgPos4Val" style="font-size:10px;color:var(--gray-500);min-width:24px">100%</span>
+          </div>
         </div>
         <div class="bg-row">
           <label>Preview</label>
-          <div class="bg-preview" id="bgPreviewBox"></div>
+          <div class="bg-preview" id="bgPreviewBox" style="height:40px;border-radius:6px"></div>
         </div>
         <div style="margin-top:8px">
           <button class="btn btn-ghost btn-sm" onclick="APP.resetBgSettings()">Reset to Default</button>
@@ -987,84 +995,104 @@ APP.saveConfig = function(){
   APP.refresh();
 };
 
-/* ── Background Settings ─────────────────────────────────── */
+/* ── Topbar Background Settings ──────────────────────────── */
 function populateBgSettings(){
   var bg = getBgSettings();
   document.getElementById("bgTypeSolid").checked = (bg.type === "solid");
   document.getElementById("bgTypeGradient").checked = (bg.type === "gradient");
-  document.getElementById("bgColor1").value = bg.color1;
-  document.getElementById("bgColor1Hex").value = bg.color1;
-  document.getElementById("bgColor2").value = bg.color2;
-  document.getElementById("bgColor2Hex").value = bg.color2;
-  if(bg.dir) document.getElementById("bgDir").value = bg.dir;
+  document.getElementById("bgColor1").value = bg.solid;
+  document.getElementById("bgColor1Hex").value = bg.solid;
+  if(bg.stops && bg.stops[0]){ document.getElementById("bgColor2").value = bg.stops[0].c; document.getElementById("bgColor2Hex").value = bg.stops[0].c; document.getElementById("bgPos2").value = bg.stops[0].p; }
+  if(bg.stops && bg.stops[1]){ document.getElementById("bgColor3").value = bg.stops[1].c; document.getElementById("bgColor3Hex").value = bg.stops[1].c; document.getElementById("bgPos3").value = bg.stops[1].p; }
+  if(bg.stops && bg.stops[2]){ document.getElementById("bgColor4").value = bg.stops[2].c; document.getElementById("bgColor4Hex").value = bg.stops[2].c; document.getElementById("bgPos4").value = bg.stops[2].p; }
   APP.toggleBgType();
   APP.previewBg();
 }
 function getBgSettings(){
-  var raw = localStorage.getItem("qc_bg");
-  if(raw){
-    try{ return JSON.parse(raw); }catch(e){}
-  }
-  return {type: "solid", color1: "#f8fafc", color2: "#f1f5f9", dir: "to bottom"};
+  var raw = localStorage.getItem("qc_topbar_bg");
+  if(raw){ try{ return JSON.parse(raw); }catch(e){} }
+  /* Default: white to blue gradient */
+  return {type:"gradient", solid:"#1a3c6e", stops:[{c:"#ffffff",p:0},{c:"#ffffff",p:50},{c:"#1a3c6e",p:100}]};
 }
 function saveBgSettings(){
-  var bg = {
-    type: document.getElementById("bgTypeGradient").checked ? "gradient" : "solid",
-    color1: document.getElementById("bgColor1").value,
-    color2: document.getElementById("bgColor2").value,
-    dir: document.getElementById("bgDir").value
-  };
-  localStorage.setItem("qc_bg", JSON.stringify(bg));
+  var isGrad = document.getElementById("bgTypeGradient").checked;
+  var bg = {type: isGrad ? "gradient" : "solid", solid: document.getElementById("bgColor1").value, stops:[]};
+  if(isGrad){
+    bg.stops = [
+      {c: document.getElementById("bgColor2").value, p: parseInt(document.getElementById("bgPos2").value)||0},
+      {c: document.getElementById("bgColor3").value, p: parseInt(document.getElementById("bgPos3").value)||50},
+      {c: document.getElementById("bgColor4").value, p: parseInt(document.getElementById("bgPos4").value)||100}
+    ];
+  }
+  localStorage.setItem("qc_topbar_bg", JSON.stringify(bg));
   applyBgSettings();
 }
 function applyBgSettings(){
   var bg = getBgSettings();
-  if(bg.type === "gradient"){
-    document.body.style.background = "linear-gradient(" + bg.dir + ", " + bg.color1 + ", " + bg.color2 + ")";
+  var topbar = document.querySelector(".topbar");
+  if(!topbar) return;
+  if(bg.type === "gradient" && bg.stops && bg.stops.length >= 2){
+    var stops = bg.stops.map(function(s){ return s.c + " " + s.p + "%"; }).join(", ");
+    topbar.style.background = "linear-gradient(90deg, " + stops + ")";
   } else {
-    document.body.style.background = bg.color1;
+    topbar.style.background = bg.solid;
   }
 }
 APP.toggleBgType = function(){
   var isGrad = document.getElementById("bgTypeGradient").checked;
-  document.getElementById("bgColor2Row").style.display = isGrad ? "" : "none";
-  document.getElementById("bgDirRow").style.display = isGrad ? "" : "none";
+  document.getElementById("bgSolidRow").style.display = isGrad ? "none" : "";
+  document.getElementById("bgGradRows").style.display = isGrad ? "" : "none";
   APP.previewBg();
 };
 APP.previewBg = function(){
   var isGrad = document.getElementById("bgTypeGradient").checked;
-  var c1 = document.getElementById("bgColor1").value;
-  var c2 = document.getElementById("bgColor2").value;
-  var dir = document.getElementById("bgDir").value;
-  document.getElementById("bgColor1Hex").value = c1;
-  document.getElementById("bgColor2Hex").value = c2;
+  var solid = document.getElementById("bgColor1").value;
   var box = document.getElementById("bgPreviewBox");
+  document.getElementById("bgColor1Hex").value = solid;
   if(isGrad){
-    box.style.background = "linear-gradient(" + dir + ", " + c1 + ", " + c2 + ")";
+    var s1 = document.getElementById("bgColor2").value + " " + document.getElementById("bgPos2").value + "%";
+    var s2 = document.getElementById("bgColor3").value + " " + document.getElementById("bgPos3").value + "%";
+    var s3 = document.getElementById("bgColor4").value + " " + document.getElementById("bgPos4").value + "%";
+    document.getElementById("bgColor2Hex").value = document.getElementById("bgColor2").value;
+    document.getElementById("bgColor3Hex").value = document.getElementById("bgColor3").value;
+    document.getElementById("bgColor4Hex").value = document.getElementById("bgColor4").value;
+    document.getElementById("bgPos2Val").textContent = document.getElementById("bgPos2").value + "%";
+    document.getElementById("bgPos3Val").textContent = document.getElementById("bgPos3").value + "%";
+    document.getElementById("bgPos4Val").textContent = document.getElementById("bgPos4").value + "%";
+    box.style.background = "linear-gradient(90deg, " + s1 + ", " + s2 + ", " + s3 + ")";
   } else {
-    box.style.background = c1;
+    box.style.background = solid;
   }
 };
 APP.hexInput = function(n){
-  var hex = document.getElementById("bgColor" + n + "Hex").value;
+  var hexEl = document.getElementById("bgColor" + n + "Hex");
+  if(!hexEl) return;
+  var hex = hexEl.value;
   if(/^#[0-9A-Fa-f]{6}$/.test(hex)){
     document.getElementById("bgColor" + n).value = hex;
     APP.previewBg();
   }
 };
 APP.resetBgSettings = function(){
-  document.getElementById("bgTypeSolid").checked = true;
-  document.getElementById("bgTypeGradient").checked = false;
-  document.getElementById("bgColor1").value = "#f8fafc";
-  document.getElementById("bgColor1Hex").value = "#f8fafc";
-  document.getElementById("bgColor2").value = "#f1f5f9";
-  document.getElementById("bgColor2Hex").value = "#f1f5f9";
-  document.getElementById("bgDir").value = "to bottom";
+  document.getElementById("bgTypeSolid").checked = false;
+  document.getElementById("bgTypeGradient").checked = true;
+  document.getElementById("bgColor1").value = "#1a3c6e";
+  document.getElementById("bgColor1Hex").value = "#1a3c6e";
+  document.getElementById("bgColor2").value = "#ffffff";
+  document.getElementById("bgColor2Hex").value = "#ffffff";
+  document.getElementById("bgPos2").value = "0";
+  document.getElementById("bgColor3").value = "#ffffff";
+  document.getElementById("bgColor3Hex").value = "#ffffff";
+  document.getElementById("bgPos3").value = "50";
+  document.getElementById("bgColor4").value = "#1a3c6e";
+  document.getElementById("bgColor4Hex").value = "#1a3c6e";
+  document.getElementById("bgPos4").value = "100";
   APP.toggleBgType();
   APP.previewBg();
-  localStorage.removeItem("qc_bg");
-  document.body.style.background = "";
-  toast("Background reset to default", "success");
+  localStorage.removeItem("qc_topbar_bg");
+  var topbar = document.querySelector(".topbar");
+  if(topbar) topbar.style.background = "";
+  toast("Topbar background reset to default", "success");
 };
 
 /* ── API via JSONP (cross-origin GAS) ────────────────────── */
