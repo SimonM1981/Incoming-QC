@@ -877,15 +877,15 @@ APP.verifyRolePw = function(){
     } else { toast("Invalid password", "error"); }
   }
   else if(action.type === "config"){
-    if(pw === "mg1234" || pw === "simon1981"){
-      if(pw === "mg1234") S.isChiefVerified = true;
-      if(pw === "simon1981") S.isManagerVerified = true;
+    /* Config: Manager only */
+    if(pw === "simon1981"){
+      S.isManagerVerified = true;
       document.getElementById("roleSelect").value = S.role;
       APP.closeRolePw();
       updateRoleUI();
       openConfigInternal();
-      toast("Access granted", "success");
-    } else { toast("Invalid password", "error"); }
+      toast("Manager access granted", "success");
+    } else { toast("Invalid password — Manager only", "error"); }
   }
   else if(action.type === "editParts"){
     if(pw === "simon1981"){
@@ -900,10 +900,10 @@ APP.verifyRolePw = function(){
 };
 
 APP.openConfig = function(){
-  var needsPw = !S.isChiefVerified && !S.isManagerVerified;
-  if(needsPw){
+  /* Config: Manager only */
+  if(!S.isManagerVerified){
     S.pendingPwAction = {type: "config"};
-    showRolePwModal("Password Required", "Enter QC Chief or Manager password");
+    showRolePwModal("Manager Password Required", "Enter Manager password");
     return;
   }
   openConfigInternal();
