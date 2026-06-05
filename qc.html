@@ -1702,9 +1702,105 @@ APP.downloadInspExcel = function(){
   var d = new Date();
   var dateStr = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
   var fileName = "QC_Inspection_" + partNo.replace(/[^a-zA-Z0-9_-]/g,"_") + "_" + dateStr + ".xls";
+  var isoNo = document.getElementById("rIsoNo").textContent || "-";
+  var maxCol = 6;  /* default max columns */
 
-  /* Gather meta */
-  var meta = [
+  /* ── Helper: get all image sources ── */
+  var partImgSrc = "";
+  var partImgBox = document.getElementById("partImageBox");
+  if(partImgBox){
+    var pImg = partImgBox.querySelector("img");
+    if(pImg && pImg.src && !pImg.src.includes("undefined")) partImgSrc = pImg.src;
+  }
+  var photoSrcs = [];
+  document.querySelectorAll("#photoPreviews .photo-thumb").forEach(function(img){ photoSrcs.push(img.src); });
+
+  /* ── Gather dimension table (full HTML table) ── */
+  var dimSection = "";
+  var dimTable = document.getElementById("dimTable");
+  if(dimTable){
+    var dimColCount = 0;
+    dimTable.querySelectorAll("thead tr:first-child th").forEach(function(){ dimColCount++; });
+    if(dimColCount < 2) dimColCount = 6;
+    maxCol = Math.max(maxCol, dimColCount);
+    dimSection += '<tr><th colspan="' + dimColCount + '">Standard Check Dimension - Sample Measurements</th></tr>';
+    dimTable.querySelectorAll("tbody tr").forEach(function(tr){
+      var rowHtml = "<tr>";
+      tr.querySelectorAll("td").forEach(function(td){
+        var inp = td.querySelector("input");
+        var val = inp ? (inp.value || "") : (td.textContent.trim() || "");
+        var cls = "";
+        if(td.classList.contains("lbl")) cls = ' style="font-weight:700;background:#f8fafc"';
+        if(!inp && (val === "PASS" || val === "FAIL" || val === "-")){
+          var style = val === "PASS" ? ' style="font-weight:700;color:#16a34a"' : val === "FAIL" ? ' style="font-weight:700;color:#dc2626"' : ' style="color:#94a3b8;font-weight:700"';
+          rowHtml += '<td' + style + '>' + esc(val) + '</td>';
+        } else {
+          rowHtml += '<td' + cls + '>' + esc(val) + '</td>';
+        }
+      });
+      rowHtml += "</tr>";
+      dimSection += rowHtml;
+    });
+  }
+
+  /* ── Gather appearance checks ── */
+  var appColCount = 5;
+  var appSection = "";
+  appSection += '<tr><th colspan="' + appColCount + '">Standard Sampling Appearance - 100% Inspection</th></tr>';
+  appSection += '<tr><th style="width:30px">No.</th><th>Check Point Inspection</th><th style="width:150px">Record Results</th><th style="width:65px">Result</th><th>Spec / Tool</th></tr>';
+
+  document.querySelectorAll("#appRows tr").forEach(function(tr){
+    /* Separator row */
+    if(tr.querySelector("td[colspan='4']") && tr.textContent.includes("Moved from Dimension Table")){
+      appSection += '<tr><td colspan="' + appColCount + '" style="background:#f1f5f9;font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.5px;padding:3px 8px">Moved from Dimension Table</td></tr>';
+      return;
+    }
+
+    var no = tr.querySelector("td.no");
+    var name = tr.querySelector("td.check-name");
+    if(no && name){
+      var okInp = tr.querySelector(".app-ok");
+      var ngInp = tr.querySelector(".app-ng");
+      var sel = tr.querySelector(".res-sel");
+      var okVal = okInp ? (okInp.value || "") : "";
+      var ngVal = ngInp ? (ngInp.value || "") : "";
+      var resVal = sel ? (sel.value || "") : "";
+      var resStyle = resVal === "OK" ? ' style="font-weight:700;color:#16a34a"' : resVal === "NG" ? ' style="font-weight:700;color:#dc2626"' : '';
+      var specInfo = "";
+      var small = name.querySelector("small");
+      if(small) specInfo = small.textContent.trim();
+      appSection += '<tr><td>' + esc(no.textContent.trim()) + '</td>'
+        + '<td>' + esc(name.childNodes[0] ? name.childNodes[0].textContent.trim() : name.textContent.trim()) + '</td>'
+        + '<td>OK=' + esc(okVal) + '  NG=' + esc(ngVal) + '</td>'
+        + '<td' + resStyle + '>' + esc(resVal) + '</td>'
+        + '<td>' + esc(specInfo) + '</td></tr>';
+    }
+    /* Checkbox rows (bolt/nut) */
+    if(tr.classList.contains("ck-row")){
+      var ckGroup = tr.querySelector(".ck-group");
+      var ckName = tr.querySelector("td:nth-child(2)");
+      if(ckGroup){
+        var checked = [];
+        ckGroup.querySelectorAll("input[type=checkbox]:checked").forEach(function(cb){ checked.push(cb.value); });
+        appSection += '<tr><td></td><td>' + esc(ckName ? ckName.textContent.trim() : "") + '</td><td colspan="3">Selected: ' + esc(checked.join(", ") || "-") + '</td></tr>';
+      }
+    }
+  });
+
+  /* ── Build complete Excel HTML ── */
+  var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><style>table,tr,td,th{border-collapse:collapse;font-family:Calibri,Segoe UI,sans-serif;font-size:11px}td,th{border:1px solid #999;padding:4px 6px}th{background:#1a3c6e;color:#fff;font-weight:700}.banner{background:#1a3c6e;color:#fff;font-size:14px;font-weight:bold;padding:8px}.title{background:#f1f5f9;font-weight:700}.pass{color:#16a34a;font-weight:700}.fail{color:#dc2626;font-weight:700}.na{color:#94a3b8;font-weight:700}.section-head{background:#334155;color:#fff;font-weight:700;padding:5px 8px}.sep{background:#f1f5f9;font-size:10px;font-weight:700;color:#475569}img{max-height:180px;max-width:300px}</style></head><body>';
+  html += '<table width="100%">';
+
+  /* Banner with logo */
+  html += '<tr><td colspan="' + maxCol + '" class="banner">';
+  html += '<div style="display:flex;align-items:center;gap:10px">';
+  html += '<img src="MG.png" style="height:36px;background:#fff;padding:2px;border-radius:4px" onerror="this.style.display=none"/>';
+  html += '<div>INCOMING INSPECTION REPORT<br><span style="font-size:11px;font-weight:400">MEGACELL INTERNATIONAL CO.,LTD. &nbsp;|&nbsp; Part: ' + esc(partNo) + ' &nbsp;|&nbsp; Doc No: ' + esc(isoNo) + '</span></div>';
+  html += '</div></td></tr>';
+  html += '<tr><td colspan="' + maxCol + '"></td></tr>';
+
+  /* Meta info */
+  var metaPairs = [
     ["Part Number", document.getElementById("rPartNo").textContent || "-"],
     ["Description", document.getElementById("rDesc").textContent || "-"],
     ["Supplier", document.getElementById("rSupplier").value || "-"],
@@ -1713,123 +1809,83 @@ APP.downloadInspExcel = function(){
     ["Inspection Date", document.getElementById("rInspDate").value || "-"],
     ["Weight (g)", document.getElementById("rWeight").value || "-"],
     ["Q'ty (Pcs.)", document.getElementById("rQty").value || "-"],
-    ["", ""]
+    ["Appearance Total", document.getElementById("appTotal").value || "-"],
+    ["Appearance Sample", document.getElementById("appSample").value || "-"]
   ];
-
-  /* Gather dimension measurements */
-  var dimRows = [];
-  var dimTable = document.getElementById("dimTable");
-  if(dimTable){
-    var headers = [];
-    dimTable.querySelectorAll("thead th").forEach(function(th){ headers.push(th.textContent.trim()); });
-    if(headers.length > 0){
-      dimRows.push(headers);
-      dimTable.querySelectorAll("tbody tr").forEach(function(tr){
-        var row = [];
-        tr.querySelectorAll("td").forEach(function(td){
-          var inp = td.querySelector("input");
-          row.push(inp ? (inp.value || "") : (td.textContent.trim() || ""));
-        });
-        if(row.some(function(c){ return c !== ""; })) dimRows.push(row);
-      });
+  for(var mi = 0; mi < metaPairs.length; mi += 2){
+    html += '<tr>';
+    html += '<td class="title">' + esc(metaPairs[mi][0]) + '</td><td>' + esc(metaPairs[mi][1]) + '</td>';
+    if(metaPairs[mi+1]){
+      html += '<td class="title">' + esc(metaPairs[mi+1][0]) + '</td><td colspan="' + (maxCol - 3) + '">' + esc(metaPairs[mi+1][1]) + '</td>';
+    } else {
+      html += '<td colspan="' + (maxCol - 2) + '"></td>';
     }
+    html += '</tr>';
   }
 
-  /* Gather appearance checks */
-  var appRows = [["No.","Check Point Inspection","OK","NG","Result"]];
-  document.querySelectorAll("#appRows tr").forEach(function(tr){
-    var no = tr.querySelector("td.no");
-    var name = tr.querySelector("td.check-name");
-    if(no && name){
-      var okInp = tr.querySelector(".app-ok");
-      var ngInp = tr.querySelector(".app-ng");
-      var sel = tr.querySelector(".res-sel");
-      appRows.push([
-        no.textContent.trim(),
-        name.textContent.trim().replace(/\s+/g," "),
-        okInp ? (okInp.value || "") : "",
-        ngInp ? (ngInp.value || "") : "",
-        sel ? (sel.value || "") : ""
-      ]);
-    }
-    /* JIG FITTING rows */
-    if(tr.classList.contains("jig-row")){
-      var jfNo = tr.querySelector("td.no");
-      var jfName = tr.querySelector("td.check-name");
-      var jfOk = tr.querySelector(".jig-ok");
-      var jfNg = tr.querySelector(".jig-ng");
-      var jfSel = tr.querySelector(".jig-sel");
-      if(jfNo && jfName){
-        appRows.push([
-          jfNo.textContent.trim(),
-          jfName.textContent.trim().replace(/\s+/g," "),
-          jfOk ? (jfOk.value || "") : "",
-          jfNg ? (jfNg.value || "") : "",
-          jfSel ? (jfSel.value || "") : ""
-        ]);
-      }
-    }
-    /* Checkbox rows (bolt/nut) */
-    if(tr.classList.contains("ck-row")){
-      var ckGroup = tr.querySelector(".ck-group");
-      if(ckGroup){
-        var checked = [];
-        ckGroup.querySelectorAll("input[type=checkbox]:checked").forEach(function(cb){ checked.push(cb.value); });
-        appRows.push(["", tr.querySelector("td:nth-child(2)").textContent.trim(), checked.join(", "), "", ""]);
-      }
-    }
-  });
-
-  /* Sign-offs */
-  var signRows = [
-    ["", ""],
-    ["Inspection By", document.getElementById("signInspector").value || "-"],
-    ["Checked By (QC Leader)", document.getElementById("signChief").value || "-"],
-    ["Approved By (QC Chief)", document.getElementById("signManager").value || "-"],
-    ["Final Result", S.finalResult || "-"],
-    ["Remark", document.getElementById("rRemark").value || "-"]
-  ];
-
-  /* Build Excel HTML */
-  var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><style>table{border-collapse:collapse;font-family:Segoe UI,sans-serif;font-size:11px}th,td{border:1px solid #999;padding:4px 6px}th{background:#1a3c6e;color:#fff;font-weight:700}.banner{background:#1a3c6e;color:#fff;font-size:14px;font-weight:bold;padding:8px}.title{font-size:13px;font-weight:bold;background:#f1f5f9}</style></head><body>';
-  html += '<table>';
-  html += '<tr><td colspan="4" class="banner">INCOMING INSPECTION REPORT - ' + esc(partNo) + '</td></tr>';
-  html += '<tr><td colspan="4"></td></tr>';
-
-  /* Meta */
-  meta.forEach(function(r){
-    if(r[0] === ""){ html += '<tr><td colspan="4"></td></tr>'; return; }
-    html += '<tr><td class="title">' + esc(r[0]) + '</td><td colspan="3">' + esc(r[1]) + '</td></tr>';
-  });
-
-  /* Dimensions */
-  if(dimRows.length > 0){
-    html += '<tr><td colspan="4"></td></tr>';
-    html += '<tr><th colspan="4">Standard Check Dimension - Sample Measurements</th></tr>';
-    dimRows.forEach(function(r){
-      html += '<tr>' + r.map(function(c){ return '<td>' + esc(c) + '</td>'; }).join('') + '</tr>';
-    });
+  /* Part Image */
+  if(partImgSrc){
+    html += '<tr><td colspan="' + maxCol + '"></td></tr>';
+    html += '<tr><td colspan="' + maxCol + '" style="text-align:center;padding:10px"><img src="' + partImgSrc + '" style="max-height:200px;max-width:100%"/></td></tr>';
   }
 
-  /* Appearance */
-  if(appRows.length > 1){
-    html += '<tr><td colspan="4"></td></tr>';
-    html += '<tr><th colspan="5">Standard Sampling Appearance - 100% Inspection</th></tr>';
-    appRows.forEach(function(r, i){
-      if(i === 0){
-        html += '<tr>' + r.map(function(c){ return '<th>' + esc(c) + '</th>'; }).join('') + '</tr>';
-      } else {
-        html += '<tr>' + r.map(function(c){ return '<td>' + esc(c) + '</td>'; }).join('') + '</tr>';
-      }
+  /* Sampling Rules */
+  html += '<tr><td colspan="' + maxCol + '"></td></tr>';
+  html += '<tr><td colspan="' + maxCol + '" class="section-head">STANDARD CHECK DIMENSION - Sampling Rules</td></tr>';
+  html += '<tr><td colspan="' + maxCol + '">';
+  html += '<ul style="margin:4px 0;padding-left:20px">';
+  html += '<li>Q\'ty &lt; 150 pcs =&gt; Inspect <strong>10</strong> pcs</li>';
+  html += '<li>Q\'ty 151-500 pcs =&gt; Inspect <strong>20</strong> pcs</li>';
+  html += '<li>Q\'ty &gt; 500 pcs =&gt; Inspect <strong>40</strong> pcs</li>';
+  html += '<li>Bush: Q\'ty &lt; 1,000 =&gt; 10 / Q\'ty &gt; 1,000 =&gt; 20</li>';
+  html += '</ul></td></tr>';
+
+  /* Dimension Measurements */
+  if(dimSection){
+    html += '<tr><td colspan="' + maxCol + '"></td></tr>';
+    html += dimSection;
+  }
+
+  /* Appearance Checks */
+  if(appSection){
+    html += '<tr><td colspan="' + maxCol + '"></td></tr>';
+    html += appSection;
+  }
+
+  /* Final Result */
+  html += '<tr><td colspan="' + maxCol + '"></td></tr>';
+  html += '<tr><td colspan="' + maxCol + '" class="section-head">FINAL RESULT</td></tr>';
+  var finalRes = S.finalResult || "-";
+  var finalColor = finalRes === "OK" ? "#16a34a" : finalRes === "NG" ? "#dc2626" : "#475569";
+  html += '<tr><td colspan="' + maxCol + '" style="text-align:center;font-size:16px;font-weight:700;color:' + finalColor + ';padding:12px">' + finalRes + '</td></tr>';
+
+  /* Remark */
+  var remark = document.getElementById("rRemark").value || "-";
+  html += '<tr><td colspan="' + maxCol + '"></td></tr>';
+  html += '<tr><td colspan="' + maxCol + '" class="section-head">REMARK / Defect Description</td></tr>';
+  html += '<tr><td colspan="' + maxCol + '" style="white-space:pre-wrap;min-height:40px">' + esc(remark) + '</td></tr>';
+
+  /* Photos */
+  if(photoSrcs.length > 0){
+    html += '<tr><td colspan="' + maxCol + '"></td></tr>';
+    html += '<tr><td colspan="' + maxCol + '" class="section-head">Inspection Photos (' + photoSrcs.length + ')</td></tr>';
+    html += '<tr><td colspan="' + maxCol + '"><div style="display:flex;flex-wrap:wrap;gap:6px;padding:6px">';
+    photoSrcs.forEach(function(src, idx){
+      html += '<div style="text-align:center"><img src="' + src + '" style="max-height:120px;max-width:150px;border:1px solid #ccc;border-radius:4px"/><div style="font-size:9px;color:#666;margin-top:2px">Photo ' + (idx+1) + '</div></div>';
     });
+    html += '</div></td></tr>';
   }
 
   /* Sign-offs */
-  html += '<tr><td colspan="4"></td></tr>';
-  signRows.forEach(function(r){
-    if(r[0] === ""){ html += '<tr><td colspan="4"></td></tr>'; return; }
-    html += '<tr><td class="title">' + esc(r[0]) + '</td><td colspan="3">' + esc(r[1]) + '</td></tr>';
-  });
+  html += '<tr><td colspan="' + maxCol + '"></td></tr>';
+  html += '<tr><td colspan="' + maxCol + '" class="section-head">Sign-offs</td></tr>';
+  html += '<tr><td class="title">Inspection By</td><td colspan="' + (maxCol-1) + '">' + esc(document.getElementById("signInspector").value || "-") + '</td></tr>';
+  html += '<tr><td class="title">Checked By (QC Leader)</td><td colspan="' + (maxCol-1) + '">' + esc(document.getElementById("signChief").value || "-") + '</td></tr>';
+  html += '<tr><td class="title">Approved By (QC Chief)</td><td colspan="' + (maxCol-1) + '">' + esc(document.getElementById("signManager").value || "-") + '</td></tr>';
+
+  /* ISO Footer */
+  html += '<tr><td colspan="' + maxCol + '"></td></tr>';
+  html += '<tr><td colspan="' + maxCol + '" style="background:#f8fafc;font-size:10px;color:#666;padding:6px 8px;text-align:center">ISO Document No.: ' + esc(isoNo) + ' &nbsp;|&nbsp; QC Inspection System v6.1 &nbsp;|&nbsp; Exported: ' + d.toLocaleString() + '</td></tr>';
 
   html += '</table></body></html>';
 
