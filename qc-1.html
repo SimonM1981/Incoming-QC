@@ -1393,7 +1393,16 @@ APP.openInsp = async function(jobId){
   if(ex.finalResult) APP.setFinalResult(ex.finalResult);
 
   document.getElementById("photoPreviews").innerHTML="";
-  if(ex.photoUrls) ex.photoUrls.forEach(function(u){ addPhotoThumb(u); });
+  S.uploadedPhotoIds=[];
+  // Load photos from job.photoIds (comma-separated Drive fileIds saved by submitInspection)
+  if(job.photoIds){
+    var ids=String(job.photoIds).split(",").filter(function(id){return id && id.trim();});
+    ids.forEach(function(id){
+      var thumbUrl="https://drive.google.com/thumbnail?id="+id.trim()+"&sz=w400";
+      addPhotoThumb(thumbUrl);
+      S.uploadedPhotoIds.push(id.trim());
+    });
+  }
 
   document.getElementById("inspSubmitBtn").style.display=(job.status==="UNDER_QC")?"":"none";
   document.getElementById("inspOverlay").classList.remove("hidden");
