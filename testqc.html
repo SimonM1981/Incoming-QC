@@ -1372,7 +1372,7 @@ APP.openInsp = async function(jobId){
   setVal("rRemark", ex.remark||"");
   setVal("signInspector", ex.inspector||job.inspector||S.userName);
   setVal("signChief", ex.signChief||"");
-  setVal("signManager", ex.signManager||job.approvedBy||"");
+  setVal("signManager", ex.signManager||job.approvedBy||localStorage.getItem("qc_approved_"+job.jobId)||"");
 
   document.getElementById("dimThead").innerHTML='<tr><th class="left">SAMPLE</th><th colspan="6" style="font-weight:400;opacity:.6">Loading...</th></tr>';
   document.getElementById("dimBody").innerHTML='<tr><td colspan="7" style="text-align:center;padding:20px"><div class="loading-spinner" style="display:inline-block;width:18px;height:18px;border-width:2px;margin:0 6px -4px 0"></div>Loading specs...</td></tr>';
@@ -1833,7 +1833,12 @@ APP.submitDecision = async function(){
       body.rejectedBy=S.userName;
     }
     var r=await api(gasAction,body);
-    if(r&&r.ok){ toast(action==="approve"?"Approved!":"Rejected!",action==="approve"?"success":"error"); APP.closeDecision(); APP.refresh(); }
+    if(r&&r.ok){
+      if(action==="approve" && body.approvedBy){
+        localStorage.setItem("qc_approved_"+job.jobId, body.approvedBy);
+      }
+      toast(action==="approve"?"Approved!":"Rejected!",action==="approve"?"success":"error"); APP.closeDecision(); APP.refresh();
+    }
     else toast((r&&r.error)||"Failed","error");
   }catch(e){ toast("Network error: "+e.message,"error"); }
   finally{ btn.disabled=false; btn.textContent=action==="approve"?"Approve":"Reject"; }
