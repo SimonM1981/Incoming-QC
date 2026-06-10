@@ -700,8 +700,8 @@ table.list-tbl td{padding:10px 12px;color:var(--table-text);vertical-align:middl
           <button class="final-btn ng" id="finalNG" onclick="APP.setFinalResult('NG')">&#10007; NG - FAIL</button>
         </div>
         <div style="margin-top:10px">
-          <div style="font-size:10px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Inspection Photos</div>
-          <div style="display:flex;gap:8px;align-items:stretch">
+          <div style="font-size:10px;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px" id="photoSectionLabel">Inspection Photos</div>
+          <div style="display:flex;gap:8px;align-items:stretch" id="photoUploadControls">
             <div class="photo-drop" id="photoDropZone" style="flex:1">
               <input type="file" id="photoInput" multiple accept="image/*" onchange="APP.handlePhotoUpload(this)" style="display:none"/>
               <div style="font-size:18px;margin-bottom:2px">&#128193;</div>
@@ -713,6 +713,7 @@ table.list-tbl td{padding:10px 12px;color:var(--table-text);vertical-align:middl
             </button>
           </div>
           <div class="photo-previews" id="photoPreviews"></div>
+          <div id="photoEmptyMsg" style="display:none;padding:12px;text-align:center;color:var(--gray-400);font-size:12px">No photos uploaded</div>
         </div>
         <div class="sign-row" style="margin-top:10px">
           <div class="sign-cell"><label>Posted By</label><input type="text" id="signInspector" placeholder="Name"/></div>
@@ -1392,19 +1393,33 @@ APP.openInsp = async function(jobId){
   document.getElementById("finalNG").classList.remove("sel");
   if(ex.finalResult) APP.setFinalResult(ex.finalResult);
 
+  /* ── Photo display: load from job.photoIds, show/hide controls ── */
+  var isEditable=(job.status==="UNDER_QC");
+  var uploadControls=document.getElementById("photoUploadControls");
+  if(uploadControls) uploadControls.style.display=isEditable?"flex":"none";
+
   document.getElementById("photoPreviews").innerHTML="";
   S.uploadedPhotoIds=[];
-  // Load photos from job.photoIds (comma-separated Drive fileIds saved by submitInspection)
+  var photoCount=0;
+
   if(job.photoIds){
     var ids=String(job.photoIds).split(",").filter(function(id){return id && id.trim();});
+    photoCount=ids.length;
     ids.forEach(function(id){
-      var thumbUrl="https://drive.google.com/thumbnail?id="+id.trim()+"&sz=w400";
-      addPhotoThumb(thumbUrl);
-      S.uploadedPhotoIds.push(id.trim());
+      var cleanId=id.trim();
+      var thumbUrl="https://drive.google.com/thumbnail?id="+cleanId+"&sz=w400";
+      addPhotoThumb(thumbUrl,cleanId);
+      S.uploadedPhotoIds.push(cleanId);
     });
   }
 
-  document.getElementById("inspSubmitBtn").style.display=(job.status==="UNDER_QC")?"":"none";
+  var emptyMsg=document.getElementById("photoEmptyMsg");
+  if(emptyMsg) emptyMsg.style.display=photoCount?"none":"block";
+
+  var photoLabel=document.getElementById("photoSectionLabel");
+  if(photoLabel) photoLabel.textContent="Inspection Photos"+(photoCount?" ("+photoCount+")":"");
+
+  document.getElementById("inspSubmitBtn").style.display=isEditable?"":"none";
   document.getElementById("inspOverlay").classList.remove("hidden");
 
   try{
@@ -1860,9 +1875,24 @@ APP.snapPhoto = async function(){
     else toast("Upload failed: "+((data&&data.error)||"Unknown"),"error");
   }catch(e){ toast("Upload error: "+e.message,"error"); }
 };
-function addPhotoThumb(src){
-  var img=document.createElement("img"); img.src=src; img.className="photo-thumb";
-  document.getElementById("photoPreviews").appendChild(img);
+function addPhotoThumb(src,fileId){
+  var wrap=document.createElement("div");
+  wrap.style.cssText="position:relative;display:inline-block";
+  var img=document.createElement("img");
+  img.src=src;
+  img.className="photo-thumb";
+  img.style.cssText="width:64px;height:64px;border-radius:4px;object-fit:cover;border:2px solid var(--gray-200);cursor:pointer";
+  img.title=fileId?"Click to view full size":"";
+  img.onclick=function(){ if(fileId) window.open("https://drive.google.com/file/d/"+fileId+"/view","_blank"); };
+  img.onerror=function(){
+    img.style.display="none";
+    var err=document.createElement("div");
+    err.style.cssText="width:64px;height:64px;border-radius:4px;border:2px solid var(--gray-200);background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--gray-400);text-align:center;padding:4px";
+    err.textContent="Photo load error";
+    if(wrap.parentNode){ wrap.innerHTML=""; wrap.appendChild(err); }
+  };
+  wrap.appendChild(img);
+  document.getElementById("photoPreviews").appendChild(wrap);
 }
 function toBase64(file){
   return new Promise(function(resolve,reject){ var r=new FileReader(); r.onload=function(e){resolve(e.target.result);}; r.onerror=reject; r.readAsDataURL(file); });
