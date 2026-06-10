@@ -175,7 +175,7 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--
 .theme-toggle-btn{background:var(--theme-toggle-bg);border:1px solid var(--theme-toggle-border);color:var(--topbar-text);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:.2s,background .3s,border-color .3s,color .3s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
 .theme-toggle-btn:hover{background:var(--theme-toggle-hover)}
 .main{flex:1;padding:16px;max-width:1400px;margin:0 auto;width:100%}
-.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px}
 .stat-card{background:var(--card-bg);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow-sm);border:1px solid var(--card-border);cursor:pointer;transition:.2s,background .3s,border-color .3s;position:relative;overflow:hidden}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--c)}
 .stat-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
@@ -437,6 +437,7 @@ table.list-tbl td{padding:10px 12px;color:var(--table-text);vertical-align:middl
     <div class="stat-card" style="--c:var(--brand-lt)" onclick="APP.switchTab('underqc')"><div class="icon">&#128269;</div><div class="value" id="statUnderQC">-</div><div class="label">Under QC</div></div>
     <div class="stat-card" style="--c:var(--orange)" onclick="APP.switchTab('pending')"><div class="icon">&#9203;</div><div class="value" id="statPending">-</div><div class="label">Pending</div></div>
     <div class="stat-card" style="--c:var(--green)" onclick="APP.switchTab('history')"><div class="icon">&#9989;</div><div class="value" id="statApproved">-</div><div class="label">Approved</div></div>
+    <div class="stat-card" style="--c:var(--red)" onclick="APP.switchTab('history')"><div class="icon">&#10060;</div><div class="value" id="statRejected">-</div><div class="label">Rejected</div></div>
     <div class="stat-card" style="--c:var(--red)" onclick="APP.switchTab('overdue')"><div class="icon">&#128680;</div><div class="value" id="statOverdue">-</div><div class="label">Overdue</div></div>
   </div>
   <div class="tabs">
@@ -813,7 +814,7 @@ var APP_CHECKS = [
 var CURRENT_DIMS = [];
 var DIM_SPECS = {};
 
-var DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbyA3cqMy7HHGjRfpzeX334LxXEcDcv8V0WtJjpSyFOSkX_3S3wVWOO3oCagA8zlT5vNlQ/exec";
+var DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbwK_3ab4B5IoV6p6Jx6_1h_R8-lKkP-UVIYac0g2p5GguBaKirwesjo3NuoxW3pOm2AqQ/exec";
 var GAS_URL = localStorage.getItem("qc_gas_url") || DEFAULT_GAS_URL;
 
 APP.toggleTheme = function(){
@@ -1093,6 +1094,7 @@ async function loadStats(){
       setText("statUnderQC", r.stats.underQC);
       setText("statPending", r.stats.pendingApproval);
       setText("statApproved", r.stats.approved);
+      setText("statRejected", r.stats.rejected);
       setText("statOverdue", r.stats.overdue);
     }
   }catch(e){}
