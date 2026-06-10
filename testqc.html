@@ -411,7 +411,6 @@ table.list-tbl td{padding:10px 12px;color:var(--table-text);vertical-align:middl
 <base target="_blank">
 <base target="_blank">
 <base target="_blank">
-<base target="_blank">
 </head>
 <body>
 <div class="app-shell">
@@ -833,7 +832,7 @@ var APP_CHECKS = [
 var CURRENT_DIMS = [];
 var DIM_SPECS = {};
 
-var DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbxBOjhYFfQS8pLrn1lMIcfI_PwIS4lR0sZNciO5bQMeX1b4mJ-YEbDs-8vauPeuw3SR_w/exec";
+var DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbw3emCsmkNNK3SQ_dvJm-PNCzno98kU_FGHr7_M7t3uTdc-9ukad9r2GWCTi9c5wEw6nA/exec";
 var GAS_URL = localStorage.getItem("qc_gas_url") || DEFAULT_GAS_URL;
 
 APP.toggleTheme = function(){
@@ -2034,19 +2033,16 @@ APP.updateUploadStatus=function(){
   }
 };
 
-/* ── apiPost: iframe form POST for large payloads ──
-   GAS ContentService blocks CORS and postMessage on iframe POST.
-   We use window.name (cross-origin readable) to get the response.
-   The GAS doPost sets window.name = JSON.stringify(result).
-   
-   For uploadPhoto: also stores result via uploadToken for polling backup.
-   For other actions: reads window.name directly from iframe onload. */
-var TOKEN_ACTIONS = {uploadPhoto:true, uploadScreenshot:true};
+/* ── apiPost: iframe form POST + token-based polling ──
+   GAS ContentService blocks CORS, postMessage, and window.name on iframe POST.
+   The ONLY reliable approach: submit via hidden iframe with a unique token,
+   then poll via JSONP GET (action=getPostResult, token=xxx) to retrieve
+   the result that GAS stored in PropertiesService. */
 function apiPost(action,params){
   return new Promise(function(resolve){
-    var useToken = TOKEN_ACTIONS[action];
-    var uploadToken = useToken ? "up_"+Date.now()+"_"+Math.random().toString(36).slice(2,10) : null;
-    if(useToken) params=Object.assign({},params,{uploadToken:uploadToken});
+    // Generate a unique token for result retrieval
+    var postToken="pt_"+Date.now()+"_"+Math.random().toString(36).slice(2,10);
+    params=Object.assign({},params,{_postToken:postToken});
 
     var iframeName="post_iframe_"+Date.now();
     var iframe=document.createElement("iframe");
@@ -2076,47 +2072,31 @@ function apiPost(action,params){
       },1000);
     }
 
-    // Primary: read result from window.name (cross-origin readable)
-    iframe.onload=function(){
-      try{
-        var text=iframe.contentWindow.name;
-        if(text && text!==iframeName){
-          var result=JSON.parse(text);
-          cleanup(); resolve(result);
-          return;
-        }
-      }catch(e){}
-      // If window.name is empty or same as iframe name, fall through to polling
-      if(!useToken){
-        cleanup(); resolve({ok:false,error:"Empty response from server"});
+    // Poll for result via JSONP (always works cross-origin)
+    function pollForResult(attempt){
+      attempt=attempt||1;
+      if(resolved||attempt>30){
+        if(!resolved) { cleanup(); resolve({ok:false,error:"Result not available after polling"}); }
+        return;
       }
-    };
-    iframe.onerror=function(){
-      if(!useToken) { cleanup(); resolve({ok:false,error:"Upload network error"}); }
-    };
-
-    // Backup polling for token-based actions (uploadPhoto)
-    if(useToken){
-      function pollForResult(attempt){
-        attempt=attempt||1;
-        if(resolved||attempt>20){
-          if(!resolved) { cleanup(); resolve({ok:false,error:"Upload result not available after polling"}); }
-          return;
+      api("getPostResult",{_postToken:postToken}).then(function(r){
+        if(r && r.ok){
+          cleanup(); resolve(r.result || r);
+        } else if(r && r.error==="not_ready"){
+          pollTimer=setTimeout(function(){ pollForResult(attempt+1); }, 600);
+        } else {
+          cleanup(); resolve(r||{ok:false,error:"Polling error"});
         }
-        api("getUploadResult",{uploadToken:uploadToken}).then(function(r){
-          if(r && r.ok){ cleanup(); resolve(r);
-          } else if(r && r.error==="not_ready"){
-            pollTimer=setTimeout(function(){ pollForResult(attempt+1); }, 500*Math.min(attempt,4));
-          } else { cleanup(); resolve(r||{ok:false,error:"Unknown polling error"}); }
-        }).catch(function(e){
-          pollTimer=setTimeout(function(){ pollForResult(attempt+1); }, 800);
-        });
-      }
-      setTimeout(function(){ pollForResult(1); }, 600);
+      }).catch(function(e){
+        pollTimer=setTimeout(function(){ pollForResult(attempt+1); }, 800);
+      });
     }
 
-    // Timeout fallback
-    setTimeout(function(){ if(!resolved){ cleanup(); resolve({ok:false,error:"Request timed out"});} },30000);
+    // Start polling after delay to let POST reach GAS
+    setTimeout(function(){ pollForResult(1); }, 800);
+
+    // Hard timeout
+    setTimeout(function(){ if(!resolved){ cleanup(); resolve({ok:false,error:"Request timed out"});} },35000);
 
     document.body.appendChild(iframe);
     document.body.appendChild(form);
