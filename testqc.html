@@ -2049,11 +2049,13 @@ APP.saveFinalResult = async function(){
   var statusEl=document.getElementById("saveDecisionStatus");
   if(btn) btn.disabled=true;
   try{
-    var r=await api("saveFinalResult",{jobId:job.jobId,finalResult:S.finalResult,decidedBy:S.userName});
+    var decidedByLabel=S.role==="chief"?"QC Chief":S.role==="manager"?"Manager":S.userName;
+    var r=await api("saveFinalResult",{jobId:job.jobId,finalResult:S.finalResult,decidedBy:decidedByLabel});
     if(r&&r.ok){
       S.decisionSaved=true;
       toast("Decision saved: "+S.finalResult,"success");
-      if(statusEl) statusEl.innerHTML='<strong>Saved: '+S.finalResult+' by '+esc(S.userName)+'</strong>';
+      var roleLabel=S.role==="chief"?"QC Chief":S.role==="manager"?"Manager":S.userName;
+      if(statusEl) statusEl.innerHTML='<strong>Saved: '+esc(S.finalResult)+' by '+esc(roleLabel)+'</strong>';
       if(btn){ btn.style.display="none"; }
       APP.refresh();
     } else {
