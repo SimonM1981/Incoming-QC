@@ -394,6 +394,10 @@ table.list-tbl td{padding:10px 12px;color:var(--table-text);vertical-align:middl
 .check-photo-thumbs{display:flex;gap:4px;flex-wrap:wrap}
 .check-photo-thumb{width:48px;height:48px;border-radius:4px;object-fit:cover;border:1px solid var(--gray-300);cursor:zoom-in;transition:transform .2s}
 .check-photo-thumb:hover{transform:scale(1.1);border-color:var(--brand)}
+.check-photo-good{border:2px solid #86efac !important}
+.check-photo-good:hover{border-color:#16a34a !important}
+.check-photo-ng{border:2px solid #fca5a5 !important}
+.check-photo-ng:hover{border-color:#dc2626 !important}
 .check-photo-empty{font-size:10px;color:var(--gray-400);font-style:italic;padding:4px 0}
 /* Photo zoom overlay */
 .photo-zoom-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out}
@@ -863,7 +867,7 @@ var APP_CHECKS = [
 var CURRENT_DIMS = [];
 var DIM_SPECS = {};
 
-var DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbzNvWRfOjG9v97G-sbZ4EKsXyNl0mF8hm77_7SrBSeKrKqm3_gWIQNRQsUO_K_1DBsv-A/exec";
+var DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbzHfHgtrxTKLO9xT4wN-ZflZHTOzlnLHWPw-ITCWZI6XXWPausDEdmtRlHuybH6JB6wTg/exec";
 var GAS_URL = localStorage.getItem("qc_gas_url") || DEFAULT_GAS_URL;
 
 APP.toggleTheme = function(){
@@ -1481,18 +1485,42 @@ APP.loadCheckPhotos = async function(checkNames){
       checkNames.forEach(function(name){
         var cell=document.querySelector('.check-photo-thumbs[data-check-name="'+name+'"]');
         if(!cell) return;
-        var photos=r.photos[name];
-        if(!photos){
+        // Find matching check data (exact or fuzzy)
+        var checkData=r.photos[name];
+        if(!checkData){
           var alt=name.replace(/[^a-zA-Z0-9]/g,"_");
           Object.keys(r.photos).forEach(function(k){
-            if(k.replace(/[^a-zA-Z0-9]/g,"_").toLowerCase()===alt.toLowerCase()) photos=r.photos[k];
+            if(k.replace(/[^a-zA-Z0-9]/g,"_").toLowerCase()===alt.toLowerCase()) checkData=r.photos[k];
           });
         }
-        if(photos&&photos.length){
-          S.checkPhotos=S.checkPhotos||{}; S.checkPhotos[name]=photos;
-          cell.innerHTML=photos.map(function(p,idx){
-            return '<img src="'+esc(p.url)+'" class="check-photo-thumb" onclick="APP.zoomCheckPhoto(\''+esc(name)+'\','+idx+')" title="Click to zoom" onerror="this.style.display=\'none\'"/>';
-          }).join(''); count+=photos.length;
+        // Render Good / NG / All groups
+        if(checkData){
+          S.checkPhotos=S.checkPhotos||{};
+          S.checkPhotos[name]=checkData;
+          var html='';
+          if(checkData.good&&checkData.good.length){
+            html+='<div style="display:flex;align-items:center;gap:2px;margin-bottom:3px"><span style="font-size:9px;font-weight:700;color:#16a34a;background:#f0fdf4;padding:1px 4px;border-radius:3px;border:1px solid #bbf7d0">GOOD</span>';
+            html+=checkData.good.map(function(p,idx){
+              return '<img src="'+esc(p.url)+'" class="check-photo-thumb check-photo-good" onclick="APP.zoomCheckPhoto(\''+esc(name)+'\',\'good\','+idx+')" title="Good example - Click to zoom" onerror="this.style.display=\'none\'"/>';
+            }).join('')+'</div>';
+            count+=checkData.good.length;
+          }
+          if(checkData.ng&&checkData.ng.length){
+            html+='<div style="display:flex;align-items:center;gap:2px"><span style="font-size:9px;font-weight:700;color:#dc2626;background:#fee2e2;padding:1px 4px;border-radius:3px;border:1px solid #fecaca">NG</span>';
+            html+=checkData.ng.map(function(p,idx){
+              return '<img src="'+esc(p.url)+'" class="check-photo-thumb check-photo-ng" onclick="APP.zoomCheckPhoto(\''+esc(name)+'\',\'ng\','+idx+')" title="NG example - Click to zoom" onerror="this.style.display=\'none\'"/>';
+            }).join('')+'</div>';
+            count+=checkData.ng.length;
+          }
+          if(checkData.all&&checkData.all.length){
+            html+='<div style="display:flex;align-items:center;gap:2px;margin-top:3px"><span style="font-size:9px;font-weight:700;color:var(--gray-600);background:var(--gray-100);padding:1px 4px;border-radius:3px;border:1px solid var(--gray-300)">REF</span>';
+            html+=checkData.all.map(function(p,idx){
+              return '<img src="'+esc(p.url)+'" class="check-photo-thumb" onclick="APP.zoomCheckPhoto(\''+esc(name)+'\',\'all\','+idx+')" title="Reference - Click to zoom" onerror="this.style.display=\'none\'"/>';
+            }).join('')+'</div>';
+            count+=checkData.all.length;
+          }
+          if(!html) html='<span class="check-photo-empty">No examples</span>';
+          cell.innerHTML=html;
         } else { cell.innerHTML='<span class="check-photo-empty">No examples</span>'; }
       });
       console.log("Loaded "+count+" check photos");
@@ -1509,18 +1537,20 @@ APP.loadCheckPhotos = async function(checkNames){
     });
   }
 };
-APP.zoomCheckPhoto = function(checkName, idx){
-  var photos=S.checkPhotos[checkName]; if(!photos||!photos.length) return;
-  S.zoomCheckName=checkName; S.zoomIndex=idx;
+APP.zoomCheckPhoto = function(checkName, category, idx){
+  var checkData=S.checkPhotos[checkName]; if(!checkData) return;
+  var photos=checkData[category]||[]; if(!photos.length) return;
+  S.zoomCheckName=checkName; S.zoomCategory=category; S.zoomIndex=idx;
   var img=document.getElementById("checkPhotoZoomImg");
-  // Use lh3.googleusercontent.com for reliable full-size image serving
   img.src="https://lh3.googleusercontent.com/d/"+photos[idx].fileId+"=w1200";
-  document.getElementById("checkPhotoZoomCounter").textContent=(idx+1)+" / "+photos.length;
+  var label=category==="good"?"GOOD":category==="ng"?"NG":"REF";
+  var labelColor=category==="good"?"#86efac":category==="ng"?"#fca5a5":"#d1d5db";
+  document.getElementById("checkPhotoZoomCounter").innerHTML='<span style="display:inline-block;padding:2px 10px;border-radius:4px;font-weight:700;font-size:13px;background:'+labelColor+';color:#000">'+label+'</span> '+(idx+1)+" / "+photos.length;
   document.getElementById("checkPhotoZoom").classList.remove("hidden");
 };
 APP.closeCheckPhotoZoom = function(){ document.getElementById("checkPhotoZoom").classList.add("hidden"); document.getElementById("checkPhotoZoomImg").src=""; };
-APP.prevCheckPhoto = function(ev){ ev.stopPropagation(); var photos=S.checkPhotos[S.zoomCheckName]; if(!photos) return; S.zoomIndex=(S.zoomIndex-1+photos.length)%photos.length; document.getElementById("checkPhotoZoomImg").src="https://lh3.googleusercontent.com/d/"+photos[S.zoomIndex].fileId+"=w1200"; document.getElementById("checkPhotoZoomCounter").textContent=(S.zoomIndex+1)+" / "+photos.length; };
-APP.nextCheckPhoto = function(ev){ ev.stopPropagation(); var photos=S.checkPhotos[S.zoomCheckName]; if(!photos) return; S.zoomIndex=(S.zoomIndex+1)%photos.length; document.getElementById("checkPhotoZoomImg").src="https://lh3.googleusercontent.com/d/"+photos[S.zoomIndex].fileId+"=w1200"; document.getElementById("checkPhotoZoomCounter").textContent=(S.zoomIndex+1)+" / "+photos.length; };
+APP.prevCheckPhoto = function(ev){ ev.stopPropagation(); var cd=S.checkPhotos[S.zoomCheckName]; if(!cd) return; var ph=cd[S.zoomCategory]||[]; if(!ph.length) return; S.zoomIndex=(S.zoomIndex-1+ph.length)%ph.length; document.getElementById("checkPhotoZoomImg").src="https://lh3.googleusercontent.com/d/"+ph[S.zoomIndex].fileId+"=w1200"; var lb=S.zoomCategory==="good"?"GOOD":S.zoomCategory==="ng"?"NG":"REF"; var lc=S.zoomCategory==="good"?"#86efac":S.zoomCategory==="ng"?"#fca5a5":"#d1d5db"; document.getElementById("checkPhotoZoomCounter").innerHTML='<span style="display:inline-block;padding:2px 10px;border-radius:4px;font-weight:700;font-size:13px;background:'+lc+';color:#000">'+lb+'</span> '+(S.zoomIndex+1)+" / "+ph.length; };
+APP.nextCheckPhoto = function(ev){ ev.stopPropagation(); var cd=S.checkPhotos[S.zoomCheckName]; if(!cd) return; var ph=cd[S.zoomCategory]||[]; if(!ph.length) return; S.zoomIndex=(S.zoomIndex+1)%ph.length; document.getElementById("checkPhotoZoomImg").src="https://lh3.googleusercontent.com/d/"+ph[S.zoomIndex].fileId+"=w1200"; var lb=S.zoomCategory==="good"?"GOOD":S.zoomCategory==="ng"?"NG":"REF"; var lc=S.zoomCategory==="good"?"#86efac":S.zoomCategory==="ng"?"#fca5a5":"#d1d5db"; document.getElementById("checkPhotoZoomCounter").innerHTML='<span style="display:inline-block;padding:2px 10px;border-radius:4px;font-weight:700;font-size:13px;background:'+lc+';color:#000">'+lb+'</span> '+(S.zoomIndex+1)+" / "+ph.length; };
 
 /* ── Part Reports (manager only) ── */
 APP.openPartReports = function(){
@@ -2055,9 +2085,24 @@ function buildAppRows(checks, existing, jigFittingItems, jigExisting){
         return '<tr class="ck-row"><td class="no">'+c.no+'</td><td>'+esc(c.name)+' <small>NUT COLOR</small></td><td colspan="2"><div class="ck-group"><label><input type="checkbox" name="nutcolor" value="silver"'+silver+'/> Silver</label><label><input type="checkbox" name="nutcolor" value="golden"'+golden+'/> Golden</label><label><input type="checkbox" name="nutcolor" value="no"'+no+'/> No</label></div></td></tr>';
       }
 
-      var photoThumbs = S.checkPhotos && S.checkPhotos[c.name] ? S.checkPhotos[c.name].map(function(p,idx){
-        return '<img src="'+esc(p.url)+'" class="check-photo-thumb" onclick="APP.zoomCheckPhoto(\''+esc(c.name)+'\','+idx+')" title="Click to zoom"/>';
-      }).join('') : '<span class="check-photo-empty">No examples</span>';
+      // Render Good/NG/All check photo groups
+      var photoThumbs='';
+      var checkData=S.checkPhotos&&S.checkPhotos[c.name]?S.checkPhotos[c.name]:null;
+      if(checkData){
+        if(checkData.good&&checkData.good.length){
+          photoThumbs+='<div style="display:flex;align-items:center;gap:2px;margin-bottom:3px"><span style="font-size:9px;font-weight:700;color:#16a34a;background:#f0fdf4;padding:1px 4px;border-radius:3px;border:1px solid #bbf7d0">GOOD</span>';
+          photoThumbs+=checkData.good.map(function(p,idx){return '<img src="'+esc(p.url)+'" class="check-photo-thumb check-photo-good" onclick="APP.zoomCheckPhoto(\''+esc(c.name)+'\',\'good\','+idx+')" title="Good example" onerror="this.style.display=\'none\'"/>';}).join('')+'</div>';
+        }
+        if(checkData.ng&&checkData.ng.length){
+          photoThumbs+='<div style="display:flex;align-items:center;gap:2px"><span style="font-size:9px;font-weight:700;color:#dc2626;background:#fee2e2;padding:1px 4px;border-radius:3px;border:1px solid #fecaca">NG</span>';
+          photoThumbs+=checkData.ng.map(function(p,idx){return '<img src="'+esc(p.url)+'" class="check-photo-thumb check-photo-ng" onclick="APP.zoomCheckPhoto(\''+esc(c.name)+'\',\'ng\','+idx+')" title="NG example" onerror="this.style.display=\'none\'"/>';}).join('')+'</div>';
+        }
+        if(checkData.all&&checkData.all.length){
+          photoThumbs+='<div style="display:flex;align-items:center;gap:2px;margin-top:3px"><span style="font-size:9px;font-weight:700;color:var(--gray-600);background:var(--gray-100);padding:1px 4px;border-radius:3px;border:1px solid var(--gray-300)">REF</span>';
+          photoThumbs+=checkData.all.map(function(p,idx){return '<img src="'+esc(p.url)+'" class="check-photo-thumb" onclick="APP.zoomCheckPhoto(\''+esc(c.name)+'\',\'all\','+idx+')" title="Reference" onerror="this.style.display=\'none\'"/>';}).join('')+'</div>';
+        }
+      }
+      if(!photoThumbs) photoThumbs='<span class="check-photo-empty">No examples</span>';
       return '<tr><td class="no">'+c.no+'</td>'
         +'<td class="check-name">'+esc(c.name)+'</td>'
         +'<td><div class="qty-row">OK=<input type="number" min="0" class="app-ok" data-no="'+c.no+'" value="'+esc(d.ok||"")+'" oninput="APP.onAppInput(this)"/> NG=<input type="number" min="0" class="app-ng" data-no="'+c.no+'" value="'+esc(d.ng||"")+'" oninput="APP.onAppInput(this)"/></div></td>'
